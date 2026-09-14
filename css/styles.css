@@ -514,3 +514,49 @@ a:hover { text-decoration: underline; }
   font-size: 0.85rem;
   color: var(--charcoal-soft);
 }
+
+/* ---------- Preloader ---------- */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--green-darker);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.preloader.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.preloader-logo {
+  width: clamp(140px, 30vw, 220px);
+  height: auto;
+  border-radius: 14px;
+  animation: preloader-pulse 2s ease-in-out infinite;
+}
+
+.preloader-text {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  animation: preloader-blink 2s ease-in-out infinite;
+}
+
+@keyframes preloader-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: 0.85; }
+}
+
+@keyframes preloader-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}

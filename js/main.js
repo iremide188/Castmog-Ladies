@@ -114,4 +114,57 @@
   if (footerMount) {
     footerMount.outerHTML = footerHtml;
   }
+
+  /* =====================================================
+     PRELOADER — shows the academy crest for 15 seconds
+     when any internal page link is clicked, before the
+     target page opens. Change PRELOAD_SECONDS to adjust.
+     ===================================================== */
+
+  var PRELOAD_SECONDS = 15;
+
+  function buildPreloader() {
+    var el = document.createElement("div");
+    el.className = "preloader";
+    el.setAttribute("aria-hidden", "true");
+    el.innerHTML =
+      '<img src="' + LOGO_URL + '" alt="Castmog Ladies Football Academy crest" class="preloader-logo">' +
+      '<div class="preloader-text">Loading&hellip;</div>';
+    document.body.appendChild(el);
+    return el;
+  }
+
+  function showPreloaderThenGo(url) {
+    var preloader = buildPreloader();
+    // Force a reflow so the fade-in transition runs
+    void preloader.offsetWidth;
+    preloader.classList.add("is-visible");
+    document.body.style.overflow = "hidden";
+    window.setTimeout(function () {
+      window.location.href = url;
+    }, PRELOAD_SECONDS * 1000);
+  }
+
+  function initPreloader() {
+    document.addEventListener("click", function (event) {
+      // Let modified clicks (new tab etc.) behave natively
+      if (event.defaultPrevented || event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+      var link = event.target.closest ? event.target.closest("a[href]") : null;
+      if (!link) return;
+
+      var href = link.getAttribute("href");
+
+      // Only intercept internal page links
+      if (!href || !/\.html$/.test(href.split("#")[0])) return;
+      if (/^(https?:|mailto:|tel:)/i.test(href)) return;
+
+      event.preventDefault();
+      showPreloaderThenGo(link.href);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", initPreloader);
+
 })();
