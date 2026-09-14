@@ -520,15 +520,24 @@ a:hover { text-decoration: underline; }
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: var(--green-darker);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.4rem;
+  padding: 2rem;
+  background: radial-gradient(circle at 50% 38%, #17492a 0%, #0d2b17 55%, #071a0e 100%);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.35s ease, visibility 0.35s ease;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.preloader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
 }
 
 .preloader.is-visible {
@@ -536,27 +545,90 @@ a:hover { text-decoration: underline; }
   visibility: visible;
 }
 
+.preloader-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  max-width: 92vw;
+}
+
 .preloader-logo {
-  width: clamp(140px, 30vw, 220px);
+  width: clamp(120px, 32vw, 180px);
   height: auto;
-  border-radius: 14px;
-  animation: preloader-pulse 2s ease-in-out infinite;
+  border-radius: 18px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 0 80px rgba(255, 222, 0, 0.14);
+  animation: preloader-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.preloader-text {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 0.8rem;
-  letter-spacing: 0.3em;
+.preloader-wordmark {
+  display: flex;
+  align-items: baseline;
+  font-weight: 900;
+  font-size: clamp(0.95rem, 4.2vw, 1.4rem);
+  letter-spacing: 0.22em;
+  color: var(--white);
+  white-space: nowrap;
+}
+
+.preloader-wordmark span {
+  display: inline-block;
+  animation: preloader-letter 0.5s ease both;
+}
+
+.preloader-wordmark .preloader-space {
+  width: 0.55em;
+  animation: none;
+}
+
+.preloader-motto {
+  font-size: 0.68rem;
+  letter-spacing: 0.34em;
   text-transform: uppercase;
-  animation: preloader-blink 2s ease-in-out infinite;
+  color: var(--yellow, #ffde00);
+  opacity: 0.9;
+  animation: preloader-enter 0.7s 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@keyframes preloader-pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.06); opacity: 0.85; }
+.preloader-bar {
+  width: min(280px, 64vw);
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+  margin-top: 0.4rem;
 }
 
-@keyframes preloader-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
+.preloader-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffd700, #ffb800);
+  transition: none;
+}
+
+.preloader-pct {
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  color: rgba(255, 255, 255, 0.75);
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes preloader-enter {
+  from { opacity: 0; transform: scale(0.86) translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes preloader-letter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (max-width: 480px) {
+  .preloader-inner { gap: 0.9rem; }
+  .preloader-logo { border-radius: 14px; }
 }

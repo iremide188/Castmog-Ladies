@@ -127,22 +127,61 @@
     var el = document.createElement("div");
     el.className = "preloader";
     el.setAttribute("aria-hidden", "true");
+
+    // Wordmark with letter-by-letter stagger animation
+    var word = "CASTMOG LADIES";
+    var letters = "";
+    for (var i = 0; i < word.length; i++) {
+      var ch = word.charAt(i);
+      if (ch === " ") {
+        letters += '<span class="preloader-space"></span>';
+      } else {
+        letters +=
+          '<span style="animation-delay:' + (0.25 + i * 0.05).toFixed(2) + 's">' + ch + "</span>";
+      }
+    }
+
     el.innerHTML =
+      '<div class="preloader-inner">' +
       '<img src="' + LOGO_URL + '" alt="Castmog Ladies Football Academy crest" class="preloader-logo">' +
-      '<div class="preloader-text">Loading&hellip;</div>';
+      '<div class="preloader-wordmark">' + letters + '</div>' +
+      '<div class="preloader-motto">Building the Future Heroes</div>' +
+      '<div class="preloader-bar"><div class="preloader-fill"></div></div>' +
+      '<div class="preloader-pct">0%</div>' +
+      '</div>';
+
     document.body.appendChild(el);
     return el;
   }
 
   function showPreloaderThenGo(url) {
     var preloader = buildPreloader();
-    // Force a reflow so the fade-in transition runs
-    void preloader.offsetWidth;
+    var fill = preloader.querySelector(".preloader-fill");
+    var pct = preloader.querySelector(".preloader-pct");
+
+    void preloader.offsetWidth; // reflow so the fade-in transition runs
     preloader.classList.add("is-visible");
     document.body.style.overflow = "hidden";
+
+    var durationMs = PRELOAD_SECONDS * 1000;
+
+    // Progress bar fills smoothly across the full wait
+    fill.style.transition = "width " + PRELOAD_SECONDS + "s linear";
+    window.requestAnimationFrame(function () {
+      fill.style.width = "100%";
+    });
+
+    // Live percentage counter
+    var startedAt = Date.now();
+    var counter = window.setInterval(function () {
+      var ratio = Math.min((Date.now() - startedAt) / durationMs, 1);
+      pct.textContent = Math.floor(ratio * 100) + "%";
+      if (ratio >= 1) window.clearInterval(counter);
+    }, 100);
+
     window.setTimeout(function () {
       window.location.href = url;
-    }, PRELOAD_SECONDS * 1000);
+    }, durationMs);
   }
 
   function initPreloader() {
