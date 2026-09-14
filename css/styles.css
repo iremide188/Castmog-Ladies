@@ -143,11 +143,43 @@ a:hover { text-decoration: underline; }
 
 /* ---------- Hero ---------- */
 .hero {
+  position: relative;
   background: var(--green);
-  background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px);
-  background-size: 22px 22px;
   color: var(--white);
   padding: 5.5rem 0 6rem;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero-slideshow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-slideshow .hero-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.4s ease-in-out;
+}
+
+.hero-slideshow .hero-slide.is-active {
+  opacity: 1;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(13, 43, 23, 0.88) 0%, rgba(13, 43, 23, 0.80) 55%, rgba(13, 43, 23, 0.92) 100%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
 }
 
 .hero-badge {
