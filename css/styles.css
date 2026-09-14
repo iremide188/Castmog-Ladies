@@ -563,7 +563,7 @@ a:hover { text-decoration: underline; }
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.55),
     0 0 0 1px rgba(255, 255, 255, 0.1);
-  animation: preloader-glow 2.6s 1.9s ease-in-out infinite;
+  animation: preloader-glow 2.6s 2.9s ease-in-out infinite;
 }
 
 .preloader-tile {
@@ -572,15 +572,19 @@ a:hover { text-decoration: underline; }
   height: 25%;
   background-repeat: no-repeat;
   background-size: 400% 400%;
-  animation: tile-assemble 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: tile-cycle 2.4s ease-in-out both;
 }
 
-@keyframes tile-assemble {
-  from {
-    transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(var(--sc));
-    opacity: 0;
+@keyframes tile-cycle {
+  0%, 12% {
+    transform: none;
+    opacity: 1;
   }
-  to {
+  48% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(var(--sc));
+    opacity: 0.15;
+  }
+  100% {
     transform: none;
     opacity: 1;
   }
@@ -617,7 +621,7 @@ a:hover { text-decoration: underline; }
   text-transform: uppercase;
   color: var(--yellow, #ffde00);
   opacity: 0.9;
-  animation: preloader-enter 0.7s 1.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: preloader-enter 0.7s 2.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .preloader-bar {

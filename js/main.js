@@ -138,8 +138,8 @@
         var ty = Math.round(Math.random() * 160 - 80) + "px";
         var rot = Math.round(Math.random() * 90 - 45) + "deg";
         var sc = (0.6 + Math.random() * 0.5).toFixed(2);
-        // Assemble in a diagonal wave from top-left to bottom-right
-        var delay = (0.15 + (r + c) * 0.09).toFixed(2);
+        // Subtle stagger so the break-up and rebuild ripple across the crest
+        var delay = ((r + c) * 0.05).toFixed(2);
         var posX = Math.round((c / (GRID - 1)) * 100);
         var posY = Math.round((r / (GRID - 1)) * 100);
         tiles +=
@@ -161,7 +161,7 @@
         letters += '<span class="preloader-space"></span>';
       } else {
         letters +=
-          '<span style="animation-delay:' + (1.3 + i * 0.05).toFixed(2) + 's">' + ch + "</span>";
+          '<span style="animation-delay:' + (2.6 + i * 0.05).toFixed(2) + 's">' + ch + "</span>";
       }
     }
 
