@@ -1,0 +1,117 @@
+/* =====================================================
+   CASTMOG LADIES FOOTBALL ACADEMY — shared layout script
+   Injects the header and footer on every page so you only
+   ever edit the navigation / footer in ONE place (here).
+   ===================================================== */
+
+(function () {
+  "use strict";
+
+  var LOGO_URL =
+    "https://media.base44.com/images/public/6aa7fa4b232a4afee3f5b6f2/214b86dae_3282d99e0_IMG-20251109-WA00031.jpg";
+
+  var PAGE_HOME = "index.html";
+
+  // Work out which nav link should be highlighted
+  var path = window.location.pathname.split("/").pop() || PAGE_HOME;
+
+  var links = [
+    { href: "index.html", label: "Home" },
+    { href: "about.html", label: "About" },
+    { href: "training.html", label: "Training" },
+    { href: "coaches.html", label: "Coaches" },
+    { href: "gallery.html", label: "Gallery" },
+    { href: "news.html", label: "News" },
+    { href: "contact.html", label: "Contact" }
+  ];
+
+  var navItemsHtml = links
+    .map(function (link) {
+      var active = link.href === path ? ' class="active"' : "";
+      return (
+        '<li><a href="' + link.href + '"' + active + ">" + link.label + "</a></li>"
+      );
+    })
+    .join("");
+
+  var headerHtml =
+    '<header class="site-header">' +
+    '<div class="container nav">' +
+    '<a href="index.html" class="brand">' +
+    '<img src="' + LOGO_URL + '" alt="Castmog Ladies Football Academy crest" class="brand-logo">' +
+    '<span class="brand-text">' +
+    '<span class="brand-name">CASTMOG</span><br>' +
+    '<span class="brand-sub">LADIES FOOTBALL ACADEMY</span>' +
+    "</span>" +
+    "</a>" +
+    '<button class="nav-toggle" id="navToggle" aria-label="Toggle menu">&#9776;</button>' +
+    '<ul class="nav-links" id="navLinks">' +
+    navItemsHtml +
+    '<li class="nav-cta"><a class="btn btn-yellow btn-sm" href="apply.html">APPLY TO JOIN</a></li>' +
+    "</ul>" +
+    "</div>" +
+    "</header>";
+
+  var footerHtml =
+    '<footer class="site-footer">' +
+    '<div class="container">' +
+    '<div class="footer-grid">' +
+    "<div>" +
+    '<div class="footer-brand">' +
+    '<img src="' + LOGO_URL + '" alt="Castmog crest" class="brand-logo">' +
+    '<span class="brand-text">' +
+    '<span class="brand-name">CASTMOG</span><br>' +
+    '<span class="brand-sub">LADIES FOOTBALL ACADEMY</span>' +
+    "</span>" +
+    "</div>" +
+    '<p class="footer-motto">BUILDING THE FUTURE HEROES</p>' +
+    '<p style="font-size:0.88rem; max-width:340px;">A professional environment for female football players to develop, train and compete.</p>' +
+    "</div>" +
+    "<div>" +
+    "<h4>PAGES</h4>" +
+    "<ul>" +
+    links
+      .map(function (l) {
+        return '<li><a href="' + l.href + '">' + l.label + "</a></li>";
+      })
+      .join("") +
+    "</ul>" +
+    "</div>" +
+    "<div>" +
+    "<h4>CONTACT</h4>" +
+    "<ul>" +
+    '<li><a href="tel:09130527339">Phone: 0913 052 7339</a></li>' +
+    '<li><a href="https://wa.me/2349130527339" target="_blank" rel="noopener">WhatsApp: 0913 052 7339</a></li>' +
+    '<li><a href="mailto:adeniyioluwanifemi728@gmail.com">adeniyioluwanifemi728@gmail.com</a></li>' +
+    "</ul>" +
+    '<p style="font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:0.8rem;">Social links coming soon.</p>' +
+    "</div>" +
+    "</div>" +
+    '<div class="footer-bottom">' +
+    "<span>&copy; 2026 Castmog Ladies Football Academy. All rights reserved.</span>" +
+    "<span>Female Football Academy &middot; Nigeria</span>" +
+    "</div>" +
+    "</div>" +
+    "</footer>";
+
+  // Inject header at the top of the page
+  var headerMount = document.getElementById("site-header-mount");
+  if (headerMount) {
+    headerMount.outerHTML = headerHtml;
+
+    // Mobile menu toggle
+    var toggle = document.getElementById("navToggle");
+    var navLinks = document.getElementById("navLinks");
+    if (toggle && navLinks) {
+      toggle.addEventListener("click", function () {
+        navLinks.classList.toggle("open");
+      });
+    }
+  }
+
+  // Inject footer at the bottom
+  var footerMount = document.getElementById("site-footer-mount");
+  if (footerMount) {
+    footerMount.outerHTML = footerHtml;
+  }
+})();
