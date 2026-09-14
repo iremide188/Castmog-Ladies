@@ -146,6 +146,7 @@
           '<div class="preloader-tile" style="' +
           "background-image:url(" + LOGO_URL + ");" +
           "background-position:" + posX + "% " + posY + "%;" +
+          "left:" + (c * 25) + "%;top:" + (r * 25) + "%;" +
           "--tx:" + tx + ";--ty:" + ty + ";--rot:" + rot + ";--sc:" + sc + ";" +
           "animation-delay:" + delay + 's;"></div>';
       }
