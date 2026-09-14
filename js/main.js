@@ -229,3 +229,43 @@
   document.addEventListener("DOMContentLoaded", initPreloader);
 
 })();
+
+/* =====================================================
+   SCROLL REVEAL — section content rises in as you scroll
+   (elements inside the hero stay visible immediately)
+   ===================================================== */
+(function () {
+  "use strict";
+
+  function initReveal() {
+    var els = document.querySelectorAll(
+      ".section-title, .section-sub, .motto, .card, .form-card, " +
+      ".schedule-table, .gallery-item, .empty-state, .section .btn"
+    );
+
+    var items = [];
+    for (var i = 0; i < els.length; i++) {
+      if (!els[i].closest(".hero")) items.push(els[i]);
+    }
+
+    if (!("IntersectionObserver" in window)) return; // graceful fallback: just show
+
+    items.forEach(function (el) { el.classList.add("reveal"); });
+
+    var io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("in");
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+
+    items.forEach(function (el) { io.observe(el); });
+  }
+
+  document.addEventListener("DOMContentLoaded", initReveal);
+})();
