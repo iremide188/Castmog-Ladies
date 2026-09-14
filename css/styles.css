@@ -554,15 +554,41 @@ a:hover { text-decoration: underline; }
   max-width: 92vw;
 }
 
-.preloader-logo {
+.preloader-puzzle {
+  position: relative;
   width: clamp(120px, 32vw, 180px);
-  height: auto;
+  aspect-ratio: 1 / 1;
   border-radius: 18px;
+  overflow: hidden;
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.55),
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 0 80px rgba(255, 222, 0, 0.14);
-  animation: preloader-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  animation: preloader-glow 2.6s 1.9s ease-in-out infinite;
+}
+
+.preloader-tile {
+  position: absolute;
+  width: 25%;
+  height: 25%;
+  background-repeat: no-repeat;
+  background-size: 400% 400%;
+  animation: tile-assemble 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes tile-assemble {
+  from {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(var(--sc));
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes preloader-glow {
+  0%, 100% { box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.1), 0 0 80px rgba(255, 222, 0, 0.12); }
+  50%      { box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.1), 0 0 110px rgba(255, 222, 0, 0.3); }
 }
 
 .preloader-wordmark {
@@ -591,7 +617,7 @@ a:hover { text-decoration: underline; }
   text-transform: uppercase;
   color: var(--yellow, #ffde00);
   opacity: 0.9;
-  animation: preloader-enter 0.7s 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: preloader-enter 0.7s 1.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .preloader-bar {

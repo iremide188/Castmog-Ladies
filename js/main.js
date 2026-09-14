@@ -128,7 +128,30 @@
     el.className = "preloader";
     el.setAttribute("aria-hidden", "true");
 
-    // Wordmark with letter-by-letter stagger animation
+    // Build the crest as a 4x4 grid of tiles that scatter,
+    // then fly back together piece by piece.
+    var GRID = 4;
+    var tiles = "";
+    for (var r = 0; r < GRID; r++) {
+      for (var c = 0; c < GRID; c++) {
+        var tx = Math.round(Math.random() * 160 - 80) + "px";
+        var ty = Math.round(Math.random() * 160 - 80) + "px";
+        var rot = Math.round(Math.random() * 90 - 45) + "deg";
+        var sc = (0.6 + Math.random() * 0.5).toFixed(2);
+        // Assemble in a diagonal wave from top-left to bottom-right
+        var delay = (0.15 + (r + c) * 0.09).toFixed(2);
+        var posX = Math.round((c / (GRID - 1)) * 100);
+        var posY = Math.round((r / (GRID - 1)) * 100);
+        tiles +=
+          '<div class="preloader-tile" style="' +
+          "background-image:url(" + LOGO_URL + ");" +
+          "background-position:" + posX + "% " + posY + "%;" +
+          "--tx:" + tx + ";--ty:" + ty + ";--rot:" + rot + ";--sc:" + sc + ";" +
+          "animation-delay:" + delay + 's;"></div>';
+      }
+    }
+
+    // Wordmark with letter-by-letter stagger animation (after assembly)
     var word = "CASTMOG LADIES";
     var letters = "";
     for (var i = 0; i < word.length; i++) {
@@ -137,18 +160,20 @@
         letters += '<span class="preloader-space"></span>';
       } else {
         letters +=
-          '<span style="animation-delay:' + (0.25 + i * 0.05).toFixed(2) + 's">' + ch + "</span>";
+          '<span style="animation-delay:' + (1.3 + i * 0.05).toFixed(2) + 's">' + ch + "</span>";
       }
     }
 
     el.innerHTML =
       '<div class="preloader-inner">' +
-      '<img src="' + LOGO_URL + '" alt="Castmog Ladies Football Academy crest" class="preloader-logo">' +
-      '<div class="preloader-wordmark">' + letters + '</div>' +
+      '<div class="preloader-puzzle" role="img" aria-label="Castmog Ladies Football Academy crest">' +
+      tiles +
+      "</div>" +
+      '<div class="preloader-wordmark">' + letters + "</div>" +
       '<div class="preloader-motto">Building the Future Heroes</div>' +
       '<div class="preloader-bar"><div class="preloader-fill"></div></div>' +
       '<div class="preloader-pct">0%</div>' +
-      '</div>';
+      "</div>";
 
     document.body.appendChild(el);
     return el;
