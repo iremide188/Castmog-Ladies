@@ -52,28 +52,65 @@
 
   /* ---------- device file uploads (committed straight into the repo) ---------- */
 
-  function uploadAsset(file, folder, onStatus) {
-    var ext = (/\.[a-z0-9]+$/i.exec(file.name) || [""])[0].toLowerCase();
-    if (!ext && file.type && file.type.split("/")[1]) ext = "." + file.type.split("/")[1];
-    var isVideo = /^video\//.test(file.type) || /\.(mp4|webm|mov|m4v|ogg)$/i.test(file.name);
-    var limit = isVideo ? 40 * 1024 * 1024 : 10 * 1024 * 1024;
-    if (file.size > limit) {
-      onStatus("err", isVideo
-        ? "That video is over 40MB — upload it to YouTube instead, then paste the video ID or link."
-        : "That image is over 10MB — please use a smaller file.");
-      return;
-    }
-    onStatus("busy", "Uploading " + (file.size > 1024 * 1024 ? (file.size / 1024 / 1024).toFixed(1) + "MB" : Math.round(file.size / 1024) + "KB") + "…");
-    var reader = new FileReader();
-    reader.onerror = function () { onStatus("err", "Could not read the file."); };
-    reader.onload = function () {
-      var content = String(reader.result).split(",")[1];
-      var path = "assets/uploads/" + folder + "/" + Date.now() + "-" + slug(file.name.replace(/\.[^.]+$/, "")) + ext;
-      api("PUT", path, { message: "Upload " + folder + " file via Castmog admin", content: content, branch: BRANCH })
-        .then(function () { onStatus("ok", path); })
-        .catch(function (e) { onStatus("err", "Upload failed: " + (e.message || e)); });
-    };
-    reader.readAsDataURL(file);
+  /* Shrinks photos in the browser BEFORE uploading: big camera images are
+     downscaled to max 1600px and re-encoded (JPEG q0.85), typically 90%+
+     smaller with no visible difference — uploads get far faster,
+     especially on mobile data. Falls back to the original on any problem. */
+  function compressImage(file, onStatus) {
+    return new Promise(function (resolve) {
+      if (!/^image\//.test(file.type) || file.size < 350 * 1024) return resolve(file);
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        var done = false;
+        function finish(f) { if (!done) { done = true; URL.revokeObjectURL(url); resolve(f); } }
+        try {
+          var MAX = 1600;
+          var scale = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
+          var c = document.createElement("canvas");
+          c.width = Math.max(1, Math.round(img.naturalWidth * scale));
+          c.height = Math.max(1, Math.round(img.naturalHeight * scale));
+          c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+          var keepPng = file.type === "image/png";
+          c.toBlob(function (blob) {
+            if (!blob || blob.size >= file.size) return finish(file);
+            onStatus("busy", "Optimising photo… " + Math.round(blob.size / 1024) + "KB (was " + Math.round(file.size / 1024) + "KB)");
+            var newName = file.name.replace(/\.[^.]+$/, "") + (keepPng ? ".png" : ".jpg");
+            finish(new File([blob], newName, { type: keepPng ? "image/png" : "image/jpeg" }));
+          }, keepPng ? "image/png" : "image/jpeg", 0.85);
+        } catch (e) { finish(file); }
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); resolve(file); };
+      img.src = url;
+    });
+  }
+
+  function uploadAsset(rawFile, folder, onStatus) {
+    compressImage(rawFile, onStatus).then(function (file) {
+      var ext = (/\.[a-z0-9]+$/i.exec(file.name) || [""])[0].toLowerCase();
+      if (!ext && file.type && file.type.split("/")[1]) ext = "." + file.type.split("/")[1];
+      var isVideo = /^video\//.test(file.type) || /\.(mp4|webm|mov|m4v|ogg)$/i.test(file.name);
+      var limit = isVideo ? 40 * 1024 * 1024 : 10 * 1024 * 1024;
+      if (file.size > limit) {
+        onStatus("err", isVideo
+          ? "That video is over 40MB — upload it to YouTube instead, then paste the video ID or link."
+          : "That image is over 10MB even after optimising — please use a smaller file.");
+        return;
+      }
+      var mb = file.size > 1024 * 1024;
+      onStatus("busy", "Uploading " + (mb ? (file.size / 1024 / 1024).toFixed(1) + "MB" : Math.round(file.size / 1024) + "KB") +
+        (mb ? " — this can take a few minutes on a slow connection…" : "…"));
+      var reader = new FileReader();
+      reader.onerror = function () { onStatus("err", "Could not read the file."); };
+      reader.onload = function () {
+        var content = String(reader.result).split(",")[1];
+        var path = "assets/uploads/" + folder + "/" + Date.now() + "-" + slug(file.name.replace(/\.[^.]+$/, "")) + ext;
+        api("PUT", path, { message: "Upload " + folder + " file via Castmog admin", content: content, branch: BRANCH })
+          .then(function () { onStatus("ok", path); })
+          .catch(function (e) { onStatus("err", "Upload failed: " + (e.message || e)); });
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
   function loadFile(name) {
