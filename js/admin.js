@@ -167,7 +167,10 @@
       fields: [
         F("name", "Full name"), F("role", "Role"),
         F("photo", "Staff photo", "image", ["staff"]),
-        F("socialUrl", "Personal social media URL (Instagram / X / TikTok)"),
+        F("social.instagram", "Instagram link or @handle"),
+        F("social.x", "X (Twitter) link or @handle"),
+        F("social.tiktok", "TikTok link or @handle"),
+        F("social.facebook", "Facebook link or @handle"),
         F("bio", "Biography", "textarea"), F("qualifications", "Qualifications", "textarea"),
         F("experience", "Experience", "textarea")
       ]
