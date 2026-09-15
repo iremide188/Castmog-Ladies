@@ -132,10 +132,31 @@
     }
   }
 
+  function injectTicker() {
+    var yt = (window.CLUB && window.CLUB.get("youtube")) || {};
+    if (!yt.live || !yt.liveVideoId) return;
+    var url = "https://www.youtube.com/watch?v=" + encodeURIComponent(yt.liveVideoId);
+    var msg = (yt.liveTitle ? yt.liveTitle : "CASTMOG LADIES ARE LIVE ON YOUTUBE") + " &nbsp;&bull;&nbsp; TAP TO WATCH THE LIVE STREAM";
+    var span = '<span class="lt-dot"></span> ' + msg + " &nbsp;&bull;&nbsp; ";
+    var bar = document.createElement("a");
+    bar.className = "live-ticker";
+    bar.href = url;
+    bar.target = "_blank";
+    bar.rel = "noopener";
+    bar.setAttribute("aria-label", "Castmog Ladies are live on YouTube — tap to watch");
+    bar.innerHTML = '<div class="lt-track">' + span + span + "</div>";
+    document.body.insertBefore(bar, document.body.firstChild);
+    document.body.classList.add("has-live-ticker");
+  }
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", inject);
   } else {
     inject();
+  }
+
+  if (window.CLUB && window.CLUB.onReady) {
+    window.CLUB.onReady(function () { inject(); injectTicker(); });
   }
 
   /* ---------- Crest shatter preloader ---------- */

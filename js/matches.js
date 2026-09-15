@@ -62,8 +62,14 @@
       (m.venue ? "<span>" + C.esc(m.venue) + "</span>" : "") + "</div>";
 
     if (m.report) html += '<div style="margin-top:1.4rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.5rem;">MATCH REPORT</h3><p style="color:rgba(244,247,241,0.88);">' + C.esc(m.report).replace(/\n/g, "<br>") + "</p></div>";
-    if (m.lineup && m.lineup.length) html += '<div style="margin-top:1.2rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.4rem;">STARTING LINEUP</h3><p style="color:var(--muted);font-size:0.92rem;">' + C.esc(m.lineup.join(" &middot; ")) + "</p></div>";
-    if (m.subs && m.subs.length) html += '<div style="margin-top:0.9rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.4rem;">SUBSTITUTES</h3><p style="color:var(--muted);font-size:0.92rem;">' + C.esc(m.subs.join(" &middot; ")) + "</p></div>";
+    if (m.lineup && m.lineup.length) html += '<div style="margin-top:1.2rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.7rem;">STARTING XI</h3><div class="lineup-grid">' +
+      m.lineup.map(function (n, i) {
+        return '<div class="lineup-chip"><span class="lc-num">' + (i + 1) + '</span><span class="lc-name">' + C.esc(n) + "</span></div>";
+      }).join("") + "</div></div>";
+    if (m.subs && m.subs.length) html += '<div style="margin-top:1rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.7rem;">SUBSTITUTES</h3><div class="lineup-grid">' +
+      m.subs.map(function (n) {
+        return '<div class="lineup-chip"><span class="lc-num lc-bench">B</span><span class="lc-name">' + C.esc(n) + "</span></div>";
+      }).join("") + "</div></div>";
     if (m.events && m.events.length) html += '<div style="margin-top:0.9rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.4rem;">MATCH EVENTS</h3><ul style="color:var(--muted);font-size:0.92rem;padding-left:1.2rem;">' + m.events.map(function (e) { return "<li>" + C.esc(e) + "</li>"; }).join("") + "</ul></div>";
     if (m.photos && m.photos.length) html += '<div style="margin-top:0.9rem;"><div class="media-grid" style="margin-top:0.8rem;">' + m.photos.map(function (u) {
       return '<div class="media-item"><img src="' + C.esc(u) + '" alt="Match photo" loading="lazy"></div>';

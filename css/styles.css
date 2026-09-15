@@ -1128,3 +1128,93 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
 
 /* opponent names in match cards always uppercase */
 .mc-team .mc-name { text-transform: uppercase; }
+
+/* ---------- Live ticker alert (shows only while the club is live) ---------- */
+.live-ticker {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 400;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(90deg, #a4161a, #e04545 50%, #a4161a);
+  color: #fff;
+  overflow: hidden;
+  box-shadow: 0 2px 16px rgba(224, 69, 69, 0.5);
+  text-decoration: none;
+}
+
+.live-ticker .lt-track {
+  display: inline-block;
+  white-space: nowrap;
+  font-weight: 800;
+  font-size: 0.76rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  animation: lt-scroll 16s linear infinite;
+}
+
+.live-ticker .lt-track:hover { animation-play-state: paused; }
+
+.live-ticker .lt-dot {
+  display: inline-block;
+  width: 9px; height: 9px;
+  background: #fff;
+  border-radius: 50%;
+  margin: 0 10px;
+  vertical-align: middle;
+  animation: live-pulse 1.2s ease infinite;
+}
+
+@keyframes lt-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.has-live-ticker .site-header { top: 38px; }
+
+/* ---------- Starting XI ---------- */
+.lineup-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.7rem;
+}
+
+.lineup-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.9rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.lineup-chip .lc-num {
+  width: 27px; height: 27px;
+  border-radius: 50%;
+  background: var(--yellow);
+  color: #14180f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+  font-size: 0.95rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.lineup-chip .lc-num.lc-bench {
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-family: var(--font-body);
+}
+
+.lineup-chip .lc-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
