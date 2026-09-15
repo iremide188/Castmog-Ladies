@@ -1,1 +1,34 @@
-[]
+[
+  {
+    "id": "jagunmolu-tc24",
+    "published": true,
+    "opponent": "jagunmolu",
+    "date": "2026-09-17",
+    "time": "8am",
+    "competition": "friendly",
+    "venue": "mko stadium",
+    "homeAway": "Home",
+    "status": "scheduled",
+    "scoreCastmog": null,
+    "scoreOpponent": null,
+    "report": "",
+    "lineup": [
+      "akindele",
+      "favour",
+      "favourfavour",
+      "favour",
+      "v",
+      "v",
+      "vfavour",
+      "ruka"
+    ],
+    "subs": [
+      "ruka",
+      "taiwo"
+    ],
+    "events": [],
+    "photos": [],
+    "videos": [],
+    "notes": ""
+  }
+]
