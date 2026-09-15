@@ -94,6 +94,9 @@
       var nm = C.nextMatch();
       var up = C.upcoming();
       var done = C.finished();
+      var upIds = {};
+      up.forEach(function (x) { upIds[x.id] = true; });
+      var history = all.filter(function (x) { return !upIds[x.id]; });
 
       var html = nm
         ? '<h2 class="section-title" style="font-size:1.6rem;">NEXT MATCH</h2><div style="margin-bottom:2.4rem;">' +
@@ -112,9 +115,9 @@
           : '<div class="empty-state">No results recorded yet.</div>') + "</div>";
 
       html += '<h2 class="section-title" style="font-size:1.6rem;">MATCH HISTORY</h2>' +
-        (all.length
+        (history.length
           ? '<table class="schedule-table"><thead><tr><th>DATE</th><th>OPPONENT</th><th>COMPETITION</th><th>RESULT</th></tr></thead><tbody>' +
-            all.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).map(function (x) {
+            history.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).map(function (x) {
               var r = x.status !== "finished" ? "&mdash;" : x.scoreCastmog + " &ndash; " + x.scoreOpponent;
               return "<tr><td>" + C.fmtDate(x.date) + "</td><td>" + C.esc(x.opponent) + "</td><td>" + C.esc(x.competition || "") + "</td><td>" + r + "</td></tr>";
             }).join("") + "</tbody></table>"

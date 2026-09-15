@@ -89,13 +89,31 @@ window.CLUB = (function () {
     return (db.players || []).filter(function (p) { return p.id === id; })[0] || null;
   }
 
+  /* Understands 8am, 8 AM, 8:00, 8.00am, 15:30, 4:00 PM etc. */
+  function parseTime(t) {
+    t = String(t == null ? "" : t).trim().toUpperCase().replace(/[.]/g, ":");
+    var m = t.match(/^(\d{1,2})(?::?(\d{2}))?\s*(AM|PM)?$/);
+    if (!m) return null;
+    var h = parseInt(m[1], 10);
+    var min = m[2] ? parseInt(m[2], 10) : 0;
+    if (m[3] === "PM" && h < 12) h += 12;
+    if (m[3] === "AM" && h === 12) h = 0;
+    if (h > 23 || min > 59) return null;
+    return (h < 10 ? "0" : "") + h + ":" + (min < 10 ? "0" : "") + min;
+  }
+
+  function kickoff(m) {
+    return new Date(m.date + "T" + (parseTime(m.time) || "00:00") + ":00");
+  }
+
   function upcoming() {
-    var now = new Date();
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
     return pub(db.matches)
       .filter(function (m) {
-        return m.status === "scheduled" && m.date && new Date(m.date + "T" + (m.time || "00:00")) >= new Date(now.toDateString());
+        return m.status === "scheduled" && m.date && kickoff(m) >= today;
       })
-      .sort(function (a, b) { return (a.date + (a.time || "")) < (b.date + (b.time || "")) ? -1 : 1; });
+      .sort(function (a, b) { return kickoff(a) - kickoff(b); });
   }
 
   function nextMatch() { return upcoming()[0] || null; }
@@ -181,6 +199,7 @@ window.CLUB = (function () {
     upcoming: upcoming, nextMatch: nextMatch, finished: finished, latestResult: latestResult,
     headToHead: headToHead, initials: initials,
     ytThumb: ytThumb, ytFacade: ytFacade, activateFacades: activateFacades,
+    parseTime: parseTime, kickoff: kickoff,
     waLink: waLink,
     onReady: function (cb) {
       onReady.push(cb);

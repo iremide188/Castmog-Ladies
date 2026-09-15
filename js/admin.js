@@ -106,7 +106,7 @@
       title: "Matches", titleKey: "opponent",
       sub: function (r) { return r.date + " · " + (r.competition || "") + " · " + (r.status || ""); },
       fields: [
-        F("opponent", "Opponent"), F("date", "Date", "date"), F("time", "Kick-off time"),
+        F("opponent", "Opponent"), F("date", "Date", "date"), F("time", "Kick-off time (e.g. 8am, 4:00 PM or 15:30)"),
         F("competition", "Competition"), F("venue", "Venue"),
         F("homeAway", "Home / Away", "select", ["Home", "Away"]),
         F("status", "Match status", "select", STATUS),

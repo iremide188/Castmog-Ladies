@@ -32,7 +32,7 @@
       var cls = m.scoreCastmog > m.scoreOpponent ? "win" : m.scoreCastmog === m.scoreOpponent ? "draw" : "loss";
       scoreHtml = '<div class="mc-score"><span class="mr-score ' + cls + '">' + m.scoreCastmog + " – " + m.scoreOpponent + "</span></div>";
     } else if (opts.countdown) {
-      scoreHtml = '<div class="countdown" data-kickoff="' + C.esc(m.date) + "T" + C.esc(m.time || "00:00") + '">' +
+      scoreHtml = '<div class="countdown" data-kickoff="' + C.kickoff(m).toISOString() + '">' +
         '<div class="cd-cell"><span class="cd-num">–</span><span class="cd-lab">Days</span></div>' +
         '<div class="cd-cell"><span class="cd-num">–</span><span class="cd-lab">Hrs</span></div>' +
         '<div class="cd-cell"><span class="cd-num">–</span><span class="cd-lab">Min</span></div>' +
