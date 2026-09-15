@@ -1218,3 +1218,65 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+
+/* ---------- Tables (mobile-safe with horizontal scroll) ---------- */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin: 1rem 0;
+}
+
+.table-scroll::-webkit-scrollbar { height: 8px; }
+.table-scroll::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
+
+.schedule-table { width: 100%; min-width: 500px; border-collapse: collapse; }
+
+.schedule-table th, .schedule-table td {
+  padding: 0.75rem 0.9rem;
+  text-align: left;
+  font-size: 0.84rem;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.schedule-table th {
+  font-family: var(--font-head);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.schedule-table tbody tr:last-child td { border-bottom: none; }
+.schedule-table tbody tr:hover td { background: rgba(255, 255, 255, 0.03); }
+
+/* ---------- Small phones (<= 480px) ---------- */
+@media (max-width: 480px) {
+  .hero { padding-top: 6.6rem; min-height: 76vh; }
+  .has-live-ticker .hero { padding-top: 7.6rem; }
+  .section { padding: 2.6rem 0; }
+
+  .countdown { gap: 0.5rem; margin: 1rem 0; }
+  .countdown .cd-cell { min-width: 0; flex: 1; padding: 0.55rem 0.3rem; }
+  .countdown .cd-num { font-size: 1.35rem; }
+  .countdown .cd-lab { font-size: 0.52rem; letter-spacing: 0.14em; }
+
+  .match-row { flex-wrap: wrap; gap: 0.8rem; }
+  .form-card { padding: 1.1rem; }
+  .panel { padding: 1.1rem; }
+
+  .live-ticker .lt-track { font-size: 0.68rem; letter-spacing: 0.12em; }
+  .lineup-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.5rem; }
+
+  .admin-head { flex-wrap: wrap; gap: 0.6rem; }
+  .admin-head h1 { font-size: 1.3rem; }
+}
+
+/* iOS: keep inputs >= 16px so Safari doesn't zoom on focus */
+@media (max-width: 880px) {
+  input, select, textarea { font-size: 16px; }
+  .has-live-ticker .hero { padding-top: 8.4rem; }
+}
