@@ -92,13 +92,17 @@
     }).join("") + "</div>";
   }
 
+  function niceLabel(id) {
+    return id.replace(/([a-z])([A-Z])/g, "$1 $2").toUpperCase();
+  }
+
   function fieldHtml(id, label, inner, req, hint) {
     return '<div class="field"><label for="' + id + '">' + label + (req ? ' <span class="req">*</span>' : "") + "</label>" + inner +
       (hint ? '<p class="field-hint">' + hint + "</p>" : "") + "</div>";
   }
 
   function input(id, type, placeholder, val, req, hint) {
-    return fieldHtml(id, id.toUpperCase().replace(/_/g, " "),
+    return fieldHtml(id, niceLabel(id),
       '<input type="' + type + '" id="' + id + '" placeholder="' + (placeholder || "") + '" value="' + C.esc(val || "") + '"' + (type === "date" || type === "file" ? "" : ' maxlength="120"') + ">",
       req, hint);
   }
@@ -107,7 +111,7 @@
     var opts = ['<option value="">Select&hellip;</option>'].concat((options || []).map(function (o) {
       return '<option value="' + C.esc(o) + '"' + (val === o ? " selected" : "") + ">" + C.esc(o) + "</option>";
     }));
-    return fieldHtml(id, id.toUpperCase().replace(/_/g, " "), '<select id="' + id + '">' + opts.join("") + "</select>", req, hint);
+    return fieldHtml(id, niceLabel(id), '<select id="' + id + '">' + opts.join("") + "</select>", req, hint);
   }
 
   function renderStep1() {
