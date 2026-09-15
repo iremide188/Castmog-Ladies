@@ -186,6 +186,7 @@
         F("scorers", "Goalscorers — who scored for Castmog", "scorers"),
         F("scoreCastmog", "Final score — Castmog (after the match)", "number"),
         F("scoreOpponent", "Final score — Opponent (after the match)", "number"),
+        F("highlight", "MATCH HIGHLIGHT (paste the YouTube link of the highlight video)"),
         F("report", "Match report", "textarea"), F("lineup", "Starting lineup", "list"),
         F("subs", "Substitutes", "list"), F("events", "Match events", "list"),
         F("photos", "Match photo URLs", "list"), F("videos", "Match video IDs/URLs", "list"),
@@ -248,7 +249,8 @@
         F("palmpay.number", "Payment account number (receives transfers from ALL banks)"), F("palmpay.name", "Payment account name"),
         F("bannerImage", "Page banner photo — displayed at the top of every page (one wide photo, e.g. the team or stadium)", "image", ["settings"]),
         F("social.youtube", "YouTube URL"), F("social.instagram", "Instagram URL"),
-        F("social.facebook", "Facebook URL"), F("social.tiktok", "TikTok URL"), F("social.twitter", "X/Twitter URL")
+        F("social.facebook", "Facebook URL"), F("social.tiktok", "TikTok URL"), F("social.twitter", "X/Twitter URL"),
+        F("alertText", "IMPORTANT ALERT — moving gold banner on every page (leave empty to hide)", "textarea")
       ]
     }
   };

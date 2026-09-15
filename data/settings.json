@@ -10,7 +10,7 @@
     "youtube": "https://youtube.com/@castmogfa",
     "instagram": "",
     "facebook": "",
-    "tiktok": "",
+    "tiktok": "https://www.tiktok.com/@castmog.fa",
     "twitter": "https://x.com/CastmogFA"
   },
   "applicationFee": 100,
@@ -19,5 +19,6 @@
     "name": "Oluwanifemi"
   },
   "colours": "GREEN + YELLOW",
-  "bannerImage": ""
+  "bannerImage": "",
+  "alertText": "IMPORTANT: CASTMOG LADIES TRIALS HOLD THIS SATURDAY AT THE STADIUM \u2014 BE THERE 7AM SHARP"
 }

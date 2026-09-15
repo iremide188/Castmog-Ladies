@@ -25,6 +25,15 @@
       "</div>";
   }
 
+  /* highlight video embed (admin adds it on the match record) */
+  function rowHighlight(m) {
+    if (!m.highlight) return "";
+    return '<div class="row-hl">' +
+      '<span class="motto" style="color:var(--yellow);">MATCH HIGHLIGHT</span>' +
+      (C.mediaItem ? C.mediaItem(m.highlight, "Match highlight") : C.ytFacade(C.ytId ? C.ytId(m.highlight) : m.highlight, "Match highlight")) +
+      "</div>";
+  }
+
   function h2hBlock(opponent) {
     var h = C.headToHead(opponent);
     if (!h) return "";
@@ -60,6 +69,9 @@
       "<div class='mc-meta' style='justify-content:flex-start;margin-top:1rem;'>" +
       "<span>" + C.fmtDate(m.date) + "</span>" + (m.time ? "<span>" + C.esc(m.time) + "</span>" : "") +
       (m.venue ? "<span>" + C.esc(m.venue) + "</span>" : "") + "</div>";
+
+    if (m.highlight) html += '<div style="margin-top:1.2rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.6rem;">MATCH HIGHLIGHT</h3>' +
+      (C.mediaItem ? C.mediaItem(m.highlight, "Match highlight") : "") + "</div>";
 
     if (m.scorers && m.scorers.length) {
       html += '<div style="margin-top:1.1rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.7rem;">GOALS</h3><div class="lineup-grid">' +
@@ -130,19 +142,21 @@
 
       html += '<h2 class="section-title" style="font-size:1.6rem;">RESULTS</h2><div class="record-list" style="margin-bottom:2.4rem;">' +
         (done.length
-          ? done.map(function (x) { return matchRow(x, true); }).join("")
+          ? done.map(function (x) { return matchRow(x, true) + rowHighlight(x); }).join("")
           : '<div class="empty-state">No results recorded yet.</div>') + "</div>";
 
       html += '<h2 class="section-title" style="font-size:1.6rem;">MATCH HISTORY</h2>' +
         (history.length
-          ? '<div class="table-scroll"><table class="schedule-table"><thead><tr><th>DATE</th><th>OPPONENT</th><th>COMPETITION</th><th>RESULT</th></tr></thead><tbody>' +
+          ? '<div class="table-scroll"><table class="schedule-table"><thead><tr><th>DATE</th><th>OPPONENT</th><th>COMPETITION</th><th>RESULT</th><th>HIGHLIGHT</th></tr></thead><tbody>' +
             history.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).map(function (x) {
               var r = x.status !== "finished" || x.scoreCastmog == null ? "&mdash;" : x.scoreCastmog + " &ndash; " + x.scoreOpponent;
-              return "<tr><td>" + C.fmtDate(x.date) + "</td><td>" + C.esc(x.opponent) + "</td><td>" + C.esc(x.competition || "") + "</td><td>" + r + "</td></tr>";
+              return "<tr><td>" + C.fmtDate(x.date) + "</td><td>" + C.esc(x.opponent) + "</td><td>" + C.esc(x.competition || "") + "</td><td>" + r + "</td><td>" +
+                (x.highlight ? '<a class="hl-link" href="#match-' + C.esc(x.id) + '">&#9654; WATCH</a>' : "&mdash;") + "</td></tr>";
             }).join("") + "</tbody></table></div>"
           : '<div class="empty-state">Match history will be recorded here.</div>');
 
       root.innerHTML = html;
+      C.activateFacades(root);
       if (window.CLUB_STARTCLOCKS) window.CLUB_STARTCLOCKS();
     }
 

@@ -106,6 +106,15 @@
     var footerMount = document.getElementById("site-footer-mount");
     if (footerMount) footerMount.outerHTML = footerHtml;
 
+    /* every page hero gets the moving photo/video slideshow behind the title */
+    document.querySelectorAll(".page-hero").forEach(function (ph) {
+      if (ph.querySelector(".hero-slideshow")) return;
+      var sl = document.createElement("div");
+      sl.className = "hero-slideshow";
+      sl.setAttribute("aria-hidden", "true");
+      ph.insertBefore(sl, ph.firstChild);
+    });
+
     // Fill footer contact + socials from the data layer when available
     if (window.CLUB && window.CLUB.ready()) {
       var s = window.CLUB.get("settings") || {};
@@ -114,9 +123,7 @@
         fc.innerHTML =
           '<li><a href="mailto:' + s.email + '">' + s.email + "</a></li>" +
           '<li><a href="' + (s.whatsappLink || "#") + '" target="_blank" rel="noopener">WhatsApp: ' +
-          (s.whatsappDisplay || "") + "</a></li>" +
-          '<li><a href="media.html">Media Centre</a></li>' +
-          '<li><a href="join.html">Join Castmog</a></li>';
+          (s.whatsappDisplay || "") + "</a></li>";
       }
       var fs = document.getElementById("footer-social");
       if (fs && s.social) {
@@ -130,6 +137,77 @@
         fs.innerHTML = html;
       }
     }
+  }
+
+  /* ---------- Moving image/video slideshow — homepage hero + every page hero ---------- */
+  function buildSlideshow(mount) {
+    if (!mount || mount.querySelector(".hero-slide")) return;
+    var C = window.CLUB;
+    var media = C.pub(C.get("media")) || [];
+    var slides = [];
+    media.forEach(function (m) {
+      if (m.type === "photo" && m.url) slides.push({ kind: "photo", url: m.url });
+    });
+    media.forEach(function (m) {
+      if (m.type === "video" && m.url) slides.push({ kind: "video", url: m.url });
+    });
+    /* interleave: photo, photo, video, photo, photo, video ... max 6 */
+    var ordered = [], photos = slides.filter(function (s) { return s.kind === "photo"; });
+    var videos = slides.filter(function (s) { return s.kind === "video"; });
+    photos.forEach(function (p, i) {
+      ordered.push(p);
+      if ((i + 1) % 2 === 0 && videos.length) ordered.push(videos.shift());
+    });
+    ordered = ordered.concat(videos).slice(0, 6);
+    if (!ordered.length) return;
+
+    ordered.forEach(function (sl, i) {
+      var s = document.createElement("div");
+      s.className = "hero-slide" + (i === 0 ? " is-active" : "");
+      if (sl.kind === "photo") {
+        s.style.backgroundImage = "url('" + sl.url + "')";
+      } else {
+        var v = document.createElement("video");
+        v.src = sl.url; v.muted = true; v.loop = true;
+        v.setAttribute("playsinline", ""); v.setAttribute("autoplay", ""); v.preload = "metadata";
+        s.appendChild(v);
+      }
+      mount.appendChild(s);
+    });
+
+    var els = mount.querySelectorAll(".hero-slide");
+    if (els.length < 2) return;
+    var cur = 0;
+    setInterval(function () {
+      var next = (cur + 1) % els.length;
+      els[cur].classList.remove("is-active");
+      els[next].classList.add("is-active");
+      var va = els[cur].querySelector("video"); if (va) va.pause();
+      var vb = els[next].querySelector("video");
+      if (vb) { try { vb.currentTime = 0; } catch (_e) {} vb.play().catch(function () {}); }
+      cur = next;
+    }, 6000);
+  }
+
+  function injectSlideshows() {
+    if (!window.CLUB) return;
+    var home = document.getElementById("hero-slideshow");
+    if (home) buildSlideshow(home);
+    document.querySelectorAll(".page-hero .hero-slideshow").forEach(buildSlideshow);
+  }
+
+  /* ---------- IMPORTANT ALERT — moving gold banner, set from the admin Settings tab ---------- */
+  function injectAlert() {
+    var s = (window.CLUB && window.CLUB.get("settings")) || {};
+    var txt = String(s.alertText || "").trim();
+    if (!txt || document.querySelector(".alert-ticker")) return;
+    var span = '<span class="at-dot"></span> ' + txt + " &nbsp;&bull;&nbsp; ";
+    var bar = document.createElement("div");
+    bar.className = "alert-ticker";
+    bar.setAttribute("role", "status");
+    bar.innerHTML = '<div class="lt-track">' + span + span + "</div>";
+    document.body.insertBefore(bar, document.body.firstChild);
+    document.body.classList.add("has-alert-bar");
   }
 
   function injectTicker() {
@@ -156,7 +234,7 @@
   }
 
   if (window.CLUB && window.CLUB.onReady) {
-    window.CLUB.onReady(function () { inject(); injectTicker(); });
+    window.CLUB.onReady(function () { inject(); injectSlideshows(); injectTicker(); injectAlert(); });
   }
 
   /* ---------- Crest shatter preloader ---------- */

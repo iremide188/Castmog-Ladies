@@ -214,9 +214,17 @@ window.CLUB = (function () {
     return v.indexOf("assets/") === 0 || /\.(mp4|webm|mov|m4v|ogg)$/.test(v);
   }
 
+  /* accept a full YouTube link or a bare video ID */
+  function ytId(v) {
+    v = String(v || "").trim();
+    var m = v.match(/(?:youtube\.com\/(?:watch\?[^#]*v=|shorts\/|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{6,15})/);
+    if (m) return m[1];
+    return /^[A-Za-z0-9_-]{8,15}$/.test(v) ? v : "";
+  }
+
   function mediaItem(v, label) {
     if (isFileVideo(v)) return '<div class="video-file"><video controls preload="metadata" src="' + esc(v) + '"></video><div class="vf-cap">' + esc(label) + "</div></div>";
-    return ytFacade(v, label);
+    return ytFacade(ytId(v) || v, label);
   }
 
   /* ---------- live match clock ----------

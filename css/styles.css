@@ -237,6 +237,7 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
 /* page hero (inner pages) */
 .page-hero {
   position: relative;
+  overflow: hidden;
   padding: 8.5rem 0 3.5rem;
   background:
     radial-gradient(900px 320px at 12% 0%, rgba(47, 191, 113, 0.12), transparent 60%),
@@ -245,6 +246,9 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
   border-bottom: 1px solid var(--line);
 }
 
+.page-hero .container { position: relative; z-index: 1; }
+.page-hero .hero-slide video { width: 100%; height: 100%; object-fit: cover; }
+.page-hero .hero-slideshow { z-index: 0; opacity: 1; }
 .page-hero .kicker {
   display: inline-block;
   font-size: 0.68rem;
@@ -617,7 +621,7 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
 /* whole card links to the coach profile; social link stays clickable above it */
 .staff-card .sc-link { position: absolute; inset: 0; z-index: 1; }
 .staff-card:hover { transform: translateY(-5px); border-color: rgba(245, 197, 24, 0.5); box-shadow: 0 16px 38px rgba(0, 0, 0, 0.5); }
-.staff-card .sc-more { position: relative; z-index: 2; display: inline-block; margin-top: 0.4rem; font-size: 0.64rem; font-weight: 800; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; }
+.staff-card .sc-more { display: none; }
 
 .staff-card .sc-avatar {
   width: 86px; height: 86px;
@@ -1134,6 +1138,38 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
 /* opponent names in match cards always uppercase */
 .mc-team .mc-name { text-transform: uppercase; }
 
+/* ---------- Match highlight embeds (results + detail) ---------- */
+.row-hl { margin: -0.6rem 0 1.1rem; padding: 0.9rem; border: 1px solid var(--line-strong); border-radius: 10px; background: rgba(20, 24, 15, 0.6); }
+.row-hl .yt-facade { max-width: 460px; }
+.hl-link { font-weight: 800; color: var(--yellow); text-decoration: none; border-bottom: 1px solid var(--yellow); }
+
+/* ---------- IMPORTANT ALERT — moving gold banner (set in admin Settings) ---------- */
+.alert-ticker {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 410;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: linear-gradient(90deg, #b8860b, #ffd54a 50%, #b8860b);
+  box-shadow: 0 4px 18px rgba(255, 213, 74, 0.25);
+}
+.alert-ticker .lt-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: lt-scroll 18s linear infinite;
+  color: #14180f;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.alert-ticker .at-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #14180f; margin-right: 6px; animation: at-pulse 1.1s ease-in-out infinite; }
+@keyframes at-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.7); opacity: 0.4; } }
+.has-alert-bar { padding-top: 40px; }
+.has-alert-bar .site-header { top: 40px; }
+
 /* ---------- Live ticker alert (shows only while the club is live) ---------- */
 .live-ticker {
   position: fixed;
@@ -1233,8 +1269,8 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
   margin: 1rem 0;
 }
 
-.table-scroll::-webkit-scrollbar { height: 8px; }
-.table-scroll::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
+.table-scroll { scrollbar-width: none; }
+.table-scroll::-webkit-scrollbar { display: none; }
 
 .schedule-table { width: 100%; min-width: 500px; border-collapse: collapse; }
 

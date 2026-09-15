@@ -3,28 +3,6 @@
   "use strict";
   var C = window.CLUB;
 
-  function heroSlideshow() {
-    var mount = document.getElementById("hero-slideshow");
-    if (!mount) return;
-    var photos = C.pub(C.get("media")).filter(function (m) { return m.type === "photo" && m.url; });
-    if (!photos.length) return;
-    photos.slice(0, 5).forEach(function (p, i) {
-      var s = document.createElement("div");
-      s.className = "hero-slide" + (i === 0 ? " is-active" : "");
-      s.style.backgroundImage = "url('" + p.url + "')";
-      mount.appendChild(s);
-    });
-    var slides = mount.querySelectorAll(".hero-slide");
-    if (slides.length < 2) return;
-    var cur = 0;
-    setInterval(function () {
-      var next = (cur + 1) % slides.length;
-      slides[cur].classList.remove("is-active");
-      slides[next].classList.add("is-active");
-      cur = next;
-    }, 5000);
-  }
-
   function matchCard(m, opts) {
     opts = opts || {};
     var ls2 = C.liveState ? C.liveState(m) : null;
@@ -295,7 +273,6 @@
   }
 
   window.CLUB.onReady(function () {
-    heroSlideshow();
     render();
     document.addEventListener("club:matches-updated", function () {
       var m = document.getElementById("home-next-match");
