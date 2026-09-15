@@ -812,6 +812,7 @@
       '<span style="font-weight:700;">' + esc(x.name || "") + "</span>" +
       '<span style="color:var(--muted);font-size:0.85rem;">' + esc(x.position || "") + " · " + esc(String(x.created_date || "").slice(0, 10)) + "</span>" +
       (x.source === "manual" ? '<span class="chip">MANUAL</span>' : "") +
+      (x.paymentEmailSent || x.decisionEmailSent ? '<span class="chip" style="background:rgba(74,222,128,0.15);color:var(--green);border-color:rgba(74,222,128,0.4);">✉ EMAIL SENT</span>' : "") +
       '<span style="margin-left:auto;font-weight:800;color:' + stColor + ';">' + esc(st) + "</span></div>" +
       '<div style="color:var(--muted);font-size:0.85rem;margin-top:0.35rem;">' +
       "PHONE: " + esc(x.phone || "—") +
@@ -852,6 +853,7 @@
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.7rem;">' +
       '<input id="af-name" placeholder="Full name *" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
       '<input id="af-phone" placeholder="Phone / WhatsApp" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
+      '<input id="af-email" placeholder="Email (for automatic confirmations)" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
       '<input id="af-ref" placeholder="Application ref" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
       '<input id="af-paymentref" placeholder="Payment receipt / transaction ref" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
       '<input id="af-position" placeholder="Position" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
@@ -872,6 +874,7 @@
         record: {
           name: name,
           phone: document.getElementById("af-phone").value.trim(),
+          email: document.getElementById("af-email").value.trim(),
           ref: document.getElementById("af-ref").value.trim(),
           paymentRef: document.getElementById("af-paymentref").value.trim(),
           position: document.getElementById("af-position").value.trim(),
@@ -881,7 +884,10 @@
           paymentVerified: false,
           notes: ""
         }
-      }).then(function (r) { if (r.ok) renderApplications(); else alert(r.error || "Could not save."); });
+      }).then(function (r) {
+        if (r.ok) { if (r.info && r.info.length) alert(r.info.join(". ") + "."); renderApplications(); }
+        else alert(r.error || "Could not save.");
+      });
     });
 
     box.addEventListener("change", function (e) {
@@ -891,7 +897,8 @@
       var patch = {};
       patch[t.getAttribute("data-k")] = t.type === "checkbox" ? t.checked : t.value;
       appApi("castmogAppUpdate", Object.assign({ id: id }, patch)).then(function (r) {
-        if (r.ok) renderApplications(); else { alert(r.error || "Could not update."); renderApplications(); }
+        if (r.ok) { if (r.info && r.info.length) alert(r.info.join(". ") + "."); renderApplications(); }
+        else { alert(r.error || "Could not update."); renderApplications(); }
       });
     });
     box.addEventListener("click", function (e) {
@@ -916,7 +923,7 @@
   function renderApplications() {
     var main = document.getElementById("admin-main");
     main.innerHTML = head("Applications & Payments") +
-      '<div class="admin-note">Every website application lands here automatically the moment the applicant pays and submits — including their payment reference. Verify the payment against your bank statement, tick <b>Payment verified</b> when the money lands, and move the status along as you review. Applicants also send their receipt to the club WhatsApp; use <b>ADD APPLICATION</b> to log payments that arrive without the website (direct bank transfers).</div>' +
+      '<div class="admin-note">The applicant is emailed automatically the moment you tick <b>Payment verified</b> or set their status to <b>Accepted</b> (provided their email is on file).<br>Every website application lands here automatically the moment the applicant pays and submits — including their payment reference. Verify the payment against your bank statement, tick <b>Payment verified</b> when the money lands, and move the status along as you review. Applicants also send their receipt to the club WhatsApp; use <b>ADD APPLICATION</b> to log payments that arrive without the website (direct bank transfers).</div>' +
       '<div id="apps-status" style="padding:0.5rem 0;">Loading applications\u2026</div>';
     updateSaveBar();
     appApi("castmogAppList").then(function (res) {
