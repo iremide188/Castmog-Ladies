@@ -1,6 +1,6 @@
 {
   "channel": "https://youtube.com/@castmogfa",
-  "live": false,
+  "live": true,
   "liveVideoId": "",
   "liveTitle": "",
   "videos": []
