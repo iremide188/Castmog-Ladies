@@ -35,6 +35,9 @@
       var ls = C.liveState ? C.liveState(m) : null;
       var live = m.status === "scheduled" && ls && (ls.phase === "first" || ls.phase === "ht" || ls.phase === "second");
       if (live) {
+        var liveScoreLine = (m.liveScoreCastmog != null || m.liveScoreOpponent != null)
+          ? '<span class="lv-score">' + (m.liveScoreCastmog == null ? 0 : m.liveScoreCastmog) + " &ndash; " + (m.liveScoreOpponent == null ? 0 : m.liveScoreOpponent) + "</span>"
+          : "";
         var goals = (m.scorers || []).map(function (s) { return typeof s === "string" ? { name: s, minute: "" } : (s || {}); })
           .filter(function (s) { return s.name; })
           .filter(function (s) { return !s.minute || Number(s.minute) <= ls.minute; })
@@ -42,7 +45,7 @@
         scoreHtml = '<div class="mc-live" data-phase="' + ls.phase + '">' +
           '<span class="lv-badge">LIVE</span>' +
           '<span class="lv-clock" data-kickoff="' + C.kickoff(m).toISOString() + '">' +
-          (ls.phase === "ht" ? "45&prime;" : ls.minute + "&prime;") + "</span>" +
+          (ls.phase === "ht" ? "45&prime;" : ls.minute + "&prime;") + "</span>" + liveScoreLine +
           (goals.length ? '<div class="lv-goals">' + goals.map(function (s) {
             return '<span class="lv-goal" data-min="' + C.esc(s.minute || "") + '">' +
               (s.minute ? C.esc(s.minute) + "&prime; " : "") + C.esc(s.name) + "</span>";

@@ -141,8 +141,11 @@
         F("competition", "Competition"), F("venue", "Venue"),
         F("homeAway", "Home / Away", "select", ["Home", "Away"]),
         F("status", "Match status", "select", STATUS),
-        F("scoreCastmog", "Castmog score", "number"), F("scoreOpponent", "Opponent score", "number"),
+        F("liveScoreCastmog", "LIVE score — Castmog (update during the match)", "number"),
+        F("liveScoreOpponent", "LIVE score — Opponent (update during the match)", "number"),
         F("scorers", "Goalscorers — who scored for Castmog", "scorers"),
+        F("scoreCastmog", "Final score — Castmog (after the match)", "number"),
+        F("scoreOpponent", "Final score — Opponent (after the match)", "number"),
         F("report", "Match report", "textarea"), F("lineup", "Starting lineup", "list"),
         F("subs", "Substitutes", "list"), F("events", "Match events", "list"),
         F("photos", "Match photo URLs", "list"), F("videos", "Match video IDs/URLs", "list"),
@@ -346,7 +349,8 @@
         '<div class="ri-actions">' +
         '<button class="toggle-pub ' + (r.published !== false ? "on" : "off") + '" data-i="' + i + '" data-act="pub">' + (r.published !== false ? "PUBLISHED" : "UNPUBLISHED") + "</button>" +
         (tabKey === "matches" && r.status === "scheduled"
-          ? '<button class="btn btn-green btn-sm" data-i="' + i + '" data-act="result">ENTER RESULT</button>' : "") +
+          ? '<button class="btn btn-green btn-sm" data-i="' + i + '" data-act="livescore">LIVE SCORE</button>' +
+            '<button class="btn btn-outline btn-sm" data-i="' + i + '" data-act="result">ENTER RESULT</button>' : "") +
         '<button class="btn btn-outline btn-sm" data-i="' + i + '" data-act="edit">EDIT</button>' +
         '<button class="btn btn-red btn-sm" data-i="' + i + '" data-act="del">DELETE</button>' +
         "</div></div>";
@@ -384,9 +388,9 @@
         var val = getVal(record, f.key);
         val = val == null ? "" : val;
         var inner;
-        var divider = f.key === "scoreCastmog"
-          ? '<div class="modal-divider">FULL-TIME RESULT &mdash; only fill this in AFTER the match is played. When both scores are entered, the match is automatically marked FINISHED.</div>'
-          : "";
+        var divider = "";
+        if (f.key === "liveScoreCastmog") divider = '<div class="modal-divider live">LIVE MATCH &mdash; update the score and add goalscorers DURING the match. Saving here never ends the match.</div>';
+        if (f.key === "scoreCastmog") divider = '<div class="modal-divider">FULL-TIME RESULT &mdash; only fill this in AFTER the match is played. When both scores are entered, the match is automatically marked FINISHED.</div>';
         if (f.type === "scorers") {
           inner = '<div class="scorer-box" id="mf-' + f.key + '"></div>' +
             '<button type="button" class="btn btn-outline btn-sm" id="mf-' + f.key + '-add">+ ADD GOALSCORER</button>' +
@@ -489,6 +493,16 @@
       };
       (Array.isArray(getVal(record, "scorers")) ? getVal(record, "scorers") : []).forEach(addScorerRow);
       addGoalBtn.addEventListener("click", function () { addScorerRow(null); });
+    }
+
+    /* live mode: jump straight to the LIVE score fields */
+    if (modalOpts.liveMode) {
+      ["mf-liveScoreCastmog", "mf-liveScoreOpponent"].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) { el.style.borderColor = "var(--green)"; el.style.boxShadow = "0 0 0 3px rgba(47,191,113,.25)"; }
+      });
+      var lsc = document.getElementById("mf-liveScoreCastmog");
+      if (lsc) { lsc.focus(); lsc.scrollIntoView({ behavior: "smooth", block: "center" }); }
     }
 
     /* result mode: jump straight to the score fields */
@@ -612,6 +626,13 @@
           if (name === "youtube") files.youtube.dirty = true; else files[name].dirty = true;
           renderCollectionTab(name);
           updateSaveBar();
+        } else if (act === "livescore") {
+          openRecordModal(cfg, JSON.parse(JSON.stringify(arr[i])), function (r) {
+            arr[i] = r;
+            if (name === "youtube") files.youtube.dirty = true; else files[name].dirty = true;
+            renderCollectionTab(name);
+            updateSaveBar();
+          }, { liveMode: true });
         } else if (act === "result") {
           openRecordModal(cfg, JSON.parse(JSON.stringify(arr[i])), function (r) {
             arr[i] = r;

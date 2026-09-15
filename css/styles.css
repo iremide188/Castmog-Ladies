@@ -1425,3 +1425,19 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
 @keyframes lv-pulse {
   50% { opacity: 0.55; }
 }
+
+/* ---------- Live score ---------- */
+.lv-score {
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.modal-divider.live {
+  border-color: rgba(47, 191, 113, 0.5);
+  background: rgba(47, 191, 113, 0.08);
+  color: #35c289;
+}
