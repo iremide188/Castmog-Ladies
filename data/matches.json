@@ -9,10 +9,16 @@
     "competition": "friendly",
     "venue": "mko stadium",
     "homeAway": "Home",
-    "status": "scheduled",
-    "scoreCastmog": null,
-    "scoreOpponent": null,
-    "scorers": [],
+    "status": "finished",
+    "scoreCastmog": 1,
+    "scoreOpponent": 0,
+    "scorers": [
+      {
+        "id": "edeh-linda",
+        "name": "Edeh Linda",
+        "minute": ""
+      }
+    ],
     "report": "",
     "lineup": [],
     "subs": [],
