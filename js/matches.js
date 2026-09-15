@@ -94,6 +94,7 @@
     if (!root) return;
 
     document.addEventListener("club:matches-updated", function () { render(); });
+    document.addEventListener("club:kickoff-reached", function () { render(); });
 
     function render() {
       var hash = window.location.hash.replace("#match-", "");
@@ -103,6 +104,7 @@
       if (m) {
         root.innerHTML = matchDetail(m);
         C.activateFacades(root);
+        if (window.CLUB_STARTCLOCKS) window.CLUB_STARTCLOCKS();
         if (window.CLUB_MATCHCARD) { var cd = root.querySelector(".countdown[data-kickoff]"); }
         document.getElementById("matches-anchor").scrollIntoView({ behavior: "instant" });
         return;
@@ -141,24 +143,10 @@
           : '<div class="empty-state">Match history will be recorded here.</div>');
 
       root.innerHTML = html;
+      if (window.CLUB_STARTCLOCKS) window.CLUB_STARTCLOCKS();
     }
 
     window.addEventListener("hashchange", render);
     render();
-
-    // countdown tick
-    setInterval(function () {
-      document.querySelectorAll(".countdown[data-kickoff]").forEach(function (cd) {
-        var t = new Date(cd.getAttribute("data-kickoff")).getTime() - Date.now();
-        if (isNaN(t) || t < 0) t = 0;
-        var nums = cd.querySelectorAll(".cd-num");
-        if (nums.length === 4) {
-          nums[0].textContent = Math.floor(t / 86400000);
-          nums[1].textContent = Math.floor((t % 86400000) / 3600000);
-          nums[2].textContent = Math.floor((t % 3600000) / 60000);
-          nums[3].textContent = Math.floor((t % 60000) / 1000);
-        }
-      });
-    }, 1000);
   });
 })();

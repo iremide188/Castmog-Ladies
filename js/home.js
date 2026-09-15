@@ -81,11 +81,14 @@
 
   window.CLUB_MATCHCARD = matchCard;
 
+  var clockStarted = false;
+
+  /* Idempotent: safe to call again after every re-render. Queries fresh DOM
+     each tick so replaced cards keep ticking, and fires club:kickoff-reached
+     the moment a countdown hits zero so the card flips to LIVE without a refresh. */
   function startCountdowns() {
-    var cds = document.querySelectorAll(".countdown[data-kickoff]");
-    if (!cds.length) return;
     function tick() {
-      cds.forEach(function (cd) {
+      document.querySelectorAll(".countdown[data-kickoff]").forEach(function (cd) {
         var t = new Date(cd.getAttribute("data-kickoff")).getTime() - Date.now();
         if (isNaN(t)) return;
         if (t < 0) t = 0;
@@ -97,6 +100,10 @@
         if (nums.length === 4) {
           nums[0].textContent = d; nums[1].textContent = h;
           nums[2].textContent = mnt; nums[3].textContent = s;
+        }
+        if (t === 0 && !cd.getAttribute("data-fired")) {
+          cd.setAttribute("data-fired", "1");
+          document.dispatchEvent(new CustomEvent("club:kickoff-reached"));
         }
       });
     }
@@ -123,9 +130,16 @@
         });
       });
     }
+    if (!clockStarted) {
+      clockStarted = true;
+      setInterval(function () { tick(); liveTick(); }, 1000);
+    }
+    tick();
     liveTick();
-    setInterval(function () { tick(); liveTick(); }, 1000);
   }
+
+  /* Match Centre pages load home.js too — let them run the clocks. */
+  window.CLUB_STARTCLOCKS = startCountdowns;
 
   function render() {
     var S = C.get("settings") || {};
@@ -258,5 +272,6 @@
       var m = document.getElementById("home-next-match");
       if (m) render();
     });
+    document.addEventListener("club:kickoff-reached", function () { render(); });
   });
 })();
