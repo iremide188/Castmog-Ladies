@@ -196,7 +196,7 @@
     news: {
       title: "News", titleKey: "title", sub: function (r) { return (r.category || "") + " · " + (r.date || ""); },
       fields: [
-        F("title", "Title"), F("image", "Featured image URL"),
+        F("title", "Title"), F("image", "Featured image", "image", ["news"]),
         F("body", "Body", "textarea"), F("category", "Category"),
         F("author", "Author"), F("date", "Date", "date"), F("seoDescription", "SEO description", "textarea")
       ]
@@ -205,7 +205,7 @@
       title: "Achievements", titleKey: "trophy", sub: function (r) { return r.year || ""; },
       fields: [
         F("trophy", "Trophy / competition name"), F("year", "Year"), F("description", "Description", "textarea"),
-        F("image", "Image URL"), F("category", "Category"), F("source", "Source")
+        F("image", "Image", "image", ["achievements"]), F("category", "Category"), F("source", "Source")
       ]
     },
     media: {
@@ -213,7 +213,7 @@
       fields: [
         F("caption", "Caption"), F("type", "Type", "select", ["photo", "video", "youtube"]),
         F("category", "Category", "select", ["photos", "videos", "training", "match-highlights", "interviews", "news", "youtube"]),
-        F("url", "URL"), F("youtubeId", "YouTube video ID"), F("thumb", "Thumbnail URL"),
+        F("url", "Photo / video URL — upload from your device or paste a link", "media", ["media"]), F("youtubeId", "YouTube video ID"), F("thumb", "Thumbnail URL"),
         F("date", "Date", "date"), F("featured", "Featured", "check")
       ]
     },
@@ -446,6 +446,14 @@
             '<div class="iu-status" id="mf-' + f.key + '-status"></div></div>';
           return divider + '<div class="field field-wide"><label>' + esc(f.label) + "</label>" + inner + "</div>";
         }
+        if (f.type === "media") {
+          inner = '<div class="iu-wrap">' +
+            '<input type="text" id="mf-' + f.key + '" value="' + esc(val) + '" placeholder="Paste a link (YouTube / image / video URL) or upload from your device">' +
+            '<button type="button" class="btn btn-outline btn-sm iu-btn" data-iu="' + f.key + '" data-folder="' + (f.opts[0] || "misc") + '" data-kind="media">UPLOAD FROM DEVICE</button>' +
+            '<input type="file" accept="video/*,image/*" style="display:none" id="mf-' + f.key + '-file" data-kind="media">' +
+            '<div class="iu-status" id="mf-' + f.key + '-status"></div></div>';
+          return divider + '<div class="field field-wide"><label>' + esc(f.label) + "</label>" + inner + "</div>";
+        }
         if (f.type === "filelist") {
           inner = '<textarea id="mf-' + f.key + '" rows="3" placeholder="One entry per line — paste links or upload from your device">' + esc((val || []).join("\n")) + "</textarea>" +
             '<button type="button" class="btn btn-outline btn-sm iu-btn" data-iu="' + f.key + '" data-folder="' + (f.opts[0] || "misc") + '" data-kind="list">UPLOAD FROM DEVICE</button>' +
@@ -495,6 +503,13 @@
               var prev = document.getElementById("mf-" + key + "-prev");
               prev.src = msg;
               prev.style.display = "";
+            } else if (kind === "media") {
+              target.value = msg;
+              var typeSel = document.getElementById("mf-type");
+              if (typeSel) {
+                if (file.type.indexOf("video") === 0) typeSel.value = "video";
+                else if (file.type.indexOf("image") === 0) typeSel.value = "photo";
+              }
             } else {
               var lines = target.value.split("\n").map(function (x) { return x.trim(); }).filter(Boolean);
               lines.push(msg);
