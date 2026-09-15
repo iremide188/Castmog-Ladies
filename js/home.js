@@ -200,26 +200,17 @@
     var trEl = document.getElementById("home-training");
     if (trEl) {
       var tr = C.get("training") || {};
-      var latest = tr.latest && tr.latest.published !== false ? tr.latest : null;
+      var trOff = String(tr.status || "").toLowerCase() === "off";
       trEl.innerHTML =
-        '<div class="grid grid-2">' +
-        '<div class="panel"><span class="motto">TRAINING SCHEDULE</span>' +
+        '<div class="panel' + (trOff ? " training-off" : "") + '"><span class="motto">TRAINING SCHEDULE</span>' +
+        (trOff
+          ? '<div class="off-badge">TRAINING OFF</div>' +
+            (tr.offNotice ? '<p class="off-notice">' + C.esc(tr.offNotice) + "</p>" : "")
+          : "") +
         "<h3 style='font-family:var(--font-head);font-size:1.9rem;text-transform:uppercase;margin:0.6rem 0;'>" + C.esc(tr.days || "") + "</h3>" +
         '<p style="color:var(--yellow);font-weight:800;letter-spacing:0.1em;">' + C.esc(tr.time || "") + "</p>" +
         (tr.location ? '<p style="color:var(--muted);">' + C.esc(tr.location) + "</p>" : "") +
         (tr.notes ? '<p style="color:var(--muted);font-size:0.88rem;">' + C.esc(tr.notes) + "</p>" : "") +
-        "</div>" +
-        (latest
-          ? '<div class="panel"><span class="motto" style="color:var(--green);">LATEST TRAINING</span>' +
-            (latest.date ? '<p style="margin-top:0.6rem;color:var(--muted);">' + C.fmtDate(latest.date) + "</p>" : "") +
-            (latest.report ? '<p style="margin-top:0.4rem;">' + C.esc(latest.report.slice(0, 220)) + "&hellip;</p>" : '<p style="color:var(--muted);">Report coming soon.</p>') +
-            (latest.photos && latest.photos.length
-              ? '<div class="grid grid-3" style="margin-top:1rem;">' + latest.photos.slice(0, 3).map(function (u) {
-                  return '<img src="' + C.esc(u) + '" alt="Training photo" loading="lazy" style="border-radius:10px;aspect-ratio:4/3;object-fit:cover;">';
-                }).join("") + "</div>"
-              : "") +
-            "</div>"
-          : '<div class="empty-state"><span class="es-title">LATEST TRAINING</span>Training updates will appear here.</div>') +
         "</div>";
     }
 

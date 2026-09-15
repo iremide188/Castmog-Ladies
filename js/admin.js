@@ -232,8 +232,8 @@
       fields: [
         F("days", "Training days"), F("time", "Training time"), F("location", "Location"),
         F("type", "Training type"), F("notes", "Notes", "textarea"),
-        F("latest.date", "Latest session date", "date"), F("latest.report", "Latest session report", "textarea"),
-        F("latest.photos", "Latest session photo URLs", "list"), F("latest.videos", "Latest session video IDs/URLs", "list")
+        F("status", "Is training on?", "select", ["On", "Off"]),
+        F("offNotice", "Notice to players when training is OFF (e.g. 'No training this week — we resume on Monday')")
       ]
     },
     settings: {

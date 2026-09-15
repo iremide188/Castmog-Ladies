@@ -1489,3 +1489,29 @@ html.has-banner .page-hero::before { opacity: 1; }
 }
 
 .page-hero .container { position: relative; z-index: 1; }
+
+/* ---------- Training off state ---------- */
+.panel.training-off { border-color: rgba(239, 68, 68, 0.45); }
+
+.off-badge {
+  display: inline-block;
+  margin: 0.8rem 0 0.2rem;
+  padding: 0.32rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.off-notice {
+  margin: 0.6rem 0 0;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f0b4b4;
+}
