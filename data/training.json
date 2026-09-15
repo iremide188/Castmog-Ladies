@@ -1,7 +1,7 @@
 {
-  "days": "",
-  "time": "",
-  "location": "",
+  "days": "MONDAY – FRIDAY",
+  "time": "7:00 AM",
+  "location": "MKO",
   "type": "",
   "notes": "",
   "latest": {
@@ -10,6 +10,6 @@
     "photos": [],
     "videos": []
   },
-  "status": "no",
-  "offNotice": "we resume on wednesday"
+  "status": "YES",
+  "offNotice": ""
 }
