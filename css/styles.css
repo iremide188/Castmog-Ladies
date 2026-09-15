@@ -612,7 +612,12 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
 .info-grid .ig-value { font-size: 0.95rem; }
 
 /* ---------- Staff ---------- */
-.staff-card { text-align: center; }
+.staff-card { text-align: center; position: relative; }
+
+/* whole card links to the coach profile; social link stays clickable above it */
+.staff-card .sc-link { position: absolute; inset: 0; z-index: 1; }
+.staff-card:hover { transform: translateY(-5px); border-color: rgba(245, 197, 24, 0.5); box-shadow: 0 16px 38px rgba(0, 0, 0, 0.5); }
+.staff-card .sc-more { position: relative; z-index: 2; display: inline-block; margin-top: 0.4rem; font-size: 0.64rem; font-weight: 800; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; }
 
 .staff-card .sc-avatar {
   width: 86px; height: 86px;
@@ -1313,6 +1318,8 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
 
 /* staff social link on club page */
 .sc-social {
+  position: relative;
+  z-index: 2;
   display: inline-block;
   margin: 0.5rem 0 0.6rem;
   font-size: 0.68rem;

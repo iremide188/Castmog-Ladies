@@ -35,12 +35,13 @@
       var img = m.photo
         ? '<img class="sc-photo" src="' + C.esc(m.photo) + '" alt="' + C.esc(m.name) + '" loading="lazy">'
         : '<div class="sc-avatar">' + C.initials(m.name) + "</div>";
-      return '<div class="card staff-card">' + img +
+      return '<div class="card staff-card">' +
+        '<a class="sc-link" href="coach.html?id=' + encodeURIComponent(m.id) + '" aria-label="View ' + C.esc(m.name) + ' profile"></a>' + img +
         '<p class="sc-name">' + C.esc(m.name) + "</p>" +
         '<span class="sc-role">' + C.esc(m.role) + "</span>" +
         (m.socialUrl ? '<a class="sc-social" href="' + C.esc(m.socialUrl) + '" target="_blank" rel="noopener">FOLLOW ON SOCIAL MEDIA</a>' : "") +
         (m.bio ? '<p style="font-size:0.9rem;">' + C.esc(m.bio.slice(0, 200)) + "&hellip;</p>" : "") +
-        "</div>";
+        '<span class="sc-more">VIEW PROFILE &rarr;</span></div>';
     }).join("");
   });
 })();
