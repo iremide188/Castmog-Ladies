@@ -1441,3 +1441,51 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
   background: rgba(47, 191, 113, 0.08);
   color: #35c289;
 }
+
+/* ---------- Site-wide background display (all pages) ---------- */
+body {
+  background:
+    radial-gradient(1100px 520px at 88% -8%, rgba(47, 191, 113, 0.08), transparent 62%),
+    radial-gradient(880px 460px at -12% 34%, rgba(250, 204, 21, 0.05), transparent 58%),
+    radial-gradient(1000px 560px at 55% 112%, rgba(47, 191, 113, 0.07), transparent 62%),
+    var(--bg);
+}
+
+/* giant crest watermark behind every page */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("../images/crest.png");
+  background-repeat: no-repeat;
+  background-position: center 40%;
+  background-size: min(80vw, 660px);
+  opacity: 0.045;
+}
+
+/* page banners: optional photo (Settings > Page banner photo) + readable overlay */
+.page-hero { overflow: hidden; }
+
+.page-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--page-banner, none);
+  background-size: cover;
+  background-position: center 35%;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+html.has-banner .page-hero::before { opacity: 1; }
+
+.page-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(9, 13, 10, 0.74) 0%, rgba(9, 13, 10, 0.88) 100%);
+}
+
+.page-hero .container { position: relative; z-index: 1; }

@@ -21,7 +21,14 @@ window.CLUB = (function () {
         .catch(function () { db[name] = null; })
         .then(function () {
           left--;
-          if (left === 0) onReady.forEach(function (cb) { cb(); });
+          if (left === 0) {
+            var st = (db.settings && typeof db.settings === "object") ? db.settings : {};
+            if (st.bannerImage) {
+              document.documentElement.classList.add("has-banner");
+              document.documentElement.style.setProperty("--page-banner", 'url("' + st.bannerImage + '")');
+            }
+            onReady.forEach(function (cb) { cb(); });
+          }
         });
     });
   }

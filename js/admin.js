@@ -243,6 +243,7 @@
         F("email", "Official email"), F("phone", "Phone"), F("whatsappDisplay", "WhatsApp (display)"),
         F("whatsappLink", "WhatsApp (wa.me link)"), F("applicationFee", "Application fee (₦)", "number"),
         F("palmpay.number", "PalmPay account number"), F("palmpay.name", "PalmPay account name"),
+        F("bannerImage", "Page banner photo — displayed at the top of every page (one wide photo, e.g. the team or stadium)", "image", ["settings"]),
         F("social.youtube", "YouTube URL"), F("social.instagram", "Instagram URL"),
         F("social.facebook", "Facebook URL"), F("social.tiktok", "TikTok URL"), F("social.twitter", "X/Twitter URL")
       ]
