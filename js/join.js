@@ -282,12 +282,18 @@
       '<button class="btn btn-yellow" id="confirm-payment">I HAVE PAID &mdash; SUBMIT APPLICATION</button>' +
       "</div></div>";
     $("back-review").addEventListener("click", function () { state.step = 2; renderStep2(); window.scrollTo({ top: 0 }); });
-    $("confirm-payment").addEventListener("click", function () {
+    $("confirm-payment").addEventListener("click", async function () {
       clearError();
       collectForm();
       var pr = state.data.paymentRef || "";
       if (pr.replace(/\s/g, "").length < 6) { showError("Please enter the transaction reference from your payment receipt so the club can verify your payment."); return; }
-      finalize();
+      var btn = $("confirm-payment");
+      btn.disabled = true; btn.textContent = "UPLOADING PHOTO & CV\u2026";
+      var files = { photoUri: "", cvUri: "", photoName: state.data.photoName || "", cvName: state.data.cvName || "" };
+      for (var k of [["photo", "photoUri"], ["cv", "cvUri"]]) {
+        try { if (picked[k[0]]) files[k[1]] = await uploadAppFile(k[0], picked[k[0]]); } catch (e) { /* never block the application */ }
+      }
+      finalize(files);
     });
   }
 
@@ -298,8 +304,58 @@
     return "CAST-" + year + "-" + String(seq).padStart(4, "0");
   }
 
+  /* --- applicant photo + CV upload (private club storage) ------------------ */
+  var UPLOAD_URL = "https://superagent-e3f5b6f2.base44.app/functions/castmogAppUpload";
+
+  /* shrink big phone photos before upload: max 1200px JPEG */
+  function compressPhoto(file) {
+    return new Promise(function (resolve) {
+      try {
+        var url = URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function () {
+          try {
+            var max = 1200, w = img.naturalWidth, h = img.naturalHeight;
+            var k = Math.min(1, max / Math.max(w, h));
+            var cv = document.createElement("canvas");
+            cv.width = Math.max(1, Math.round(w * k)); cv.height = Math.max(1, Math.round(h * k));
+            cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+            URL.revokeObjectURL(url);
+            cv.toBlob(function (b) { resolve(b && b.size && b.size < file.size ? new File([b], (file.name || "photo.jpg").replace(/\.[^.]*$/, "") + ".jpg", { type: "image/jpeg" }) : file); }, "image/jpeg", 0.85);
+          } catch (e) { resolve(file); }
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); resolve(file); };
+        img.src = url;
+      } catch (e) { resolve(file); }
+    });
+  }
+
+  function fileToB64(file) {
+    return new Promise(function (resolve, reject) {
+      var r = new FileReader();
+      r.onload = function () { resolve(String(r.result).split(",")[1]); };
+      r.onerror = function () { reject(new Error("Could not read the file.")); };
+      r.readAsDataURL(file);
+    });
+  }
+
+  async function uploadAppFile(kind, file) {
+    var f = kind === "photo" ? await compressPhoto(file) : file;
+    if (f.size > 8 * 1024 * 1024) throw new Error(kind === "photo" ? "Your photo is too large (max 8MB after processing)." : "Your CV is larger than 8MB — please attach a smaller file.");
+    var data = await fileToB64(f);
+    var r = await fetch(UPLOAD_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kind: kind, name: f.name || (kind + ".jpg"), data: data })
+    });
+    var j = null; try { j = await r.json(); } catch (e) {}
+    if (!j || !j.ok || !j.uri) throw new Error((j && j.error) || "Upload failed");
+    return j.uri;
+  }
+
   /* every completed application lands in the club's admin dashboard automatically */
-  function sendToDashboard(ref, d) {
+  function sendToDashboard(ref, d, files) {
+    files = files || {};
     try {
       var S = C.get("settings") || {};
       fetch("https://superagent-e3f5b6f2.base44.app/functions/castmogAppSubmit", {
@@ -315,15 +371,20 @@
           location: d.location || "",
           paymentRef: d.paymentRef || "",
           fee: String(S.applicationFee || ""),
-          source: "website"
+          source: "website",
+          photoUri: files.photoUri || "",
+          cvUri: files.cvUri || "",
+          photoName: files.photoName || "",
+          cvName: files.cvName || ""
         })
       }).catch(function () {});
     } catch (e) { /* never block the application on this */ }
   }
 
-  function finalize() {
+  function finalize(files) {
+    files = files || {};
     state.ref = makeRef();
-    sendToDashboard(state.ref, state.data);
+    sendToDashboard(state.ref, state.data, files);
     var apps = [];
     try { apps = JSON.parse(localStorage.getItem("castmog_applications") || "[]"); } catch (e) {}
     apps.push({
@@ -365,8 +426,8 @@
       "APPLICATION FEE: PAID (BANK TRANSFER)\n" +
       "PAYMENT REFERENCE: " + (d.paymentRef || "") + "\n" +
       "PAYMENT RECEIPT: to be sent in this chat\n\n" +
-      (d.photoName ? "PLAYER PHOTO: to be sent in this chat (" + d.photoName + ")\n" : "") +
-      (d.cvName ? "FOOTBALL CV: to be sent in this chat (" + d.cvName + ")\n" : "") +
+      (d.photoName ? "PLAYER PHOTO: attached to this application (" + d.photoName + ")\n" : "") +
+      (d.cvName ? "FOOTBALL CV: attached to this application (" + d.cvName + ")\n" : "") +
       "This application was submitted through the Castmog Ladies website.";
 
     $("join-body").innerHTML =

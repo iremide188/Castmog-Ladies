@@ -912,6 +912,22 @@
     return "Hello " + name + ", thank you for your application to Castmog Ladies Football Academy. Your reference is " + ref + ".";
   }
 
+  /* applicant photo thumbnail + CV link (files live in private storage,
+     signed URLs are generated fresh by castmogAppList on every load) */
+  function appFilesHtml(x) {
+    var h = "";
+    if (x.photoUrl) {
+      h += '<a href="' + esc(x.photoUrl) + '" target="_blank" rel="noopener" title="Open the full photo in a new tab" style="display:inline-flex;gap:0.6rem;align-items:center;text-decoration:none;">' +
+        '<img src="' + esc(x.photoUrl) + '" alt="Player photo" style="width:62px;height:62px;object-fit:cover;border-radius:10px;border:1px solid var(--line);">' +
+        '<span class="btn btn-outline btn-sm" style="pointer-events:none;">VIEW PHOTO</span></a>';
+    }
+    if (x.cvUrl) {
+      h += '<a href="' + esc(x.cvUrl) + '" target="_blank" rel="noopener" class="btn btn-outline btn-sm" style="text-decoration:none;">OPEN CV' + (x.cvName ? " (" + esc(String(x.cvName).split(".").pop().toUpperCase()) + ")" : "") + "</a>";
+    }
+    if (!h) return "";
+    return '<div style="display:flex;flex-wrap:wrap;gap:0.8rem;align-items:center;margin-top:0.6rem;">' + h + "</div>";
+  }
+
   function appRowHtml(x) {
     var st = x.status || "Payment received";
     var stColor = st === "Accepted" ? "var(--green)" : st === "Not selected" ? "var(--red)" : st === "Payment verified" || st === "Under review" || st === "Further assessment" ? "var(--yellow)" : "var(--muted)";
@@ -928,6 +944,7 @@
       (x.email ? " · EMAIL: " + esc(x.email) : "") +
       " · PAYMENT REF: " + esc(x.paymentRef || "—") +
       (x.fee ? " · FEE: \u20A6" + esc(x.fee) : "") + "</div>" +
+      appFilesHtml(x) +
       '<div style="display:flex;flex-wrap:wrap;gap:0.8rem;align-items:center;margin-top:0.7rem;">' +
       '<label style="display:flex;gap:0.35rem;align-items:center;font-size:0.85rem;cursor:pointer;"><input type="checkbox" data-id="' + esc(x.id) + '" data-k="receiptReceived"' + (x.receiptReceived ? " checked" : "") + '> Receipt received</label>' +
       '<label style="display:flex;gap:0.35rem;align-items:center;font-size:0.85rem;cursor:pointer;"><input type="checkbox" data-id="' + esc(x.id) + '" data-k="paymentVerified"' + (x.paymentVerified ? " checked" : "") + '> Payment verified</label>' +
