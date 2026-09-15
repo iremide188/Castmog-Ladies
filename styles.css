@@ -1,0 +1,14 @@
+
+/* ---------- CLUB WIRE (auto-synced posts) ---------- */
+.wire-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-top:1.25rem}
+.wire-card{position:relative;display:block;background:var(--card,#141a15);border:1px solid rgba(212,175,55,.18);border-radius:12px;overflow:hidden;text-decoration:none;transition:transform .25s,border-color .25s}
+.wire-card:hover{transform:translateY(-4px);border-color:rgba(212,175,55,.55)}
+.wire-img{display:block;width:100%;aspect-ratio:9/13;max-height:290px;object-fit:cover;background:#0d110e}
+.wire-img-empty{background:linear-gradient(160deg,#16201a,#0d110e)}
+.wire-badge{position:absolute;top:.65rem;left:.65rem;z-index:2;font-weight:800;font-size:.72rem;letter-spacing:.08em;padding:.25rem .5rem;border-radius:6px;background:rgba(13,17,14,.85);color:#d4af37;border:1px solid rgba(212,175,55,.5)}
+.wire-body{padding:.75rem .8rem .85rem}
+.wire-time{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:rgba(224,226,223,.55)}
+.wire-title{margin-top:.3rem;font-size:.86rem;line-height:1.35;color:#e0e2df;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wire-plays{display:inline-block;margin-top:.4rem;font-size:.72rem;color:rgba(212,175,55,.9)}
+.wire-sub{margin:.35rem 0 0;font-size:.92rem;color:rgba(224,226,223,.65)}
+.wire-sync-badge{display:inline-flex;align-items:center;gap:.45rem;font-size:.72rem;letter-spacing:.1em;color:#d4af37;border:1px solid rgba(212,175,55,.4);padding:.3rem .6rem;border-radius:999px}

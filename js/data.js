@@ -8,7 +8,7 @@
 window.CLUB = (function () {
   "use strict";
 
-  var FILES = ["settings", "club", "players", "staff", "matches", "news", "achievements", "media", "training", "youtube"];
+  var FILES = ["settings", "club", "players", "staff", "matches", "news", "achievements", "media", "training", "youtube", "tiktok"];
   var db = {};
   var onReady = [];
 
@@ -362,6 +362,45 @@ window.CLUB = (function () {
     });
   }
 
+  /* ---------- CLUB WIRE: everything the club posts on its accounts
+     (TikTok auto-sync + YouTube auto-feed), newest first ---------- */
+  function wire() {
+    var items = [];
+    var tt = db.tiktok || {};
+    (tt.videos || []).forEach(function (v) {
+      if (!v.url) return;
+      items.push({
+        src: "tiktok", url: v.url,
+        title: v.desc || "New post on TikTok",
+        img: v.cover || "", ts: (v.ts || 0) * 1000,
+        plays: v.plays || 0
+      });
+    });
+    var yt = db.youtube || {};
+    (yt.videos || []).forEach(function (v) {
+      if (!v.youtubeId) return;
+      var t = v.date ? new Date(String(v.date).slice(0, 10) + "T12:00:00Z").getTime() : 0;
+      items.push({
+        src: "youtube", url: "https://www.youtube.com/watch?v=" + v.youtubeId,
+        title: v.title || "New video on YouTube",
+        img: ytThumb(v.youtubeId), ts: t
+      });
+    });
+    items.sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+    return items;
+  }
+
+  function timeAgo(ts) {
+    if (!ts) return "";
+    var s = Math.floor((Date.now() - ts) / 1000);
+    if (s < 60) return "just now";
+    var m = Math.floor(s / 60); if (m < 60) return m + "m ago";
+    var h = Math.floor(m / 60); if (h < 24) return h + "h ago";
+    var d = Math.floor(h / 24); if (d < 7) return d + "d ago";
+    if (d < 30) return Math.floor(d / 7) + "w ago";
+    return shortDate(new Date(ts));
+  }
+
   function waLink(text) {
     var s = db.settings || {};
     var base = s.whatsappLink || "https://wa.me/2349130527339";
@@ -378,7 +417,7 @@ window.CLUB = (function () {
     ytThumb: ytThumb, ytFacade: ytFacade, activateFacades: activateFacades,
     parseTime: parseTime, kickoff: kickoff, mediaItem: mediaItem,
     liveClock: liveClock, liveState: liveState,
-    waLink: waLink,
+    waLink: waLink, wire: wire, timeAgo: timeAgo,
     onReady: function (cb) {
       onReady.push(cb);
       if (ready()) cb();

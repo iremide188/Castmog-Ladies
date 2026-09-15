@@ -223,6 +223,32 @@
       }).join("");
     }
 
+    // CLUB WIRE — auto-synced posts from the club accounts (TikTok + YouTube)
+    var wireEl = document.getElementById("home-wire");
+    if (wireEl) {
+      function renderWire() {
+        var items = C.wire().slice(0, 8);
+        if (!items.length) {
+          wireEl.innerHTML = '<div class="empty-state"><span class="es-title">CLUB POSTS LAND HERE AUTOMATICALLY</span>' +
+            'New posts from our official accounts appear the moment they go live.</div>';
+          return;
+        }
+        wireEl.innerHTML = items.map(function (w) {
+          var img = w.img
+            ? '<img class="wire-img" src="' + C.esc(w.img) + '" alt="" loading="lazy">'
+            : '<div class="wire-img wire-img-empty"></div>';
+          var badge = w.src === "tiktok" ? "TT" : "YT";
+          var plays = w.plays ? '<span class="wire-plays">&#9654; ' + w.plays.toLocaleString() + "</span>" : "";
+          return '<a class="wire-card" href="' + C.esc(w.url) + '" target="_blank" rel="noopener">' +
+            '<span class="wire-badge">' + badge + "</span>" + img +
+            '<div class="wire-body"><div class="wire-time">' + C.timeAgo(w.ts) + "</div>" +
+            '<div class="wire-title">' + C.esc((w.title || "").slice(0, 90)) + "</div>" + plays + "</div></a>";
+        }).join("");
+      }
+      renderWire();
+      document.addEventListener("club:videos-updated", renderWire);
+    }
+
     // LATEST VIDEOS / YOUTUBE (re-renders when channel videos auto-arrive)
     var ytEl = document.getElementById("home-videos");
     if (ytEl) {

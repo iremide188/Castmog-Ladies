@@ -4,7 +4,7 @@
   var C = window.CLUB;
   var FILTERS = [
     ["all", "ALL"], ["photos", "PHOTOS"], ["videos", "VIDEOS"], ["training", "TRAINING"],
-    ["match-highlights", "MATCH HIGHLIGHTS"], ["interviews", "INTERVIEWS"], ["news", "NEWS"], ["youtube", "YOUTUBE"]
+    ["match-highlights", "MATCH HIGHLIGHTS"], ["interviews", "INTERVIEWS"], ["news", "NEWS"], ["youtube", "YOUTUBE"], ["tiktok", "TIKTOK"]
   ];
   var active = "all";
 
@@ -17,6 +17,11 @@
     }
     if (m.type === "youtube" && m.youtubeId) {
       return '<div>' + C.ytFacade(m.youtubeId, m.caption) + (m.caption ? '<div class="yt-title">' + C.esc(m.caption) + "</div>" : "") + "</div>";
+    }
+    if (m.type === "tiktok" && m.url) {
+      return '<a class="media-item" href="' + C.esc(m.url) + '" target="_blank" rel="noopener">' + tag +
+        '<img src="' + C.esc(m.cover || "") + '" alt="' + C.esc(m.caption || "TikTok post") + '" loading="lazy">' +
+        '<figcaption class="mi-cap">' + C.esc(m.caption || "Watch on TikTok") + "</figcaption></a>";
     }
     if (m.type === "video" && m.url) {
       return '<a class="media-item" href="' + C.esc(m.url) + '" target="_blank" rel="noopener">' + tag +
@@ -44,6 +49,11 @@
       });
       if (active === "all" || active === "youtube") list = list.concat(ytVids);
       if (active === "videos") list = list.concat(ytVids);
+      var tt = C.get("tiktok") || {};
+      var ttVids = (tt.videos || []).map(function (v) {
+        return { type: "tiktok", url: v.url, cover: v.cover, caption: (v.desc || "New TikTok post").slice(0, 70), category: "tiktok", published: true };
+      });
+      if (active === "all" || active === "tiktok" || active === "videos") list = list.concat(ttVids);
 
       mount.innerHTML = list.length
         ? '<div class="media-grid">' + list.map(itemHtml).join("") + "</div>"
