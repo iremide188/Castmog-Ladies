@@ -118,6 +118,33 @@ window.CLUB = (function () {
   function get(name) { return db[name]; }
   function ready() { return Object.keys(db).length > 0; }
 
+  /* --- Coach social icon row (shared) ------------------------------------ */
+  var SOC_ICONS = {
+    instagram: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="19" height="19" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
+    x: '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M18.9 1.2h3.7l-8.1 9.2 9.5 12.4h-7.4l-5.8-7.6-6.6 7.6H.5l8.6-9.8L0 1.2h7.6l5.2 6.9 6.1-6.9Zm-1.3 19.6h2L6.5 3.2H4.3l13.3 17.6Z"/></svg>',
+    tiktok: '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M16.6 5.8A4.3 4.3 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-1.8-2.5V9.8a6 6 0 1 0 5.2 5.9V8.7a7.3 7.3 0 0 0 4.2 1.4V7a4.3 4.3 0 0 1-3.4-1.2Z"/></svg>',
+    facebook: '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M13.5 21v-7h2.6l.4-3h-3V9.1c0-.9.3-1.5 1.6-1.5h1.5V5c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8V11H8v3h2.7v7h2.8Z"/></svg>'
+  };
+  var SOC_BASES = { instagram: "https://instagram.com/", x: "https://x.com/", tiktok: "https://tiktok.com/@", facebook: "https://facebook.com/" };
+  function socialHref(net, v) {
+    var t = String(v == null ? "" : v).trim();
+    if (!t) return "";
+    if (t.charAt(0) === "@") return SOC_BASES[net] + t.slice(1);
+    if (/^https?:\/\//i.test(t)) return t;
+    return "https://" + t.replace(/^\/+/, "");
+  }
+  /* small icon-only row for staff cards (club/home/squad) */
+  function socialIconRow(m) {
+    var soc = (m && m.social) || {};
+    var nets = [["instagram", "Instagram"], ["x", "X / Twitter"], ["tiktok", "TikTok"], ["facebook", "Facebook"]];
+    var html = nets.map(function (n) {
+      var href = socialHref(n[0], soc[n[0]] || (n[0] === "instagram" ? (m.socialUrl || "") : ""));
+      if (!href) return "";
+      return '<a class="sc-soc" href="' + esc(href) + '" target="_blank" rel="noopener" title="' + n[1] + '" aria-label="' + n[1] + '">' + SOC_ICONS[n[0]] + "</a>";
+    }).join("");
+    return html ? '<div class="sc-soc-row">' + html + "</div>" : "";
+  }
+
   function pub(list) {
     return (list || []).filter(function (x) { return x.published !== false; });
   }
