@@ -8,9 +8,9 @@
     "competition": "friendly",
     "venue": "mko stadium",
     "homeAway": "Home",
-    "status": "scheduled",
-    "scoreCastmog": null,
-    "scoreOpponent": null,
+    "status": "finished",
+    "scoreCastmog": 4,
+    "scoreOpponent": 1,
     "report": "",
     "lineup": [
       "akindele",
@@ -29,6 +29,7 @@
     "events": [],
     "photos": [],
     "videos": [],
-    "notes": ""
+    "notes": "We thank God",
+    "opponentLogo": "assets/uploads/opponents/1789464570026-cast.jpeg"
   }
 ]
