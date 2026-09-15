@@ -410,6 +410,7 @@ window.CLUB = (function () {
 
   return {
     get: get, ready: ready, pub: pub, esc: esc,
+    socialIconRow: socialIconRow,
     fmtDate: fmtDate, shortDate: shortDate,
     squad: squad, squadByPosition: squadByPosition, playerById: playerById, goalLog: goalLog,
     POS_LABEL: POS_LABEL, POS_ORDER: POS_ORDER,

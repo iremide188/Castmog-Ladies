@@ -1675,3 +1675,14 @@ html.has-banner .page-hero::before { opacity: 1; }
   font-weight: 800;
   letter-spacing: 0.12em;
 }
+
+/* Coach social icon buttons on staff cards (v35) */
+.sc-soc-row { position: relative; z-index: 2; display: flex; gap: 0.45rem; margin: 0.5rem 0 0.6rem; }
+.sc-soc {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2rem; height: 2rem; border-radius: 50%;
+  border: 1px solid var(--line); color: var(--muted);
+  background: rgba(255, 255, 255, 0.03);
+  transition: color 0.2s, border-color 0.2s, transform 0.2s;
+}
+.sc-soc:hover { color: var(--yellow); border-color: var(--yellow); transform: translateY(-2px); }

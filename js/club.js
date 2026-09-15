@@ -39,7 +39,7 @@
         '<a class="sc-link" href="coach.html?id=' + encodeURIComponent(m.id) + '" aria-label="View ' + C.esc(m.name) + ' profile"></a>' + img +
         '<p class="sc-name">' + C.esc(m.name) + "</p>" +
         '<span class="sc-role">' + C.esc(m.role) + "</span>" +
-        (m.socialUrl ? '<a class="sc-social" href="' + C.esc(m.socialUrl) + '" target="_blank" rel="noopener">FOLLOW ON SOCIAL MEDIA</a>' : "") +
+        C.socialIconRow(m) +
         (m.bio ? '<p style="font-size:0.9rem;">' + C.esc(m.bio.slice(0, 200)) + "&hellip;</p>" : "") +
         '<span class="sc-more">VIEW PROFILE &rarr;</span></div>';
     }).join("");

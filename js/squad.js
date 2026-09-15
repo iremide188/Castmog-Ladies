@@ -41,6 +41,7 @@
         '<p class="sc-name">' + C.esc(m.name) + "</p>" +
         '<span class="sc-role">' + C.esc(m.role) + "</span>" +
         (m.bio ? '<p style="font-size:0.9rem;">' + C.esc(m.bio.slice(0, 200)) + "&hellip;</p>" : "") +
+        C.socialIconRow(m) +
         '<span class="sc-more">VIEW PROFILE &rarr;</span></div>';
       }).join("");
     }
