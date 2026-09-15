@@ -398,7 +398,8 @@ window.CLUB = (function () {
     var h = Math.floor(m / 60); if (h < 24) return h + "h ago";
     var d = Math.floor(h / 24); if (d < 7) return d + "d ago";
     if (d < 30) return Math.floor(d / 7) + "w ago";
-    return shortDate(new Date(ts));
+    var dt = new Date(ts);
+    return dt.getDate() + " " + MONTHS[dt.getMonth()] + " " + dt.getFullYear();
   }
 
   function waLink(text) {
