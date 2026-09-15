@@ -565,7 +565,21 @@
           chain = chain.then(function () { return saveFile(name); });
         });
         chain.then(function () { updateSaveBar(); alert("Saved! The public website will reflect the changes within a minute or two."); })
-          .catch(function (err) { alert("Save failed: " + err.message); updateSaveBar(); });
+          .catch(function (err) {
+            var m = String((err && err.message) || err);
+            var friendly;
+            if (/401|Bad credentials/i.test(m)) {
+              friendly = "Your GitHub token has expired or been revoked. Click LOG OUT, then sign in again with a fresh fine-grained token (Contents: Read and Write on the Castmog-Ladies repository).";
+            } else if (/403|not accessible/i.test(m)) {
+              friendly = "Your token can view the database but does not have WRITE permission. Create a fine-grained token with Contents: Read and Write for the Castmog-Ladies repository, log out, and sign in with it.";
+            } else if (/409|sha|does not match/i.test(m)) {
+              friendly = "The database changed since you opened the dashboard (someone saved elsewhere, or it was updated). Refresh the page, re-enter your change, and save again.";
+            } else {
+              friendly = m + " — if this keeps happening, refresh the page and try again.";
+            }
+            alert("SAVE FAILED: " + friendly);
+            updateSaveBar();
+          });
         return;
       }
       if (e.target.closest("#logout-btn")) {
