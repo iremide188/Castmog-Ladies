@@ -10,9 +10,15 @@
     "venue": "MKO STADIUM, ABEOUKUTA",
     "homeAway": "Home",
     "status": "scheduled",
-    "liveScoreCastmog": null,
-    "liveScoreOpponent": null,
-    "scorers": [],
+    "liveScoreCastmog": 1,
+    "liveScoreOpponent": 0,
+    "scorers": [
+      {
+        "id": "dosunmu-temitope",
+        "name": "Dosunmu Temitope",
+        "minute": ""
+      }
+    ],
     "scoreCastmog": null,
     "scoreOpponent": null,
     "report": "",
