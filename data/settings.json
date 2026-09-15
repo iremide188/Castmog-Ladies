@@ -1,7 +1,7 @@
 {
   "clubName": "CASTMOG LADIES",
   "parent": "CASTMOG FOOTBALL ACADEMY",
-  "motto": "BUILDING THE FUTURE HEROES",
+  "motto": "BUILDING THE FUTURE HEROINES",
   "email": "castmogladies@gmail.com",
   "whatsappDisplay": "0913 052 7339",
   "whatsappLink": "https://wa.me/2349130527339",
@@ -13,10 +13,11 @@
     "tiktok": "",
     "twitter": "https://x.com/CastmogFA"
   },
-  "applicationFee": 50000,
+  "applicationFee": 100,
   "palmpay": {
     "number": "913 052 7339",
     "name": "Oluwanifemi"
   },
-  "colours": "GREEN + YELLOW"
+  "colours": "GREEN + YELLOW",
+  "bannerImage": ""
 }
