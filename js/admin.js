@@ -886,6 +886,29 @@
     }).then(function (r) { return r.json(); });
   }
 
+  /* Normalize a Nigerian/local phone to wa.me international format */
+  function waPhone(ph) {
+    var d = String(ph || "").replace(/[^0-9+]/g, "");
+    if (d.indexOf("+") === 0) d = d.slice(1);
+    if (/^0[1-9]\d{9}$/.test(d)) d = "234" + d.slice(1);
+    return d;
+  }
+
+  function waMessage(x) {
+    var name = (x.name || "").split(" ")[0] || "there";
+    var ref = x.ref || "";
+    if (x.status === "Accepted") {
+      return "Hello " + name + ", congratulations! Your application to Castmog Ladies Football Academy has been ACCEPTED. "
+        + "Your reference is " + ref + ". Our team will contact you shortly with your enrollment details. "
+        + "Training holds Monday to Friday from 7:00 AM. Welcome to the Castmog family!";
+    }
+    if (x.paymentVerified) {
+      return "Hello " + name + ", good news — your application payment to Castmog Ladies Football Academy has been confirmed. "
+        + "Your reference is " + ref + ". Your application now moves into our review stage and our team will contact you about the next steps.";
+    }
+    return "Hello " + name + ", thank you for your application to Castmog Ladies Football Academy. Your reference is " + ref + ".";
+  }
+
   function appRowHtml(x) {
     var st = x.status || "Payment received";
     var stColor = st === "Accepted" ? "var(--green)" : st === "Not selected" ? "var(--red)" : st === "Payment verified" || st === "Under review" || st === "Further assessment" ? "var(--yellow)" : "var(--muted)";
@@ -895,7 +918,7 @@
       '<span style="font-weight:700;">' + esc(x.name || "") + "</span>" +
       '<span style="color:var(--muted);font-size:0.85rem;">' + esc(x.position || "") + " · " + esc(String(x.created_date || "").slice(0, 10)) + "</span>" +
       (x.source === "manual" ? '<span class="chip">MANUAL</span>' : "") +
-      (x.paymentEmailSent || x.decisionEmailSent ? '<span class="chip" style="background:rgba(74,222,128,0.15);color:var(--green);border-color:rgba(74,222,128,0.4);">✉ EMAIL SENT</span>' : "") +
+      (x.whatsappSent ? '<span class="chip" style="background:rgba(74,222,128,0.15);color:var(--green);border-color:rgba(74,222,128,0.4);">\u2713 MSG SENT</span>' : "") +
       '<span style="margin-left:auto;font-weight:800;color:' + stColor + ';">' + esc(st) + "</span></div>" +
       '<div style="color:var(--muted);font-size:0.85rem;margin-top:0.35rem;">' +
       "PHONE: " + esc(x.phone || "—") +
@@ -908,6 +931,7 @@
       '<select data-id="' + esc(x.id) + '" data-k="status" style="padding:0.4rem 0.6rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-size:0.85rem;">' +
       APP_STATUSES.map(function (s) { return '<option' + (s === st ? " selected" : "") + ">" + s + "</option>"; }).join("") + "</select>" +
       '<button class="btn btn-outline btn-sm" data-id="' + esc(x.id) + '" data-act="notes"' + (x.notes ? ' style="border-color:var(--yellow);"' : "") + "'>" + (x.notes ? "NOTES \u2713" : "NOTES") + "</button>" +
+      '<button class="btn btn-green btn-sm" data-id="' + esc(x.id) + '" data-act="whatsapp" data-phone="' + esc(waPhone(x.phone)) + '" data-msg="' + esc(waMessage(x)) + '">WHATSAPP THE APPLICANT</button>' +
       '<button class="btn btn-outline btn-sm" data-id="' + esc(x.id) + '" data-name="' + esc(x.name || "") + '" data-act="delete">DELETE</button>' +
       "</div>" +
       '<div class="app-notes-box" data-id="' + esc(x.id) + '" style="display:none;margin-top:0.7rem;">' +
@@ -936,7 +960,7 @@
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.7rem;">' +
       '<input id="af-name" placeholder="Full name *" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
       '<input id="af-phone" placeholder="Phone / WhatsApp" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
-      '<input id="af-email" placeholder="Email (for automatic confirmations)" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
+      '<input id="af-email" placeholder="Email (optional)" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
       '<input id="af-ref" placeholder="Application ref" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
       '<input id="af-paymentref" placeholder="Payment receipt / transaction ref" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
       '<input id="af-position" placeholder="Position" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
@@ -999,6 +1023,14 @@
         appApi("castmogAppUpdate", { id: id, notes: ta ? ta.value : "" }).then(function (r) {
           if (r.ok) renderApplications(); else alert(r.error || "Could not save.");
         });
+      } else if (btn.getAttribute("data-act") === "whatsapp") {
+        var ph = btn.getAttribute("data-phone");
+        var msg = btn.getAttribute("data-msg");
+        if (!ph) { alert("No phone number on file for this applicant — add it via ADD APPLICATION or the record notes."); return; }
+        window.open("https://wa.me/" + ph + "?text=" + encodeURIComponent(msg), "_blank");
+        appApi("castmogAppUpdate", { id: id, whatsappSent: true }).then(function (r) {
+          if (r.ok) renderApplications(); else alert(r.error || "Could not mark as sent.");
+        });
       }
     });
   }
@@ -1006,7 +1038,7 @@
   function renderApplications() {
     var main = document.getElementById("admin-main");
     main.innerHTML = head("Applications & Payments") +
-      '<div class="admin-note">The applicant is emailed automatically the moment you tick <b>Payment verified</b> or set their status to <b>Accepted</b> (provided their email is on file).<br>Every website application lands here automatically the moment the applicant pays and submits — including their payment reference. Verify the payment against your bank statement, tick <b>Payment verified</b> when the money lands, and move the status along as you review. Applicants also send their receipt to the club WhatsApp; use <b>ADD APPLICATION</b> to log payments that arrive without the website (direct bank transfers).</div>' +
+      '<div class="admin-note">When you tick <b>Payment verified</b> or set a status to <b>Accepted</b>, tap <b>WHATSAPP THE APPLICANT</b> on their card — the confirmation message is already typed for you and the card is marked with a <b>\u2713 MSG SENT</b> chip.<br>Every website application lands here automatically the moment the applicant pays and submits — including their payment reference. Verify the payment against your bank statement, tick <b>Payment verified</b> when the money lands, and move the status along as you review. Applicants also send their receipt to the club WhatsApp; use <b>ADD APPLICATION</b> to log payments that arrive without the website (direct bank transfers).</div>' +
       '<div id="apps-status" style="padding:0.5rem 0;">Loading applications\u2026</div>';
     updateSaveBar();
     appApi("castmogAppList").then(function (res) {
