@@ -1,57 +1,24 @@
 [
   {
-    "id": "jagunmolu-tc24",
+    "id": "jagunmolu-vozv",
     "published": true,
     "opponent": "jagunmolu",
-    "date": "2026-09-17",
-    "time": "8am",
+    "opponentLogo": "",
+    "date": "2026-09-15",
+    "time": "10:45",
     "competition": "friendly",
     "venue": "mko stadium",
     "homeAway": "Home",
-    "status": "finished",
-    "scoreCastmog": 4,
-    "scoreOpponent": 1,
+    "status": "scheduled",
+    "scoreCastmog": null,
+    "scoreOpponent": null,
+    "scorers": [],
     "report": "",
-    "lineup": [
-      "akindele",
-      "favour",
-      "favourfavour",
-      "favour",
-      "v",
-      "v",
-      "vfavour",
-      "ruka"
-    ],
-    "subs": [
-      "ruka",
-      "taiwo"
-    ],
+    "lineup": [],
+    "subs": [],
     "events": [],
     "photos": [],
     "videos": [],
-    "notes": "We thank God",
-    "opponentLogo": "assets/uploads/opponents/1789464570026-cast.jpeg",
-    "scorers": [
-      {
-        "id": "oni-boluwatife",
-        "name": "Oni Boluwatife",
-        "minute": ""
-      },
-      {
-        "id": "odeyiola-itunuoluwa",
-        "name": "Odeyiola Itunuoluwa",
-        "minute": ""
-      },
-      {
-        "id": "dosunmu-temitope",
-        "name": "Dosunmu Temitope",
-        "minute": ""
-      },
-      {
-        "id": "fakeye-oluwanifemi",
-        "name": "Fakeye Oluwanifemi",
-        "minute": ""
-      }
-    ]
+    "notes": ""
   }
 ]
