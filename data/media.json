@@ -1,0 +1,57 @@
+[
+  {
+    "id": "photo-1",
+    "type": "photo",
+    "category": "photos",
+    "url": "https://media.base44.com/images/public/6aa7fa4b232a4afee3f5b6f2/d306592a2_d004a9706_DSC_5180.jpg",
+    "thumb": "https://media.base44.com/images/public/6aa7fa4b232a4afee3f5b6f2/d306592a2_d004a9706_DSC_5180.jpg",
+    "caption": "The team in action",
+    "date": "",
+    "featured": true,
+    "published": true
+  },
+  {
+    "id": "photo-1",
+    "type": "photo",
+    "category": "photos",
+    "url": "https://media.base44.com/images/public/6aa7fa4b232a4afee3f5b6f2/7de4db201_9fd4d2b5c_DSC_5181.jpg",
+    "thumb": "https://media.base44.com/images/public/6aa7fa4b232a4afee3f5b6f2/7de4db201_9fd4d2b5c_DSC_5181.jpg",
+    "caption": "Castmog Ladies on matchday",
+    "date": "",
+    "featured": false,
+    "published": true
+  },
+  {
+    "id": "photo-1",
+    "type": "photo",
+    "category": "photos",
+    "url": "https://media.base44.com/images/public/6aa7fa4b232a4afee3f5b6f2/626a84d17_0e4243df8_DSC_5192.jpg",
+    "thumb": "https://media.base44.com/images/public/6aa7fa4b232a4afee3f5b6f2/626a84d17_0e4243df8_DSC_5192.jpg",
+    "caption": "",
+    "date": "",
+    "featured": false,
+    "published": true
+  },
+  {
+    "id": "photo-1",
+    "type": "photo",
+    "category": "photos",
+    "url": "https://media.base44.com/images/public/6aa7fa4b232a4afee3f5b6f2/27bbe819b_163e2ff49_DSC_5193.jpg",
+    "thumb": "https://media.base44.com/images/public/6aa7fa4b232a4afee3f5b6f2/27bbe819b_163e2ff49_DSC_5193.jpg",
+    "caption": "",
+    "date": "",
+    "featured": false,
+    "published": true
+  },
+  {
+    "id": "photo-1",
+    "type": "photo",
+    "category": "photos",
+    "url": "https://media.base44.com/images/public/6aa7fa4b232a4afee3f5b6f2/c13ff6370_7fa3898b8_DSC_5196.jpg",
+    "thumb": "https://media.base44.com/images/public/6aa7fa4b232a4afee3f5b6f2/c13ff6370_7fa3898b8_DSC_5196.jpg",
+    "caption": "",
+    "date": "",
+    "featured": false,
+    "published": true
+  }
+]

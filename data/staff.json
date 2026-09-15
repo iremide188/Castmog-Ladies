@@ -1,0 +1,32 @@
+[
+  {
+    "id": "salako-samuel",
+    "name": "Salako Samuel",
+    "role": "HEAD COACH",
+    "photo": "",
+    "bio": "",
+    "qualifications": "",
+    "experience": "",
+    "published": true
+  },
+  {
+    "id": "sulaimon-folashade",
+    "name": "Sulaimon Folashade",
+    "role": "ASSISTANT COACH",
+    "photo": "",
+    "bio": "",
+    "qualifications": "",
+    "experience": "",
+    "published": true
+  },
+  {
+    "id": "aderemi-qoyum",
+    "name": "Aderemi Qoyum",
+    "role": "ASSISTANT COACH",
+    "photo": "",
+    "bio": "",
+    "qualifications": "",
+    "experience": "",
+    "published": true
+  }
+]

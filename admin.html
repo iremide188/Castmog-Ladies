@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Castmog Ladies</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="images/crest.png">
+  <link rel="stylesheet" href="css/styles.css?v=1">
+</head>
+<body>
+
+  <div id="login-view" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;">
+    <div class="form-card" style="max-width:520px;width:100%;">
+      <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1.2rem;">
+        <img src="images/crest.png" alt="Castmog crest" style="width:44px;">
+        <div><div class="brand-name" style="font-size:1.3rem;">CASTMOG LADIES</div>
+        <div class="brand-sub">ADMIN DASHBOARD</div></div>
+      </div>
+      <div class="admin-note">This dashboard writes directly to the club database (the <b>data/*.json</b> files in the GitHub repository). Use a <b>GitHub fine-grained personal access token</b> limited to this repository with Contents: Read &amp; Write. Keep the token private — do not share it.</div>
+      <form id="login-form" class="form-grid">
+        <div class="field">
+          <label>GITHUB ACCESS TOKEN <span class="req">*</span></label>
+          <input type="password" id="token-input" placeholder="github_pat_… (fine-grained, Contents: Read and Write)" autocomplete="off">
+          <p class="field-hint">Create one at github.com → Settings → Developer settings → Fine-grained tokens → limit to the Castmog-Ladies repository.</p>
+        </div>
+        <div class="form-error" id="login-error" role="alert"></div>
+        <button class="btn btn-yellow btn-block" id="login-btn" type="submit">CONNECT TO THE DATABASE</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="admin-view" class="admin-shell" style="display:none;">
+    <aside class="admin-side">
+      <div class="as-brand">
+        <img src="images/crest.png" alt="Castmog crest">
+        <div><div class="brand-name" style="font-size:1.1rem;">CASTMOG</div>
+        <div class="brand-sub">ADMIN</div></div>
+      </div>
+      <ul class="admin-nav" id="admin-nav"></ul>
+      <button class="btn btn-outline btn-sm" id="logout-btn" style="margin-top:1.2rem;width:100%;">LOG OUT</button>
+      <p style="font-size:0.64rem;color:var(--muted);margin-top:1rem;">Public site: <a href="index.html" style="color:var(--yellow);" data-no-preloader>iremide188.github.io/Castmog-Ladies</a></p>
+    </aside>
+    <main class="admin-main" id="admin-main"></main>
+  </div>
+
+  <div class="modal-back" id="modal-back">
+    <div class="modal" id="modal"></div>
+  </div>
+
+  <script src="js/admin.js?v=1"></script>
+</body>
+</html>
