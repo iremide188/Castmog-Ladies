@@ -161,7 +161,7 @@
 
   /* ---------- Crest shatter preloader ---------- */
 
-  var PRELOAD_SECONDS = 15;
+  var PRELOAD_SECONDS = 5;
 
   function buildPreloader() {
     var el = document.createElement("div");
