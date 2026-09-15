@@ -26,35 +26,35 @@
       "title": "PARTNERSHIPS",
       "body": "In September 2024, Vanguard News reported that Castmog Football Academy, based in Abeokuta, Ogun State, attracted partnerships from Germany and Oman.",
       "source": "",
-      "published": false
+      "published": true
     },
     {
       "id": "venue",
       "title": "HOME GROUND",
       "body": "The academy's Instagram profile references Asero Stadium, Ogun State, Nigeria.",
       "source": "instagram.com/castmogfootballacademy",
-      "published": false
+      "published": true
     },
     {
       "id": "mission",
       "title": "MISSION & VISION",
       "body": "",
       "source": "",
-      "published": false
+      "published": true
     },
     {
       "id": "philosophy",
       "title": "CLUB PHILOSOPHY",
       "body": "",
       "source": "",
-      "published": false
+      "published": true
     },
     {
       "id": "timeline",
       "title": "CLUB TIMELINE",
       "body": "",
       "source": "",
-      "published": false
+      "published": true
     }
   ]
 }
