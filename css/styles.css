@@ -834,7 +834,16 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
   box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.14);
 }
 
-.field select { appearance: none; }
+.field select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.6rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1.5 1.5 6 6.2 10.5 1.5' fill='none' stroke='%23f5c518' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  cursor: pointer;
+}
+.select-wrap { position: relative; }
 
 .field select option { background: var(--panel); color: var(--text); }
 
@@ -842,7 +851,60 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
 
 .field-hint { font-size: 0.76rem; color: var(--muted); margin-top: 0.4rem; }
 
-.field input[type="file"] { padding: 0.55rem; }
+.field input[type="file"] { display: none; }
+
+/* ---------- Upload tiles (application form) ---------- */
+.upload-tile {
+  border: 1.5px dashed rgba(245, 197, 24, 0.45);
+  border-radius: 12px;
+  background: rgba(245, 197, 24, 0.04);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+.upload-tile:hover, .upload-tile:focus-within {
+  border-color: var(--yellow);
+  background: rgba(245, 197, 24, 0.08);
+  box-shadow: 0 0 0 4px rgba(245, 197, 24, 0.08);
+}
+.ut-empty, .ut-filled {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem 1.1rem;
+  min-height: 86px;
+}
+.ut-filled { display: none; }
+.ut-icon {
+  flex: 0 0 auto;
+  width: 54px; height: 54px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 12px;
+  background: rgba(245, 197, 24, 0.1);
+  color: var(--yellow);
+}
+.ut-icon.ut-ok { color: var(--green); background: rgba(47, 191, 113, 0.12); }
+.ut-thumb {
+  flex: 0 0 auto;
+  width: 54px; height: 54px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+}
+.ut-copy { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+.ut-copy b { font-size: 0.88rem; letter-spacing: 0.05em; text-transform: uppercase; }
+.ut-copy small { font-size: 0.74rem; color: var(--muted); line-height: 1.45; overflow-wrap: break-word; }
+.ut-filled .ut-copy b { text-transform: none; letter-spacing: 0; }
+.ut-cta {
+  flex: 0 0 auto;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: #14180f;
+  background: var(--yellow);
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+}
 
 .checkbox-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.9rem; color: var(--muted); cursor: pointer; }
 

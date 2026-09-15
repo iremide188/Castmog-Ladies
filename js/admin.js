@@ -636,8 +636,11 @@
 
     main.innerHTML = head(cfg.title, '<button class="btn btn-green btn-sm" id="add-btn">+ ADD ' + (name === "youtube" ? "VIDEO" : cfg.title.toUpperCase()) + "</button>") +
       note +
+      (name === "news" ? '<div id="news-subs-mount"></div>' : "") +
       (name === "youtube" ? ytConfigPanel() : "") +
       recordList(cfg, list, name);
+
+    if (name === "news") renderNewsSubs();
 
     document.getElementById("add-btn").addEventListener("click", function () {
       var rec = { id: "", published: true };
@@ -804,6 +807,69 @@
 
   function stat(n, label) {
     return '<div class="stat-tile" style="text-align:left;padding:1.2rem 1.4rem;"><b>' + Number(n || 0) + "</b><span>" + label + "</span></div>";
+  }
+
+  /* ---------- Community news submissions (public posts awaiting approval) ---------- */
+
+  function renderNewsSubs() {
+    var mount = document.getElementById("news-subs-mount");
+    if (!mount) return;
+    mount.innerHTML = '<div class="admin-note">Loading community story submissions…</div>';
+    appApi("castmogNewsList").then(function (res) {
+      if (!mount.isConnected) return;
+      if (!res || !res.ok) { mount.innerHTML = ""; return; }
+      var subs = (res.subs || []).filter(function (s) { return (s.status || "pending") === "pending"; });
+      if (!subs.length) { mount.innerHTML = ""; return; }
+      mount.innerHTML =
+        '<h3 style="font-family:var(--font-head);text-transform:uppercase;letter-spacing:0.12em;color:var(--yellow);margin:0.4rem 0 0.6rem;">COMMUNITY SUBMISSIONS &mdash; AWAITING YOUR APPROVAL (' + subs.length + ")</h3>" +
+        '<div class="admin-note">These stories were posted by the public through the website&rsquo;s POST A STORY form. Nothing goes on the website until you approve it here.</div>' +
+        subs.map(function (s, i) {
+          return '<div class="app-card" style="border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem;margin-bottom:0.9rem;background:rgba(255,255,255,0.02);">' +
+            '<div style="display:flex;flex-wrap:wrap;gap:0.4rem 1rem;align-items:center;">' +
+            '<b style="font-family:var(--font-head);">' + esc(s.title || "Untitled story") + "</b>" +
+            '<span class="chip chip-yellow">' + esc(s.category || "Community") + "</span>" +
+            '<span style="color:var(--muted);font-size:0.82rem;">by ' + esc(s.name || "Anonymous") + (s.contact ? " · " + esc(s.contact) : "") + " · " + esc(String(s.created_date || "").slice(0, 10)) + "</span>" +
+            "</div>" +
+            (s.imageUrl ? '<img src="' + esc(s.imageUrl) + '" alt="" style="margin-top:0.7rem;max-width:280px;width:100%;border-radius:8px;border:1px solid var(--line);">' : "") +
+            '<p style="margin:0.7rem 0 0;color:rgba(244,247,241,0.85);font-size:0.9rem;white-space:pre-wrap;">' + esc(String(s.body || "").slice(0, 600)) + (String(s.body || "").length > 600 ? "…" : "") + "</p>" +
+            '<div style="display:flex;gap:0.7rem;margin-top:0.9rem;flex-wrap:wrap;">' +
+            '<button class="btn btn-green btn-sm" data-ns-approve="' + esc(s.id) + '">APPROVE &amp; ADD TO NEWS</button>' +
+            '<button class="btn btn-outline btn-sm" style="border-color:rgba(224,69,69,.5);color:#fca5a5;" data-ns-reject="' + esc(s.id) + '">REJECT</button>' +
+            "</div></div>";
+        }).join("") +
+        '<div class="admin-note" style="margin-bottom:1.4rem;">Approving a story adds it to your News list below — then press <b>SAVE TO GITHUB</b> in the top bar to publish it to the website.</div>';
+
+      mount.querySelectorAll("[data-ns-approve]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var id = this.getAttribute("data-ns-approve");
+          var s = subs.filter(function (x) { return x.id === id; })[0];
+          if (!s) return;
+          files.news.data.push({
+            id: slug(s.title || "story") + "-" + Math.random().toString(36).slice(2, 6),
+            title: String(s.title || ""),
+            image: String(s.imageUrl || ""),
+            body: String(s.body || ""),
+            category: String(s.category || "Community"),
+            author: String(s.name || "Community correspondent"),
+            date: new Date().toISOString().slice(0, 10),
+            seoDescription: String(s.body || "").slice(0, 150)
+          });
+          files.news.dirty = true;
+          updateSaveBar();
+          appApi("castmogNewsUpdate", { id: id, status: "approved" }).then(function () {
+            renderCollectionTab("news");
+          });
+        });
+      });
+
+      mount.querySelectorAll("[data-ns-reject]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var id = this.getAttribute("data-ns-reject");
+          if (!confirm("Reject this story? It will not appear on the website.")) return;
+          appApi("castmogNewsUpdate", { id: id, status: "rejected" }).then(function () { renderNewsSubs(); });
+        });
+      });
+    }).catch(function () { mount.innerHTML = ""; });
   }
 
   /* ---------- Applications & Payments (live server register) ---------- */

@@ -15,12 +15,17 @@
     ref: ""
   };
 
+  /* files picked this session (File objects cannot survive a page reload) */
+  var picked = { photo: null, cv: null };
+
   var POSITIONS = ["Goalkeeper", "Defender", "Midfielder", "Attacker"];
 
   function $(id) { return document.getElementById(id); }
 
   function loadDraft() {
     try { var d = JSON.parse(localStorage.getItem("castmog_join_draft") || "null"); if (d) state.data = d; } catch (e) {}
+    /* attached files cannot be restored after a reload — the applicant re-picks them */
+    delete state.data.photoName; delete state.data.cvName;
   }
 
   function saveDraft() {
@@ -29,17 +34,15 @@
 
   function collectForm() {
     var d = state.data;
-    ["fullName", "dob", "phone", "email", "location", "position", "secondaryPosition",
+    ["fullName", "dob", "phone", "email", "location", "position",
      "foot", "previousClub", "experience", "currentTeam", "highlightLink", "paymentRef"
     ].forEach(function (k) {
       var el = $(k);
       if (el) d[k] = el.value.trim();
     });
     d.terms = $("terms") ? $("terms").checked : false;
-    var photo = $("photo");
-    if (photo && photo.files && photo.files[0]) d.photoName = photo.files[0].name;
-    var cv = $("cv");
-    if (cv && cv.files && cv.files[0]) d.cvName = cv.files[0].name;
+    if (picked.photo) d.photoName = picked.photo.name;
+    if (picked.cv) d.cvName = picked.cv.name;
     saveDraft();
   }
 
@@ -73,9 +76,15 @@
     if (age < 17) return "Applications are open to players aged 17 and above. You cannot apply if you are under 17.";
     if (age > 120) return "Please check your date of birth.";
     if (!d.phone || d.phone.replace(/\D/g, "").length < 7) return "Please enter a valid phone / WhatsApp number.";
-    if (d.email && !/^\S+@\S+\.\S+$/.test(d.email)) return "Please enter a valid email address.";
+    if (!d.email || !/^\S+@\S+\.\S+$/.test(d.email)) return "Please enter a valid email address.";
+    if (!d.location) return "Please enter where you are located (e.g. Abeokuta, Ogun State).";
     if (!d.position) return "Please select your position.";
     if (d.foot === "" ) return "Please select your preferred foot.";
+    if (!d.previousClub) return "Please enter your most recent club — type 'None' if you have never played for a club.";
+    if (!d.experience) return "Please select your experience level.";
+    if (!d.currentTeam) return "Please enter your current team — type 'None' if you are not with a team right now.";
+    if (!picked.photo) return "Please attach a clear player photo (tap the upload box to choose one).";
+    if (!picked.cv) return "Please attach your football CV (PDF or Word — tap the upload box to choose one).";
     if (d.highlightLink && !/^https?:\/\/\S+$/i.test(d.highlightLink)) return "Your highlight video link must be a full URL starting with http:// or https://.";
     if (!$("terms") || !$("terms").checked) return "Please confirm the declaration before continuing.";
     return "";
@@ -111,7 +120,58 @@
     var opts = ['<option value="">Select&hellip;</option>'].concat((options || []).map(function (o) {
       return '<option value="' + C.esc(o) + '"' + (val === o ? " selected" : "") + ">" + C.esc(o) + "</option>";
     }));
-    return fieldHtml(id, niceLabel(id), '<select id="' + id + '">' + opts.join("") + "</select>", req, hint);
+    return fieldHtml(id, niceLabel(id), '<div class="select-wrap"><select id="' + id + '">' + opts.join("") + "</select></div>", req, hint);
+  }
+
+  var UT_ICONS = {
+    photo: '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.2l1-1.6h6.6l1 1.6h1.2A2.5 2.5 0 0 1 21 8.5v8A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5v-8Z"/><circle cx="12" cy="12.3" r="3.4"/></svg>',
+    cv: '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2.8h8L19 8v11.5A2.7 2.7 0 0 1 16.3 22H6a2.7 2.7 0 0 1-2.7-2.7V5.5A2.7 2.7 0 0 1 6 2.8Z"/><path d="M14 3v5h5"/><path d="M8.5 13h7M8.5 16.5h7"/></svg>'
+  };
+
+  function uploadTile(id, label, accept, hint) {
+    var isImage = id === "photo";
+    return '<div class="field"><label>' + label + ' <span class="req">*</span></label>' +
+      '<div class="upload-tile" id="ut-' + id + '">' +
+      '<input type="file" id="' + id + '" accept="' + accept + '" hidden>' +
+      '<div class="ut-empty" id="ut-' + id + '-empty">' +
+      '<span class="ut-icon">' + UT_ICONS[id] + "</span>" +
+      '<span class="ut-copy"><b>TAP TO UPLOAD</b><small>' + hint + "</small></span>" +
+      '<span class="ut-cta">BROWSE</span>' +
+      "</div>" +
+      '<div class="ut-filled" id="ut-' + id + '-filled" style="display:none;">' +
+      (isImage ? '<img class="ut-thumb" id="ut-' + id + '-thumb" alt="">' : '<span class="ut-icon ut-ok">' + UT_ICONS.cv + "</span>") +
+      '<span class="ut-copy"><b id="ut-' + id + '-fname"></b><small id="ut-' + id + '-fsize"></small></span>' +
+      '<span class="ut-cta ut-change">CHANGE</span>' +
+      "</div></div>" +
+      "</div>";
+  }
+
+  function wireUploadTile(id) {
+    var tile = $("ut-" + id);
+    var input = $(id);
+    if (!tile || !input) return;
+    tile.addEventListener("click", function (e) {
+      if (e.target === input) return;
+      input.click();
+    });
+    input.addEventListener("change", function () {
+      var f = input.files && input.files[0];
+      if (!f) return;
+      picked[id] = f;
+      state.data[id + "Name"] = f.name;
+      saveDraft();
+      $("ut-" + id + "-empty").style.display = "none";
+      $("ut-" + id + "-filled").style.display = "flex";
+      $("ut-" + id + "-fname").textContent = f.name;
+      $("ut-" + id + "-fsize").textContent =
+        (f.size > 1048576 ? (f.size / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(f.size / 1024)) + " KB") +
+        " attached — tap to change";
+      if (id === "photo") {
+        var thumb = $("ut-photo-thumb");
+        if (thumb) { thumb.src = URL.createObjectURL(f); }
+      }
+      clearError();
+    });
   }
 
   function renderStep1() {
@@ -126,27 +186,28 @@
       input("fullName", "text", "Your full name", d.fullName, true) +
       input("dob", "date", "", d.dob, true, "Applicants must be aged 17 or above.") +
       input("phone", "tel", "e.g. 0913 052 7339", d.phone, true) +
-      input("email", "email", "you@example.com", d.email, false) +
-      input("location", "text", "e.g. Abeokuta, Ogun State", d.location, false) +
+      input("email", "email", "you@example.com", d.email, true) +
+      input("location", "text", "e.g. Abeokuta, Ogun State", d.location, true) +
       "</div>" +
       '<h3 style="color:var(--yellow);font-size:1.15rem;letter-spacing:0.08em;margin-top:0.6rem;">FOOTBALL INFORMATION</h3>' +
       '<div class="grid grid-2" style="gap:1.2rem;">' +
       select("position", POSITIONS, d.position, true) +
-      select("secondaryPosition", POSITIONS.concat(["Other"]), d.secondaryPosition, false) +
       select("foot", ["Left", "Right", "Both"], d.foot, true) +
-      input("previousClub", "text", "Most recent club (if any)", d.previousClub, false) +
-      select("experience", ["Beginner", "Amateur", "Semi-professional", "Professional"], d.experience, false) +
-      input("currentTeam", "text", "Current team (if any)", d.currentTeam, false) +
+      input("previousClub", "text", "Most recent club — if none, type 'None'", d.previousClub, true) +
+      select("experience", ["Beginner", "Amateur", "Semi-professional", "Professional"], d.experience, true) +
+      input("currentTeam", "text", "Current team — if none, type 'None'", d.currentTeam, true) +
       "</div>" +
       '<h3 style="color:var(--yellow);font-size:1.15rem;letter-spacing:0.08em;margin-top:0.6rem;">UPLOADS &amp; LINKS</h3>' +
       '<div class="grid grid-2" style="gap:1.2rem;">' +
-      fieldHtml("photo", "PLAYER PHOTO", '<input type="file" id="photo" accept="image/*">', false, "A clear photo of yourself. You will be asked to send it to the club on WhatsApp after submitting.") +
-      fieldHtml("cv", "FOOTBALL CV", '<input type="file" id="cv" accept=".pdf,.doc,.docx" class="field">', false, "PDF or Word document.") +
-      input("highlightLink", "url", "https://youtu.be/your-highlight-video", d.highlightLink, false, "Link to your highlight video (YouTube etc.).") +
+      uploadTile("photo", "PLAYER PHOTO", "image/*", "A clear recent photo of yourself (JPG or PNG). You will also send it to the club on WhatsApp after submitting.") +
+      uploadTile("cv", "FOOTBALL CV", ".pdf,.doc,.docx", "Your football CV as a PDF or Word document.") +
+      input("highlightLink", "url", "https://youtu.be/your-highlight-video", d.highlightLink, false, "Link to your highlight video (YouTube etc.) — optional.") +
       "</div>" +
       '<label class="checkbox-row" style="margin-top:0.6rem;"><input type="checkbox" id="terms"><span>I confirm the information provided is true and accurate, and I consent to Castmog Ladies contacting me about my application.</span></label>' +
       '<div><button class="btn btn-yellow btn-block" id="to-review">CONTINUE TO REVIEW &rarr;</button></div>' +
       "</div></div>";
+    wireUploadTile("photo");
+    wireUploadTile("cv");
     $("to-review").addEventListener("click", function () {
       clearError();
       collectForm();
@@ -166,7 +227,6 @@
     ["Email", "email"],
     ["Location", "location"],
     ["Position", "position"],
-    ["Secondary position", "secondaryPosition"],
     ["Preferred foot", "foot"],
     ["Previous club", "previousClub"],
     ["Experience level", "experience"],
@@ -297,7 +357,6 @@
       "EMAIL: " + (d.email || "") + "\n" +
       "LOCATION: " + (d.location || "") + "\n\n" +
       "POSITION: " + (d.position || "") + "\n" +
-      "SECONDARY POSITION: " + (d.secondaryPosition || "") + "\n" +
       "PREFERRED FOOT: " + (d.foot || "") + "\n" +
       "PREVIOUS CLUB: " + (d.previousClub || "") + "\n" +
       "EXPERIENCE: " + (d.experience || "") + "\n" +
