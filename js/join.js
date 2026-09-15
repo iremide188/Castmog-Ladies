@@ -441,7 +441,7 @@
       '<a class="btn btn-outline" href="index.html">BACK TO HOME</a>' +
       "</div>" +
       '<p style="color:var(--muted);font-size:0.78rem;margin-top:1.4rem;">' +
-      (d.photoName || d.cvName ? "You attached files (" + [d.photoName, d.cvName].filter(Boolean).join(", ") + ") — please send them in the WhatsApp chat so the club receives them. " : "") +
+      (d.photoName || d.cvName ? "Your photo and CV (" + [d.photoName, d.cvName].filter(Boolean).join(", ") + ") have been attached to your application — the club can view them in its dashboard. " : "") +
       "Please also send your <b>payment receipt</b> (screenshot or photo of your bank confirmation) in the WhatsApp chat — the club verifies it before confirming your application status.</p>" +
       "</div>";
   }
