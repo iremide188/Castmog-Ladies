@@ -48,8 +48,8 @@
       '<div class="h2h-stat"><b>' + h.losses + "</b><span>Opponent wins</span></div>" +
       '<div class="h2h-stat"><b>' + h.gf + "</b><span>Goals scored</span></div>" +
       '<div class="h2h-stat"><b>' + h.ga + "</b><span>Goals conceded</span></div>" +
-      "</div><table class='schedule-table' style='margin-top:0.4rem;'><thead><tr><th>DATE</th><th>COMPETITION</th><th>SCORE</th><th>RESULT</th></tr></thead><tbody>" +
-      rows + "</tbody></table></div>";
+      "</div><div class='table-scroll'><table class='schedule-table' style='margin-top:0.4rem;'><thead><tr><th>DATE</th><th>COMPETITION</th><th>SCORE</th><th>RESULT</th></tr></thead><tbody>" +
+      rows + "</tbody></table></div></div>";
   }
 
   function matchDetail(m) {
@@ -122,11 +122,11 @@
 
       html += '<h2 class="section-title" style="font-size:1.6rem;">MATCH HISTORY</h2>' +
         (history.length
-          ? '<table class="schedule-table"><thead><tr><th>DATE</th><th>OPPONENT</th><th>COMPETITION</th><th>RESULT</th></tr></thead><tbody>' +
+          ? '<div class="table-scroll"><table class="schedule-table"><thead><tr><th>DATE</th><th>OPPONENT</th><th>COMPETITION</th><th>RESULT</th></tr></thead><tbody>' +
             history.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).map(function (x) {
               var r = x.status !== "finished" ? "&mdash;" : x.scoreCastmog + " &ndash; " + x.scoreOpponent;
               return "<tr><td>" + C.fmtDate(x.date) + "</td><td>" + C.esc(x.opponent) + "</td><td>" + C.esc(x.competition || "") + "</td><td>" + r + "</td></tr>";
-            }).join("") + "</tbody></table>"
+            }).join("") + "</tbody></table></div>"
           : '<div class="empty-state">Match history will be recorded here.</div>');
 
       root.innerHTML = html;
