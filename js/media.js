@@ -51,6 +51,8 @@
       C.activateFacades(mount);
     }
 
+    document.addEventListener("club:videos-updated", render);
+
     bar.addEventListener("click", function (e) {
       var b = e.target.closest("[data-f]");
       if (!b) return;

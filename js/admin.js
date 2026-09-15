@@ -115,7 +115,10 @@
 
   function loadFile(name) {
     return api("GET", "data/" + name + ".json").then(function (res) {
-      files[name] = { sha: res.sha, data: JSON.parse(unb64(res.content)), dirty: false };
+      var parsed = JSON.parse(unb64(res.content));
+      /* club.json stores {sections:[...]} — the tab works on the array itself */
+      if (name === "club" && parsed && parsed.sections && !parsed.length) parsed = parsed.sections;
+      files[name] = { sha: res.sha, data: parsed, dirty: false };
     });
   }
 
@@ -123,7 +126,7 @@
     var f = files[name];
     return api("PUT", "data/" + name + ".json", {
       message: message || ("Update " + name + ".json via Castmog admin"),
-      content: b64(JSON.stringify(f.data, null, 2) + "\n"),
+      content: b64(JSON.stringify(name === "club" ? { sections: f.data } : f.data, null, 2) + "\n"),
       sha: f.sha,
       branch: BRANCH
     }).then(function (res) {
@@ -614,6 +617,7 @@
     var note = "";
     if (name === "club") note = '<div class="admin-note">External information must stay UNPUBLISHED until you review and approve it. Drafts are hidden from the public site.</div>';
     if (name === "matches") note = '<div class="admin-note">Head-to-head records, the homepage next-match card and countdowns update automatically from the fixtures and results you enter here.</div>';
+    if (name === "club") note = '<div class="admin-note">These are club facts waiting for your approval. PUBLISHED sections appear on the website immediately; DRAFT sections stay hidden (the site shows COMING SOON). Flip the PUBLISHED toggle to approve a section.</div>';
     if (name === "youtube") note = '<div class="admin-note">Turn on LIVE only while a stream is actually running — the site then shows the livestream instantly. The channel and live controls are saved together with the video list.</div>';
 
     main.innerHTML = head(cfg.title, '<button class="btn btn-green btn-sm" id="add-btn">+ ADD ' + (name === "youtube" ? "VIDEO" : cfg.title.toUpperCase()) + "</button>") +
@@ -623,6 +627,7 @@
 
     document.getElementById("add-btn").addEventListener("click", function () {
       var rec = { id: "", published: true };
+      if (name === "club") rec.published = false; /* new club info starts as a DRAFT */
       if (name === "youtube") rec = { title: "", youtubeId: "", date: "", featured: false };
       rec.__new = true;
       openRecordModal(cfg, rec, function (r) {
@@ -761,7 +766,7 @@
     var results = m.filter(function (x) { return x.status === "finished"; }).length;
     var unpublished = m.concat(files.players.data, files.staff.data, files.news.data, files.achievements.data, files.media.data)
       .filter(function (x) { return x.published === false; }).length;
-    var drafts = (files.club.data.sections || []).filter(function (s) { return !s.published; }).length;
+    var drafts = (files.club.data || []).filter(function (s) { return !s.published; }).length;
 
     var apps = [];
     try { apps = JSON.parse(localStorage.getItem("castmog_applications") || "[]"); } catch (e) {}

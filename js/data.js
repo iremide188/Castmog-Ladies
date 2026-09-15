@@ -23,6 +23,7 @@ window.CLUB = (function () {
           left--;
           if (left === 0) {
             var st = (db.settings && typeof db.settings === "object") ? db.settings : {};
+            fetchChannelVideos();
             if (st.bannerImage) {
               document.documentElement.classList.add("has-banner");
               document.documentElement.style.setProperty("--page-banner", 'url("' + st.bannerImage + '")');
@@ -31,6 +32,71 @@ window.CLUB = (function () {
           }
         });
     });
+  }
+
+
+  /* ---------- Auto YouTube videos: anything posted on the club channel
+     appears on the site automatically (feed fetched through public
+     JSON/XML converters, with a fallback; silent if unreachable) ---------- */
+  function mergeChannelVideos(feedVids) {
+    if (!feedVids.length) return;
+    var yt = db.youtube && typeof db.youtube === "object" ? db.youtube : (db.youtube = {});
+    var vids = yt.videos || (yt.videos = []);
+    var seen = {};
+    vids.forEach(function (v) { if (v && v.youtubeId) seen[v.youtubeId] = true; });
+    var added = feedVids.filter(function (v) { return v.youtubeId && !seen[v.youtubeId]; });
+    if (!added.length) return;
+    yt.videos = vids.concat(added).sort(function (x, y) {
+      return String(y.date || "").localeCompare(String(x.date || ""));
+    });
+    try { document.dispatchEvent(new CustomEvent("club:videos-updated")); } catch (e) {}
+  }
+
+  function parseChannelFeed(xmlText) {
+    var doc = new DOMParser().parseFromString(xmlText, "text/xml");
+    var out = [];
+    Array.prototype.forEach.call(doc.getElementsByTagName("entry"), function (e) {
+      function tag(name) {
+        var t = e.getElementsByTagName(name)[0];
+        return t ? (t.textContent || "").trim() : "";
+      }
+      var id = tag("yt:videoId") || (tag("link").indexOf("v=") > -1 ? tag("link").split("v=")[1].split("&")[0] : "");
+      if (id) out.push({
+        title: tag("title"),
+        youtubeId: id,
+        date: tag("published").slice(0, 10),
+        auto: true
+      });
+    });
+    return out;
+  }
+
+  function fetchChannelVideos() {
+    var cid = (db.youtube && db.youtube.channelId) || "";
+    if (!cid) return;
+    var rss = "https://www.youtube.com/feeds/videos.xml?channel_id=" + encodeURIComponent(cid);
+    fetch("https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(rss))
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (j && j.items && j.items.length) {
+          mergeChannelVideos(j.items.map(function (it) {
+            var id = "";
+            try { id = (it.link || "").split("v=")[1] || (it.guid || "").replace("yt:video:", "") || ""; } catch (e) {}
+            return { title: it.title || "", youtubeId: id.split("&")[0], date: String(it.pubDate || "").slice(0, 10), auto: true };
+          }).filter(function (v) { return v.youtubeId; }));
+        } else {
+          return fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(rss))
+            .then(function (r) { return r.ok ? r.text() : ""; })
+            .then(function (txt) { if (txt) mergeChannelVideos(parseChannelFeed(txt)); })
+            .catch(function () {});
+        }
+      })
+      .catch(function () {
+        fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(rss))
+          .then(function (r) { return r.ok ? r.text() : ""; })
+          .then(function (txt) { if (txt) mergeChannelVideos(parseChannelFeed(txt)); })
+          .catch(function () {});
+      });
   }
 
   if (document.readyState === "loading") {

@@ -214,23 +214,27 @@
         "</div>";
     }
 
-    // LATEST VIDEOS / YOUTUBE
+    // LATEST VIDEOS / YOUTUBE (re-renders when channel videos auto-arrive)
     var ytEl = document.getElementById("home-videos");
     if (ytEl) {
-      var yt = C.get("youtube") || {};
-      var vids = (yt.videos || []).filter(function (v) { return v.youtubeId; }).slice(0, 3);
-      if (yt.live && yt.liveVideoId) {
-        ytEl.innerHTML = '<div class="live-embed"><iframe src="https://www.youtube-nocookie.com/embed/' + C.esc(yt.liveVideoId) + '?rel=0" title="Live stream" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>';
-      } else if (vids.length) {
-        ytEl.innerHTML = vids.map(function (v) {
-          return C.ytFacade(v.youtubeId, v.title) + (v.title ? '<div class="yt-title">' + C.esc(v.title) + "</div>" : "");
-        }).join("");
-      } else {
-        ytEl.innerHTML = '<div class="empty-state"><span class="es-title">NO FIXTURE, NO WORRY &mdash; VIDEOS COMING SOON</span>' +
-          'Club videos from the official YouTube channel will appear here.<br>' +
-          '<a class="btn btn-outline btn-sm" style="margin-top:1rem;" href="' + C.esc(yt.channel || S.social.youtube || "#") + '" target="_blank" rel="noopener">VISIT OUR YOUTUBE CHANNEL</a></div>';
+      function renderVideos() {
+        var yt = C.get("youtube") || {};
+        var vids = (yt.videos || []).filter(function (v) { return v.youtubeId; }).slice(0, 3);
+        if (yt.live && yt.liveVideoId) {
+          ytEl.innerHTML = '<div class="live-embed"><iframe src="https://www.youtube-nocookie.com/embed/' + C.esc(yt.liveVideoId) + '?rel=0" title="Live stream" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>';
+        } else if (vids.length) {
+          ytEl.innerHTML = vids.map(function (v) {
+            return C.ytFacade(v.youtubeId, v.title) + (v.title ? '<div class="yt-title">' + C.esc(v.title) + "</div>" : "");
+          }).join("");
+        } else {
+          ytEl.innerHTML = '<div class="empty-state"><span class="es-title">NO FIXTURE, NO WORRY &mdash; VIDEOS COMING SOON</span>' +
+            'Club videos from the official YouTube channel will appear here.<br>' +
+            '<a class="btn btn-outline btn-sm" style="margin-top:1rem;" href="' + C.esc(yt.channel || S.social.youtube || "#") + '" target="_blank" rel="noopener">VISIT OUR YOUTUBE CHANNEL</a></div>';
+        }
+        C.activateFacades(ytEl);
       }
-      C.activateFacades(ytEl);
+      renderVideos();
+      document.addEventListener("club:videos-updated", renderVideos);
     }
 
     // YOUTUBE LIVE strip
