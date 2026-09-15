@@ -35,7 +35,8 @@
 
     var ourScore = null, oppScore = null;
     if (hasFinal) { ourScore = m.scoreCastmog; oppScore = m.scoreOpponent; }
-    else if (isLive) {
+    else if (isLive || isFTPhase) {
+      /* live score stays visible after full time until the final result is entered */
       ourScore = m.liveScoreCastmog == null ? 0 : m.liveScoreCastmog;
       oppScore = m.liveScoreOpponent == null ? 0 : m.liveScoreOpponent;
     }
