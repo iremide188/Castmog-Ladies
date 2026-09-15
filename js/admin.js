@@ -765,9 +765,6 @@
       .filter(function (x) { return x.published === false; }).length;
     var drafts = (files.club.data || []).filter(function (s) { return !s.published; }).length;
 
-    var apps = [];
-    try { apps = JSON.parse(localStorage.getItem("castmog_applications") || "[]"); } catch (e) {}
-
     main.innerHTML = head("Dashboard") +
       '<div class="admin-note">Welcome to the Castmog Ladies management dashboard. Everything you save here is committed to the club database and appears on the public website within a minute or two.</div>' +
       '<div class="stat-cards">' +
@@ -775,10 +772,17 @@
       stat(results, "Results") + stat(files.news.data.length, "News articles") +
       stat(files.media.data.length, "Media items") + stat(files.achievements.data.length, "Achievements") +
       stat(unpublished, "Unpublished records") + stat(drafts, "Drafts awaiting approval") +
-      stat(apps.length, "Applications (this browser)") +
+      '<div class="stat-tile" style="text-align:left;padding:1.2rem 1.4rem;"><b id="ov-apps">…</b><span>Applications</span></div>' +
       "</div>" +
       '<div class="admin-note">Drafts awaiting approval include externally researched club information. Review it in <b>Club / Content Approval</b> and publish only what you have verified.</div>';
     updateSaveBar();
+    appApi("castmogAppList").then(function (res) {
+      var el = document.getElementById("ov-apps");
+      if (el) el.textContent = res && res.ok ? (res.apps || []).length : "?";
+    }).catch(function () {
+      var el = document.getElementById("ov-apps");
+      if (el) el.textContent = "?";
+    });
   }
 
   function stat(n, label) {
@@ -887,7 +891,7 @@
       var patch = {};
       patch[t.getAttribute("data-k")] = t.type === "checkbox" ? t.checked : t.value;
       appApi("castmogAppUpdate", Object.assign({ id: id }, patch)).then(function (r) {
-        if (!r.ok) { alert(r.error || "Could not update."); renderApplications(); }
+        if (r.ok) renderApplications(); else { alert(r.error || "Could not update."); renderApplications(); }
       });
     });
     box.addEventListener("click", function (e) {
