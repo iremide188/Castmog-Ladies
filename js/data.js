@@ -32,6 +32,8 @@ window.CLUB = (function () {
     load();
   }
 
+  startLivePolling();
+
   /* ---------- helpers ---------- */
 
   function esc(s) {
@@ -115,6 +117,62 @@ window.CLUB = (function () {
   function mediaItem(v, label) {
     if (isFileVideo(v)) return '<div class="video-file"><video controls preload="metadata" src="' + esc(v) + '"></video><div class="vf-cap">' + esc(label) + "</div></div>";
     return ytFacade(v, label);
+  }
+
+  /* ---------- live match clock ----------
+     Real minutes from kickoff: 0-45 first half, 15-minute
+     HALF TIME break, second half to 90, then FULL TIME. */
+  function liveClock(ts) {
+    var el = (Date.now() - ts) / 60000;
+    if (el < 0) return { phase: "pre", minute: 0 };
+    if (el < 45) return { phase: "first", minute: Math.min(45, Math.max(1, Math.ceil(el))) };
+    if (el < 60) return { phase: "ht", minute: 45 };
+    if (el < 105) return { phase: "second", minute: Math.min(90, 45 + Math.max(1, Math.ceil(el - 60))) };
+    return { phase: "ft", minute: 90 };
+  }
+
+  function liveState(m) {
+    if (!m || !m.date) return null;
+    var k = kickoff(m);
+    if (isNaN(k.getTime())) return null;
+    var st = liveClock(k.getTime());
+    st.kickoff = k.getTime();
+    return st;
+  }
+
+  function isLivePhase(p) { return p === "first" || p === "ht" || p === "second"; }
+
+  /* While a match is being played, quietly refetch matches.json every 30s so
+     goals added in the dashboard appear without anyone refreshing the page. */
+  function startLivePolling() {
+    var timer = null;
+    function anyLive() {
+      return ((db && db.matches) || []).some(function (m) {
+        var st = m.status === "scheduled" ? liveState(m) : null;
+        return st && isLivePhase(st.phase);
+      });
+    }
+    function check() {
+      if (anyLive() && !timer) {
+        timer = setInterval(function () {
+          fetch("data/matches.json", { cache: "no-cache" })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (j) {
+              if (!j) return;
+              if (JSON.stringify(j) !== JSON.stringify(db.matches)) {
+                db.matches = j;
+                document.dispatchEvent(new CustomEvent("club:matches-updated"));
+              }
+            })
+            .catch(function () {});
+        }, 30000);
+      } else if (!anyLive() && timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    }
+    onReady.push(check);
+    setInterval(check, 60000);
   }
 
   function upcoming() {
@@ -211,6 +269,7 @@ window.CLUB = (function () {
     headToHead: headToHead, initials: initials,
     ytThumb: ytThumb, ytFacade: ytFacade, activateFacades: activateFacades,
     parseTime: parseTime, kickoff: kickoff, mediaItem: mediaItem,
+    liveClock: liveClock, liveState: liveState,
     waLink: waLink,
     onReady: function (cb) {
       onReady.push(cb);

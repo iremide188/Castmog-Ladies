@@ -1357,3 +1357,71 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
   .scorer-row { grid-template-columns: 1fr 80px auto; }
   .scorer-row .sr-del { padding: 0.45rem 0.5rem; font-size: 0.62rem; }
 }
+
+/* ---------- Live match clock ---------- */
+.mc-live {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+
+.lv-badge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: #fff;
+  background: #c1121f;
+  padding: 0.32rem 0.6rem;
+  border-radius: 6px;
+  animation: lv-pulse 1.5s ease-in-out infinite;
+}
+
+.mc-live[data-phase="ht"] .lv-badge,
+.lv-badge.ht {
+  background: #b07d10;
+  animation: none;
+}
+
+.mc-live[data-phase="ft"] .lv-badge,
+.lv-badge.ft {
+  background: #3a4147;
+  animation: none;
+}
+
+.lv-clock {
+  font-family: var(--font-head);
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--yellow);
+  line-height: 1;
+}
+
+.lv-sub { flex-basis: 100%; font-size: 0.72rem; color: var(--muted); text-align: center; }
+
+.lv-goals {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.lv-goal {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  border: 1px solid rgba(47, 191, 113, 0.45);
+  background: rgba(47, 191, 113, 0.12);
+  color: #7ddba9;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+}
+
+.mc-vs-live { color: #ff5a5f; animation: lv-pulse 1.5s ease-in-out infinite; }
+
+@keyframes lv-pulse {
+  50% { opacity: 0.55; }
+}

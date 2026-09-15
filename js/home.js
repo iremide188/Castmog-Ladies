@@ -31,20 +31,42 @@
     if (m.status === "finished" && m.scoreCastmog != null && m.scoreOpponent != null) {
       var cls = m.scoreCastmog > m.scoreOpponent ? "win" : m.scoreCastmog === m.scoreOpponent ? "draw" : "loss";
       scoreHtml = '<div class="mc-score"><span class="mr-score ' + cls + '">' + m.scoreCastmog + " – " + m.scoreOpponent + "</span></div>";
-    } else if (opts.countdown) {
+    } else {
+      var ls = C.liveState ? C.liveState(m) : null;
+      var live = m.status === "scheduled" && ls && (ls.phase === "first" || ls.phase === "ht" || ls.phase === "second");
+      if (live) {
+        var goals = (m.scorers || []).map(function (s) { return typeof s === "string" ? { name: s, minute: "" } : (s || {}); })
+          .filter(function (s) { return s.name; })
+          .filter(function (s) { return !s.minute || Number(s.minute) <= ls.minute; })
+          .sort(function (a, b) { return (Number(a.minute) || 0) - (Number(b.minute) || 0); });
+        scoreHtml = '<div class="mc-live" data-phase="' + ls.phase + '">' +
+          '<span class="lv-badge">LIVE</span>' +
+          '<span class="lv-clock" data-kickoff="' + C.kickoff(m).toISOString() + '">' +
+          (ls.phase === "ht" ? "45&prime;" : ls.minute + "&prime;") + "</span>" +
+          (goals.length ? '<div class="lv-goals">' + goals.map(function (s) {
+            return '<span class="lv-goal" data-min="' + C.esc(s.minute || "") + '">' +
+              (s.minute ? C.esc(s.minute) + "&prime; " : "") + C.esc(s.name) + "</span>";
+          }).join("") + "</div>" : "") +
+          "</div>";
+      } else if (m.status === "scheduled" && ls && ls.phase === "ft") {
+        scoreHtml = '<div class="mc-live" data-phase="ft"><span class="lv-badge ft">FULL TIME</span><span class="lv-sub">Full result will appear once it is entered in the dashboard</span></div>';
+      } else if (opts.countdown) {
       scoreHtml = '<div class="countdown" data-kickoff="' + C.kickoff(m).toISOString() + '">' +
         '<div class="cd-cell"><span class="cd-num">–</span><span class="cd-lab">Days</span></div>' +
         '<div class="cd-cell"><span class="cd-num">–</span><span class="cd-lab">Hrs</span></div>' +
         '<div class="cd-cell"><span class="cd-num">–</span><span class="cd-lab">Min</span></div>' +
         '<div class="cd-cell"><span class="cd-num">–</span><span class="cd-lab">Sec</span></div>' +
         "</div>";
+      }
     }
+    var ls2 = C.liveState ? C.liveState(m) : null;
+    var isLive = m.status === "scheduled" && ls2 && ls2.phase !== "pre" && ls2.phase !== "ft";
     return (
       '<div class="match-card">' +
       '<span class="mc-comp">' + C.esc(m.competition || "FIXTURE") + " &middot; " + C.esc(m.homeAway || "HOME") + "</span>" +
       '<div class="mc-teams">' +
       '<div class="mc-team"><img src="images/crest.png" alt="Castmog Ladies crest" class="mc-crest"><div class="mc-name">CASTMOG LADIES</div></div>' +
-      '<div class="mc-vs">' + (m.status === "finished" ? "FT" : "VS") + "</div>" +
+      '<div class="mc-vs' + (isLive ? " mc-vs-live" : "") + '">' + (m.status === "finished" ? "FT" : isLive ? "LIVE" : "VS") + "</div>" +
       '<div class="mc-team">' + (m.opponentLogo
           ? '<img src="' + C.esc(m.opponentLogo) + '" alt="' + C.esc(m.opponent) + ' crest" class="mc-crest">'
           : '<div class="mc-crest">' + C.initials(m.opponent) + "</div>") + '<div class="mc-name">' + C.esc(m.opponent) + "</div></div>" +
@@ -78,8 +100,31 @@
         }
       });
     }
-    tick();
-    setInterval(tick, 1000);
+    function liveTick() {
+      document.querySelectorAll(".lv-clock[data-kickoff]").forEach(function (elc) {
+        var st = C.liveClock(new Date(elc.getAttribute("data-kickoff")).getTime());
+        var box = elc.closest(".mc-live");
+        var badge = box ? box.querySelector(".lv-badge") : null;
+        if (st.phase === "ht") {
+          elc.innerHTML = "45&prime;";
+          if (box) box.setAttribute("data-phase", "ht");
+          if (badge) { badge.textContent = "HALF TIME"; badge.classList.add("ht"); }
+        } else if (st.phase === "ft") {
+          elc.textContent = "FULL TIME";
+          if (box) box.setAttribute("data-phase", "ft");
+          if (badge) { badge.textContent = "FULL TIME"; badge.classList.remove("ht"); }
+        } else {
+          elc.innerHTML = st.minute + "&prime;";
+          if (badge && badge.textContent !== "LIVE") { badge.textContent = "LIVE"; badge.classList.remove("ht"); }
+        }
+        if (box) box.querySelectorAll(".lv-goal").forEach(function (g) {
+          var gm = Number(g.getAttribute("data-min"));
+          g.style.display = (gm && st.minute && gm > st.minute) ? "none" : "";
+        });
+      });
+    }
+    liveTick();
+    setInterval(function () { tick(); liveTick(); }, 1000);
   }
 
   function render() {
@@ -206,5 +251,12 @@
     startCountdowns();
   }
 
-  window.CLUB.onReady(function () { heroSlideshow(); render(); });
+  window.CLUB.onReady(function () {
+    heroSlideshow();
+    render();
+    document.addEventListener("club:matches-updated", function () {
+      var m = document.getElementById("home-next-match");
+      if (m) render();
+    });
+  });
 })();

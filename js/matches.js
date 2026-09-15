@@ -93,6 +93,8 @@
     var root = document.getElementById("matches-mount");
     if (!root) return;
 
+    document.addEventListener("club:matches-updated", function () { render(); });
+
     function render() {
       var hash = window.location.hash.replace("#match-", "");
       var all = C.pub(C.get("matches"));
