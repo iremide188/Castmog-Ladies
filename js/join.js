@@ -208,13 +208,14 @@
       '<span class="motto">APPLICATION FEE</span>' +
       '<div class="pay-amount">&#8358;' + Number(fee).toLocaleString() + "</div>" +
       '<div class="pay-details">' +
-      '<div class="pd-row"><span>Pay with</span><b>PalmPay</b></div>' +
+      '<div class="pd-row"><span>Pay from</span><b>ANY BANK</b></div>' +
       '<div class="pd-row"><span>Account number</span><b>' + C.esc(pp.number || "") + "</b></div>" +
       '<div class="pd-row"><span>Account name</span><b>' + C.esc(pp.name || "") + "</b></div>" +
       "</div>" +
-      '<p style="color:var(--muted);font-size:0.85rem;max-width:520px;margin:0 auto 1.4rem;">Transfer the exact application fee to the PalmPay account above. After payment, enter the transaction reference from your PalmPay receipt, then confirm below.</p>' +
+      '<p style="color:var(--muted);font-size:0.85rem;max-width:560px;margin:0 auto 0.8rem;">Transfer the exact application fee to the account above from <b>any bank</b> &mdash; every Nigerian bank app, USSD transfer or ATM transfer works, and it also works from abroad. After payment, keep your receipt: you will enter its reference below and send the receipt itself to the club on WhatsApp.</p>' +
+      '<p style="color:var(--muted);font-size:0.85rem;max-width:560px;margin:0 auto 1.4rem;">Paying from outside Nigeria and your bank cannot send to this account? <a href="' + C.waLink("Hello Castmog Ladies, I want to apply and I am paying the application fee from outside Nigeria. Please send me the right transfer details for my country.") + '" target="_blank" rel="noopener" style="color:var(--yellow);font-weight:700;">Message us on WhatsApp</a> and we will send you the correct transfer details for your country.</p>' +
       '<div style="max-width:460px;margin:0 auto;text-align:left;">' +
-      fieldHtml("paymentRef", "PALMPAY TRANSACTION REFERENCE", '<input type="text" id="paymentRef" placeholder="e.g. PP1234567890" maxlength="60" value="' + C.esc(state.data.paymentRef || "") + '">', false, "Found on your PalmPay payment receipt.") +
+      fieldHtml("paymentRef", "PAYMENT RECEIPT / TRANSACTION REFERENCE", '<input type="text" id="paymentRef" placeholder="Transaction ID, session ID or receipt number" maxlength="60" value="' + C.esc(state.data.paymentRef || "") + '">', false, "From your bank's payment receipt or confirmation message. Also take a screenshot of the receipt &mdash; you will send it in the next step.") +
       "</div>" +
       '<div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:0.6rem;">' +
       '<button class="btn btn-outline" id="back-review">&larr; BACK</button>' +
@@ -225,7 +226,7 @@
       clearError();
       collectForm();
       var pr = state.data.paymentRef || "";
-      if (pr.replace(/\s/g, "").length < 6) { showError("Please enter the transaction reference from your PalmPay receipt so the club can verify your payment."); return; }
+      if (pr.replace(/\s/g, "").length < 6) { showError("Please enter the transaction reference from your payment receipt so the club can verify your payment."); return; }
       finalize();
     });
   }
@@ -278,8 +279,9 @@
       "EXPERIENCE: " + (d.experience || "") + "\n" +
       "CURRENT TEAM: " + (d.currentTeam || "") + "\n" +
       "HIGHLIGHT VIDEO: " + (d.highlightLink || "") + "\n\n" +
-      "APPLICATION FEE: PAID VIA PALMPAY\n" +
-      "PAYMENT REFERENCE: " + (d.paymentRef || "") + "\n\n" +
+      "APPLICATION FEE: PAID (BANK TRANSFER)\n" +
+      "PAYMENT REFERENCE: " + (d.paymentRef || "") + "\n" +
+      "PAYMENT RECEIPT: to be sent in this chat\n\n" +
       (d.photoName ? "PLAYER PHOTO: to be sent in this chat (" + d.photoName + ")\n" : "") +
       (d.cvName ? "FOOTBALL CV: to be sent in this chat (" + d.cvName + ")\n" : "") +
       "This application was submitted through the Castmog Ladies website.";
@@ -296,7 +298,7 @@
       "</div>" +
       '<p style="color:var(--muted);font-size:0.78rem;margin-top:1.4rem;">' +
       (d.photoName || d.cvName ? "You attached files (" + [d.photoName, d.cvName].filter(Boolean).join(", ") + ") — please send them in the WhatsApp chat so the club receives them. " : "") +
-      "The club will verify your PalmPay payment reference before confirming your application status.</p>" +
+      "Please also send your <b>payment receipt</b> (screenshot or photo of your bank confirmation) in the WhatsApp chat — the club verifies it before confirming your application status.</p>" +
       "</div>";
   }
 

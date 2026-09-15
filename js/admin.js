@@ -245,7 +245,7 @@
         F("clubName", "Club name"), F("parent", "Parent organisation"), F("motto", "Motto"),
         F("email", "Official email"), F("phone", "Phone"), F("whatsappDisplay", "WhatsApp (display)"),
         F("whatsappLink", "WhatsApp (wa.me link)"), F("applicationFee", "Application fee (₦)", "number"),
-        F("palmpay.number", "PalmPay account number"), F("palmpay.name", "PalmPay account name"),
+        F("palmpay.number", "Payment account number (receives transfers from ALL banks)"), F("palmpay.name", "Payment account name"),
         F("bannerImage", "Page banner photo — displayed at the top of every page (one wide photo, e.g. the team or stadium)", "image", ["settings"]),
         F("social.youtube", "YouTube URL"), F("social.instagram", "Instagram URL"),
         F("social.facebook", "Facebook URL"), F("social.tiktok", "TikTok URL"), F("social.twitter", "X/Twitter URL")
@@ -790,7 +790,7 @@
     var apps = [];
     try { apps = JSON.parse(localStorage.getItem("castmog_applications") || "[]"); } catch (e) {}
     main.innerHTML = head("Applications") +
-      '<div class="admin-note">Applications are submitted through the website and delivered to the club on WhatsApp. Payment is by PalmPay transfer and verified with the transaction reference the applicant provides. This tab lists applications submitted from <b>this browser only</b> — the authoritative record is the WhatsApp chat with the club number.</div>' +
+      '<div class="admin-note">Applications are submitted through the website and delivered to the club on WhatsApp. Payment is by bank transfer (any bank in the world can send to the account) and verified with the payment receipt the applicant sends in the WhatsApp chat. This tab lists applications submitted from <b>this browser only</b> — the authoritative record is the WhatsApp chat with the club number.</div>' +
       (apps.length ? recordList({ titleKey: "name", sub: function (r) { return r.ref + " · " + (r.position || "") + " · " + (r.status || ""); } }, apps) : '<div class="empty-state">No applications from this browser yet.</div>');
     updateSaveBar();
   }
