@@ -1,8 +1,13 @@
 {
   "days": "MONDAY – FRIDAY",
   "time": "7:00 AM",
-  "location": "",
-  "type": "",
-  "notes": "",
-  "latest": null
+  "location": "Mko",
+  "type": "fitness",
+  "notes": "we go again",
+  "latest": {
+    "date": "2026-09-15",
+    "report": "",
+    "photos": [],
+    "videos": []
+  }
 }
