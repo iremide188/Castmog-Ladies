@@ -250,9 +250,9 @@
     "position": "MID",
     "positionLabel": "Midfielder",
     "secondaryPosition": "",
-    "dob": "",
-    "nationality": "",
-    "foot": "",
+    "dob": "2009-01-21",
+    "nationality": "Nigeria",
+    "foot": "Right",
     "height": "",
     "previousClubs": [],
     "biography": "",
@@ -267,7 +267,8 @@
       "instagram": "",
       "twitter": ""
     },
-    "published": true
+    "published": true,
+    "socialUrl": ""
   },
   {
     "id": "fafore-temilade",
