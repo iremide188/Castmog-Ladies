@@ -3,11 +3,12 @@
     "id": "salako-samuel",
     "name": "Salako Samuel",
     "role": "HEAD COACH",
-    "photo": "",
+    "photo": "assets/uploads/staff/1789467253881-dsc-6712.jpg",
     "bio": "",
     "qualifications": "",
     "experience": "",
-    "published": true
+    "published": false,
+    "socialUrl": ""
   },
   {
     "id": "sulaimon-folashade",
