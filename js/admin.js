@@ -299,11 +299,8 @@
     api("GET", "data/settings.json")
       .then(function () {
         localStorage.setItem("castmog_admin_token", t);
-        var chain = Promise.resolve();
-        FILE_LIST.forEach(function (n) {
-          chain = chain.then(function () { return loadFile(n); });
-        });
-        return chain;
+        /* load all files at once — much faster than one-by-one */
+        return Promise.all(FILE_LIST.map(function (n) { return loadFile(n); }));
       })
       .then(function () { cb(null); })
       .catch(function (err) { cb(err.message || "Could not access the repository with this token."); });

@@ -42,11 +42,24 @@
         "</div></section>";
     }
 
+    var autoGoals = (C.goalLog()[p.id] || []);
+    var totalGoals = (p.goals || 0) + autoGoals.length;
     html += '<section class="section" style="padding:2rem 0 0;"><div class="stat-strip">' +
       '<div class="stat-tile"><b>' + C.esc(p.appearances || 0) + '</b><span>Appearances</span></div>' +
-      '<div class="stat-tile"><b>' + C.esc(p.goals || 0) + '</b><span>Goals</span></div>' +
+      '<div class="stat-tile"><b>' + C.esc(totalGoals) + '</b><span>Goals</span></div>' +
       '<div class="stat-tile"><b>' + C.esc(p.assists || 0) + '</b><span>Assists</span></div>' +
       "</div>";
+
+    if (autoGoals.length) {
+      html += '<div class="panel" style="margin-top:1.2rem;"><span class="motto" style="color:var(--green);">GOAL LOG &mdash; FROM MATCHES</span>' +
+        autoGoals.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).map(function (g) {
+          return '<div class="goal-row"><b class="gr-min">' + C.esc(g.minute ? g.minute + "&prime;" : "GOAL") + "</b>" +
+            '<span class="gr-main">vs ' + C.esc(g.opponent) +
+            (g.competition ? " &middot; " + C.esc(g.competition) : "") +
+            (g.score ? " &middot; " + C.esc(g.score) : "") + "</span>" +
+            '<span class="gr-date">' + C.fmtDate(g.date) + "</span></div>";
+        }).join("") + "</div>";
+    }
 
     var info = [
       ["Date of birth", p.dob ? C.fmtDate(p.dob) : ""],

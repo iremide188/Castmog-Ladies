@@ -1515,3 +1515,58 @@ html.has-banner .page-hero::before { opacity: 1; }
   border: 1px solid rgba(239, 68, 68, 0.25);
   color: #f0b4b4;
 }
+
+/* ---------- Match card: scores under teams, scorers in brackets ---------- */
+.mc-team .mc-num {
+  font-family: var(--font-head);
+  font-size: 2.1rem;
+  font-weight: 800;
+  margin-top: 0.25rem;
+  line-height: 1;
+}
+
+.mc-num.win { color: var(--green); }
+.mc-num.draw { color: var(--yellow); }
+.mc-num.loss { color: var(--red); }
+
+.mc-team .mc-scorers {
+  justify-content: center;
+  margin-top: 0.35rem;
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
+/* ---------- Player goal log / squad goal chip ---------- */
+.goal-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.goal-row:last-child { border-bottom: 0; }
+
+.gr-min {
+  color: var(--yellow);
+  font-family: var(--font-head);
+  min-width: 3.2rem;
+}
+
+.gr-main { flex: 1; min-width: 200px; }
+
+.gr-date { color: var(--muted); font-size: 0.8rem; }
+
+.pc-goals {
+  margin-top: 0.35rem;
+  display: inline-block;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(245, 197, 24, 0.12);
+  border: 1px solid rgba(245, 197, 24, 0.4);
+  color: var(--yellow);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}

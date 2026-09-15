@@ -137,7 +137,7 @@
         (history.length
           ? '<div class="table-scroll"><table class="schedule-table"><thead><tr><th>DATE</th><th>OPPONENT</th><th>COMPETITION</th><th>RESULT</th></tr></thead><tbody>' +
             history.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).map(function (x) {
-              var r = x.status !== "finished" ? "&mdash;" : x.scoreCastmog + " &ndash; " + x.scoreOpponent;
+              var r = x.status !== "finished" || x.scoreCastmog == null ? "&mdash;" : x.scoreCastmog + " &ndash; " + x.scoreOpponent;
               return "<tr><td>" + C.fmtDate(x.date) + "</td><td>" + C.esc(x.opponent) + "</td><td>" + C.esc(x.competition || "") + "</td><td>" + r + "</td></tr>";
             }).join("") + "</tbody></table></div>"
           : '<div class="empty-state">Match history will be recorded here.</div>');

@@ -160,6 +160,33 @@ window.CLUB = (function () {
     return groups;
   }
 
+  /* Auto goal log — every scorer saved on a match feeds the player profile:
+     opponent, competition (friendly/tournament), minute, score and date. */
+  function goalLog() {
+    var log = {};
+    (db.matches || []).forEach(function (m) {
+      if (!m || m.published === false) return;
+      var finalScore = m.status === "finished" && m.scoreCastmog != null && m.scoreOpponent != null;
+      var liveScore = m.liveScoreCastmog != null || m.liveScoreOpponent != null;
+      if (!finalScore && !liveScore) return;
+      var score = finalScore
+        ? (m.scoreCastmog + "\u2013" + m.scoreOpponent)
+        : ((m.liveScoreCastmog == null ? 0 : m.liveScoreCastmog) + "\u2013" + (m.liveScoreOpponent == null ? 0 : m.liveScoreOpponent));
+      (m.scorers || []).forEach(function (s) {
+        if (!s || !s.name) return;
+        var key = s.id || s.name.toLowerCase().replace(/\s+/g, "-");
+        (log[key] = log[key] || []).push({
+          opponent: m.opponent || "",
+          competition: m.competition || "",
+          date: m.date || "",
+          minute: s.minute || "",
+          score: score
+        });
+      });
+    });
+    return log;
+  }
+
   function playerById(id) {
     return (db.players || []).filter(function (p) { return p.id === id; })[0] || null;
   }
@@ -336,7 +363,7 @@ window.CLUB = (function () {
   return {
     get: get, ready: ready, pub: pub, esc: esc,
     fmtDate: fmtDate, shortDate: shortDate,
-    squad: squad, squadByPosition: squadByPosition, playerById: playerById,
+    squad: squad, squadByPosition: squadByPosition, playerById: playerById, goalLog: goalLog,
     POS_LABEL: POS_LABEL, POS_ORDER: POS_ORDER,
     upcoming: upcoming, nextMatch: nextMatch, finished: finished, latestResult: latestResult,
     headToHead: headToHead, initials: initials,

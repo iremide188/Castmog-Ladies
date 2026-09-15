@@ -18,10 +18,12 @@
           var img = p.photo
             ? '<img class="pc-photo" src="' + C.esc(p.photo) + '" alt="' + C.esc(p.name) + '" loading="lazy">'
             : '<div class="pc-avatar">' + C.initials(p.name) + "</div>";
+          var gl = (p.goals || 0) + ((C.goalLog()[p.id] || []).length);
           return '<a class="player-card" href="player.html?id=' + encodeURIComponent(p.id) + '">' +
             '<span class="pc-number">' + C.esc(p.number) + "</span>" + img +
             '<div class="pc-name">' + C.esc(p.name) + "</div>" +
-            '<div class="pc-pos">' + C.esc(p.positionLabel || "") + "</div></a>";
+            '<div class="pc-pos">' + C.esc(p.positionLabel || "") + "</div>" +
+            (gl ? '<div class="pc-goals">' + gl + " GOAL" + (gl > 1 ? "S" : "") + "</div>" : "") + "</a>";
         }).join("") + "</div></div>";
     });
     var total = C.squad().length;

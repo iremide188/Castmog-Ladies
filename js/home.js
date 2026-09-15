@@ -27,53 +27,66 @@
 
   function matchCard(m, opts) {
     opts = opts || {};
-    var scoreHtml = "";
-    if (m.status === "finished" && m.scoreCastmog != null && m.scoreOpponent != null) {
-      var cls = m.scoreCastmog > m.scoreOpponent ? "win" : m.scoreCastmog === m.scoreOpponent ? "draw" : "loss";
-      scoreHtml = '<div class="mc-score"><span class="mr-score ' + cls + '">' + m.scoreCastmog + " – " + m.scoreOpponent + "</span></div>";
-    } else {
-      var ls = C.liveState ? C.liveState(m) : null;
-      var live = m.status === "scheduled" && ls && (ls.phase === "first" || ls.phase === "ht" || ls.phase === "second");
-      if (live) {
-        var liveScoreLine = (m.liveScoreCastmog != null || m.liveScoreOpponent != null)
-          ? '<span class="lv-score">' + (m.liveScoreCastmog == null ? 0 : m.liveScoreCastmog) + " &ndash; " + (m.liveScoreOpponent == null ? 0 : m.liveScoreOpponent) + "</span>"
-          : "";
-        var goals = (m.scorers || []).map(function (s) { return typeof s === "string" ? { name: s, minute: "" } : (s || {}); })
-          .filter(function (s) { return s.name; })
-          .filter(function (s) { return !s.minute || Number(s.minute) <= ls.minute; })
-          .sort(function (a, b) { return (Number(a.minute) || 0) - (Number(b.minute) || 0); });
-        scoreHtml = '<div class="mc-live" data-phase="' + ls.phase + '">' +
-          '<span class="lv-badge">LIVE</span>' +
-          '<span class="lv-clock" data-kickoff="' + C.kickoff(m).toISOString() + '">' +
-          (ls.phase === "ht" ? "45&prime;" : ls.minute + "&prime;") + "</span>" + liveScoreLine +
-          (goals.length ? '<div class="lv-goals">' + goals.map(function (s) {
-            return '<span class="lv-goal" data-min="' + C.esc(s.minute || "") + '">' +
-              (s.minute ? C.esc(s.minute) + "&prime; " : "") + C.esc(s.name) + "</span>";
-          }).join("") + "</div>" : "") +
-          "</div>";
-      } else if (m.status === "scheduled" && ls && ls.phase === "ft") {
-        scoreHtml = '<div class="mc-live" data-phase="ft"><span class="lv-badge ft">FULL TIME</span><span class="lv-sub">Full result will appear once it is entered in the dashboard</span></div>';
-      } else if (opts.countdown) {
-      scoreHtml = '<div class="countdown" data-kickoff="' + C.kickoff(m).toISOString() + '">' +
-        '<div class="cd-cell"><span class="cd-num">–</span><span class="cd-lab">Days</span></div>' +
-        '<div class="cd-cell"><span class="cd-num">–</span><span class="cd-lab">Hrs</span></div>' +
-        '<div class="cd-cell"><span class="cd-num">–</span><span class="cd-lab">Min</span></div>' +
-        '<div class="cd-cell"><span class="cd-num">–</span><span class="cd-lab">Sec</span></div>' +
-        "</div>";
-      }
-    }
     var ls2 = C.liveState ? C.liveState(m) : null;
-    var isLive = m.status === "scheduled" && ls2 && ls2.phase !== "pre" && ls2.phase !== "ft";
+    var isLive = m.status === "scheduled" && ls2 && (ls2.phase === "first" || ls2.phase === "ht" || ls2.phase === "second");
+    var isFTPhase = m.status === "scheduled" && ls2 && ls2.phase === "ft";
+    var finished = m.status === "finished";
+    var hasFinal = finished && m.scoreCastmog != null && m.scoreOpponent != null;
+
+    var ourScore = null, oppScore = null;
+    if (hasFinal) { ourScore = m.scoreCastmog; oppScore = m.scoreOpponent; }
+    else if (isLive) {
+      ourScore = m.liveScoreCastmog == null ? 0 : m.liveScoreCastmog;
+      oppScore = m.liveScoreOpponent == null ? 0 : m.liveScoreOpponent;
+    }
+
+    var cls = hasFinal
+      ? (m.scoreCastmog > m.scoreOpponent ? "win" : m.scoreCastmog === m.scoreOpponent ? "draw" : "loss")
+      : "";
+
+    var goals = (m.scorers || []).map(function (s) { return typeof s === "string" ? { name: s, minute: "" } : (s || {}); })
+      .filter(function (s) { return s.name; })
+      .filter(function (s) { return !s.minute || !isLive || Number(s.minute) <= ls2.minute; })
+      .sort(function (a, b) { return (Number(a.minute) || 0) - (Number(b.minute) || 0); });
+
+    var statusHtml = "";
+    if (isLive) {
+      statusHtml = '<div class="mc-live" data-phase="' + ls2.phase + '">' +
+        '<span class="lv-badge">LIVE</span>' +
+        '<span class="lv-clock" data-kickoff="' + C.kickoff(m).toISOString() + '">' +
+        (ls2.phase === "ht" ? "45&prime;" : ls2.minute + "&prime;") + "</span></div>";
+    } else if (isFTPhase) {
+      statusHtml = '<div class="mc-live" data-phase="ft"><span class="lv-badge ft">FULL TIME</span></div>';
+    } else if (opts.countdown) {
+      statusHtml = '<div class="countdown" data-kickoff="' + C.kickoff(m).toISOString() + '">' +
+        '<div class="cd-cell"><span class="cd-num">&ndash;</span><span class="cd-lab">Days</span></div>' +
+        '<div class="cd-cell"><span class="cd-num">&ndash;</span><span class="cd-lab">Hrs</span></div>' +
+        '<div class="cd-cell"><span class="cd-num">&ndash;</span><span class="cd-lab">Min</span></div>' +
+        '<div class="cd-cell"><span class="cd-num">&ndash;</span><span class="cd-lab">Sec</span></div>' +
+        "</div>";
+    }
+
+    var scorerHtml = (ourScore != null && goals.length)
+      ? '<div class="lv-goals mc-scorers">' + goals.map(function (s) {
+          return '<span class="lv-goal" data-min="' + C.esc(s.minute || "") + '">(' +
+            (s.minute ? C.esc(s.minute) + "&prime; " : "") + C.esc(s.name) + ")</span>";
+        }).join("") + "</div>"
+      : "";
+
     return (
       '<div class="match-card">' +
       '<span class="mc-comp">' + C.esc(m.competition || "FIXTURE") + " &middot; " + C.esc(m.homeAway || "HOME") + "</span>" +
       '<div class="mc-teams">' +
-      '<div class="mc-team"><img src="images/crest.png" alt="Castmog Ladies crest" class="mc-crest"><div class="mc-name">CASTMOG LADIES</div></div>' +
-      '<div class="mc-vs' + (isLive ? " mc-vs-live" : "") + '">' + (m.status === "finished" ? "FT" : isLive ? "LIVE" : "VS") + "</div>" +
+      '<div class="mc-team"><img src="images/crest.png" alt="Castmog Ladies crest" class="mc-crest"><div class="mc-name">CASTMOG LADIES</div>' +
+      '<div class="mc-num' + (cls ? " " + cls : "") + '">' + (ourScore == null ? "&ndash;" : ourScore) + "</div>" +
+      scorerHtml +
+      "</div>" +
+      '<div class="mc-vs">' + (finished ? "FT" : "VS") + "</div>" +
       '<div class="mc-team">' + (m.opponentLogo
           ? '<img src="' + C.esc(m.opponentLogo) + '" alt="' + C.esc(m.opponent) + ' crest" class="mc-crest">'
-          : '<div class="mc-crest">' + C.initials(m.opponent) + "</div>") + '<div class="mc-name">' + C.esc(m.opponent) + "</div></div>" +
-      "</div>" + scoreHtml +
+          : '<div class="mc-crest">' + C.initials(m.opponent) + "</div>") + '<div class="mc-name">' + C.esc(m.opponent) + "</div>" +
+      '<div class="mc-num' + (cls ? " " + cls : "") + '">' + (oppScore == null ? "&ndash;" : oppScore) + "</div></div>" +
+      "</div>" + statusHtml +
       '<div class="mc-meta">' +
       "<span>" + C.fmtDate(m.date) + "</span>" +
       (m.time ? "<span>" + C.esc(m.time) + "</span>" : "") +
@@ -127,7 +140,8 @@
           elc.innerHTML = st.minute + "&prime;";
           if (badge && badge.textContent !== "LIVE") { badge.textContent = "LIVE"; badge.classList.remove("ht"); }
         }
-        if (box) box.querySelectorAll(".lv-goal").forEach(function (g) {
+        var card = (box ? box.closest(".match-card") : null) || box;
+        if (card) card.querySelectorAll(".lv-goal").forEach(function (g) {
           var gm = Number(g.getAttribute("data-min"));
           g.style.display = (gm && st.minute && gm > st.minute) ? "none" : "";
         });
