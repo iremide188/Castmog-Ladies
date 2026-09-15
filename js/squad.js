@@ -29,5 +29,19 @@
     var total = C.squad().length;
     document.getElementById("squad-count").textContent = total + " PLAYERS";
     mount.innerHTML = html;
+
+    var stEl = document.getElementById("squad-staff");
+    if (stEl) {
+      stEl.innerHTML = C.pub(C.get("staff")).map(function (m) {
+      var img = m.photo
+        ? '<img class="sc-photo" src="' + C.esc(m.photo) + '" alt="' + C.esc(m.name) + '" loading="lazy">'
+        : '<div class="sc-avatar">' + C.initials(m.name) + "</div>";
+      return '<div class="card staff-card">' + img +
+        '<p class="sc-name">' + C.esc(m.name) + "</p>" +
+        '<span class="sc-role">' + C.esc(m.role) + "</span>" +
+        (m.bio ? '<p style="font-size:0.9rem;">' + C.esc(m.bio.slice(0, 200)) + "&hellip;</p>" : "") +
+        "</div>";
+      }).join("");
+    }
   });
 })();
