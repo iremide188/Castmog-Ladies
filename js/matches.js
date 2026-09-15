@@ -74,7 +74,7 @@
     if (m.photos && m.photos.length) html += '<div style="margin-top:0.9rem;"><div class="media-grid" style="margin-top:0.8rem;">' + m.photos.map(function (u) {
       return '<div class="media-item"><img src="' + C.esc(u) + '" alt="Match photo" loading="lazy"></div>';
     }).join("") + "</div></div>";
-    if (m.videos && m.videos.length) html += '<div style="margin-top:0.9rem;"><div class="yt-grid" style="margin-top:0.8rem;">' + m.videos.map(function (v) { return C.ytFacade(v, "Highlights"); }).join("") + "</div></div>";
+    if (m.videos && m.videos.length) html += '<div style="margin-top:0.9rem;"><div class="yt-grid" style="margin-top:0.8rem;">' + m.videos.map(function (v) { return C.mediaItem ? C.mediaItem(v, "Highlights") : C.ytFacade(v, "Highlights"); }).join("") + "</div></div>";
 
     html += h2hBlock(m.opponent) + "</div>";
     return html;

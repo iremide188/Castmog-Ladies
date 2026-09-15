@@ -50,6 +50,32 @@
     return new TextDecoder().decode(bytes);
   }
 
+  /* ---------- device file uploads (committed straight into the repo) ---------- */
+
+  function uploadAsset(file, folder, onStatus) {
+    var ext = (/\.[a-z0-9]+$/i.exec(file.name) || [""])[0].toLowerCase();
+    if (!ext && file.type && file.type.split("/")[1]) ext = "." + file.type.split("/")[1];
+    var isVideo = /^video\//.test(file.type) || /\.(mp4|webm|mov|m4v|ogg)$/i.test(file.name);
+    var limit = isVideo ? 40 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > limit) {
+      onStatus("err", isVideo
+        ? "That video is over 40MB — upload it to YouTube instead, then paste the video ID or link."
+        : "That image is over 10MB — please use a smaller file.");
+      return;
+    }
+    onStatus("busy", "Uploading " + (file.size > 1024 * 1024 ? (file.size / 1024 / 1024).toFixed(1) + "MB" : Math.round(file.size / 1024) + "KB") + "…");
+    var reader = new FileReader();
+    reader.onerror = function () { onStatus("err", "Could not read the file."); };
+    reader.onload = function () {
+      var content = String(reader.result).split(",")[1];
+      var path = "assets/uploads/" + folder + "/" + Date.now() + "-" + slug(file.name.replace(/\.[^.]+$/, "")) + ext;
+      api("PUT", path, { message: "Upload " + folder + " file via Castmog admin", content: content, branch: BRANCH })
+        .then(function () { onStatus("ok", path); })
+        .catch(function (e) { onStatus("err", "Upload failed: " + (e.message || e)); });
+    };
+    reader.readAsDataURL(file);
+  }
+
   function loadFile(name) {
     return api("GET", "data/" + name + ".json").then(function (res) {
       files[name] = { sha: res.sha, data: JSON.parse(unb64(res.content)), dirty: false };
@@ -89,15 +115,19 @@
         F("height", "Height"), F("previousClubs", "Previous clubs", "list"),
         F("biography", "Biography", "textarea"),
         F("appearances", "Appearances", "number"), F("goals", "Goals", "number"), F("assists", "Assists", "number"),
-        F("photo", "Player photo URL"), F("gallery", "Photo gallery URLs", "list"),
-        F("videos", "Video IDs/URLs", "list"), F("highlight", "Highlight video ID"),
-        F("social.instagram", "Instagram URL"), F("social.twitter", "X/Twitter URL")
+        F("photo", "Player profile photo", "image", ["players"]),
+        F("gallery", "Photo gallery", "filelist", ["player-photos"]),
+        F("videos", "Videos (upload files or paste YouTube links)", "filelist", ["player-videos"]),
+        F("highlight", "Highlight video ID"),
+        F("socialUrl", "Personal social media URL (Instagram / X / TikTok)")
       ]
     },
     staff: {
       title: "Coaching Staff", titleKey: "name", sub: function (r) { return r.role || ""; },
       fields: [
-        F("name", "Full name"), F("role", "Role"), F("photo", "Photo URL"),
+        F("name", "Full name"), F("role", "Role"),
+        F("photo", "Staff photo", "image", ["staff"]),
+        F("socialUrl", "Personal social media URL (Instagram / X / TikTok)"),
         F("bio", "Biography", "textarea"), F("qualifications", "Qualifications", "textarea"),
         F("experience", "Experience", "textarea")
       ]
@@ -106,7 +136,8 @@
       title: "Matches", titleKey: "opponent",
       sub: function (r) { return r.date + " · " + (r.competition || "") + " · " + (r.status || ""); },
       fields: [
-        F("opponent", "Opponent"), F("date", "Date", "date"), F("time", "Kick-off time (e.g. 8am, 4:00 PM or 15:30)"),
+        F("opponent", "Opponent"), F("opponentLogo", "Opponent logo", "image", ["opponents"]),
+        F("date", "Date", "date"), F("time", "Kick-off time (e.g. 8am, 4:00 PM or 15:30)"),
         F("competition", "Competition"), F("venue", "Venue"),
         F("homeAway", "Home / Away", "select", ["Home", "Away"]),
         F("status", "Match status", "select", STATUS),
@@ -313,13 +344,16 @@
         '<div class="ri-sub">' + esc(cfg.sub ? cfg.sub(r) : "") + "</div></div>" +
         '<div class="ri-actions">' +
         '<button class="toggle-pub ' + (r.published !== false ? "on" : "off") + '" data-i="' + i + '" data-act="pub">' + (r.published !== false ? "PUBLISHED" : "UNPUBLISHED") + "</button>" +
+        (tabKey === "matches" && r.status === "scheduled"
+          ? '<button class="btn btn-green btn-sm" data-i="' + i + '" data-act="result">ENTER RESULT</button>' : "") +
         '<button class="btn btn-outline btn-sm" data-i="' + i + '" data-act="edit">EDIT</button>' +
         '<button class="btn btn-red btn-sm" data-i="' + i + '" data-act="del">DELETE</button>' +
         "</div></div>";
     }).join("") + "</div>";
   }
 
-  function openRecordModal(cfg, record, onSave) {
+  function openRecordModal(cfg, record, onSave, modalOpts) {
+    modalOpts = modalOpts || {};
     var backdrop = document.getElementById("modal-back");
     var modal = document.getElementById("modal");
     modal.innerHTML = "<h2>" + (record.__new ? "Add " + cfg.title : "Edit " + cfg.title) + "</h2>" +
@@ -327,6 +361,25 @@
         var val = getVal(record, f.key);
         val = val == null ? "" : val;
         var inner;
+        var divider = f.key === "scoreCastmog"
+          ? '<div class="modal-divider">FULL-TIME RESULT &mdash; only fill this in AFTER the match is played. When both scores are entered, the match is automatically marked FINISHED.</div>'
+          : "";
+        if (f.type === "image") {
+          inner = '<div class="iu-wrap">' +
+            '<img class="iu-preview" id="mf-' + f.key + '-prev" src="' + esc(val) + '" alt=""' + (val ? "" : ' style="display:none"') + ">" +
+            '<input type="text" id="mf-' + f.key + '" value="' + esc(val) + '" placeholder="Paste a URL or upload from your device">' +
+            '<button type="button" class="btn btn-outline btn-sm iu-btn" data-iu="' + f.key + '" data-folder="' + (f.opts[0] || "misc") + '" data-kind="image">UPLOAD FROM DEVICE</button>' +
+            '<input type="file" accept="image/*" style="display:none" id="mf-' + f.key + '-file" data-kind="image">' +
+            '<div class="iu-status" id="mf-' + f.key + '-status"></div></div>';
+          return divider + '<div class="field field-wide"><label>' + esc(f.label) + "</label>" + inner + "</div>";
+        }
+        if (f.type === "filelist") {
+          inner = '<textarea id="mf-' + f.key + '" rows="3" placeholder="One entry per line — paste links or upload from your device">' + esc((val || []).join("\n")) + "</textarea>" +
+            '<button type="button" class="btn btn-outline btn-sm iu-btn" data-iu="' + f.key + '" data-folder="' + (f.opts[0] || "misc") + '" data-kind="list">UPLOAD FROM DEVICE</button>' +
+            '<input type="file" accept="video/*,image/*" style="display:none" id="mf-' + f.key + '-file" data-kind="list">' +
+            '<div class="iu-status" id="mf-' + f.key + '-status"></div>';
+          return divider + '<div class="field field-wide"><label>' + esc(f.label) + "</label>" + inner + "</div>";
+        }
         if (f.type === "textarea") {
           inner = '<textarea id="mf-' + f.key + '" rows="4">' + esc(Array.isArray(val) ? val.join("\n") : val) + "</textarea>";
         } else if (f.type === "list") {
@@ -341,13 +394,62 @@
         } else {
           inner = '<input type="' + f.type + '" id="mf-' + f.key + '" value="' + esc(val) + '">';
         }
-        return '<div class="field"><label>' + esc(f.label) + "</label>" + inner + "</div>";
+        return divider + '<div class="field"><label>' + esc(f.label) + "</label>" + inner + "</div>";
       }).join("") + "</div>" +
       '<div class="modal-actions">' +
       '<button class="btn btn-outline btn-sm" id="modal-cancel">CANCEL</button>' +
       '<button class="btn btn-yellow btn-sm" id="modal-save">SAVE RECORD</button></div>';
 
     backdrop.classList.add("open");
+
+    /* wire device uploads */
+    modal.querySelectorAll("[data-iu]").forEach(function (btn) {
+      var key = btn.getAttribute("data-iu");
+      var fileInput = document.getElementById("mf-" + key + "-file");
+      var kind = btn.getAttribute("data-kind");
+      btn.addEventListener("click", function () { fileInput.click(); });
+      fileInput.addEventListener("change", function () {
+        var file = fileInput.files[0];
+        if (!file) return;
+        uploadAsset(file, btn.getAttribute("data-folder"), function (st, msg) {
+          var el = document.getElementById("mf-" + key + "-status");
+          if (st === "ok") {
+            el.textContent = "Uploaded \u2713 — it will go live after you press SAVE RECORD, then SAVE TO GITHUB.";
+            el.className = "iu-status iu-ok";
+            var target = document.getElementById("mf-" + key);
+            if (kind === "image") {
+              target.value = msg;
+              var prev = document.getElementById("mf-" + key + "-prev");
+              prev.src = msg;
+              prev.style.display = "";
+            } else {
+              var lines = target.value.split("\n").map(function (x) { return x.trim(); }).filter(Boolean);
+              lines.push(msg);
+              target.value = lines.join("\n");
+            }
+          } else if (st === "busy") {
+            el.textContent = msg;
+            el.className = "iu-status";
+          } else {
+            el.textContent = msg;
+            el.className = "iu-status iu-err";
+          }
+        });
+        fileInput.value = "";
+      });
+    });
+
+    /* result mode: jump straight to the score fields */
+    if (modalOpts.resultMode) {
+      var stSel = document.getElementById("mf-status");
+      if (stSel) stSel.value = "finished";
+      ["mf-scoreCastmog", "mf-scoreOpponent"].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) { el.style.borderColor = "var(--yellow)"; el.style.boxShadow = "0 0 0 3px rgba(251,192,45,.25)"; }
+      });
+      var sc = document.getElementById("mf-scoreCastmog");
+      if (sc) { sc.focus(); sc.scrollIntoView({ behavior: "smooth", block: "center" }); }
+    }
 
     document.getElementById("modal-cancel").addEventListener("click", function () {
       backdrop.classList.remove("open");
@@ -356,13 +458,28 @@
     document.getElementById("modal-save").addEventListener("click", function () {
       cfg.fields.forEach(function (f) {
         var el = document.getElementById("mf-" + f.key);
+        if (!el) return;
         var v;
         if (f.type === "check") v = el.checked;
-        else if (f.type === "list") v = el.value.split("\n").map(function (x) { return x.trim(); }).filter(Boolean);
+        else if (f.type === "list" || f.type === "filelist") v = el.value.split("\n").map(function (x) { return x.trim(); }).filter(Boolean);
         else if (f.type === "number") v = el.value === "" ? null : Number(el.value);
         else v = el.value.trim();
         setVal(record, f.key, v);
       });
+
+      /* match result guard: no mistaken statuses */
+      if (cfg.titleKey === "opponent") {
+        var hasScore = record.scoreCastmog != null && record.scoreOpponent != null;
+        if (record.status === "finished" && !hasScore) {
+          alert("This match is marked FINISHED but the score is missing.\n\nEnter both scores, or set the status back to SCHEDULED.");
+          return;
+        }
+        if (hasScore && record.status === "scheduled") {
+          record.status = "finished";
+          alert("Both scores were entered, so the match has automatically been marked FINISHED.\nIt will now move from Fixtures to Results and Match History.");
+        }
+      }
+
       onSave(record);
       backdrop.classList.remove("open");
     });
@@ -427,6 +544,13 @@
           if (name === "youtube") files.youtube.dirty = true; else files[name].dirty = true;
           renderCollectionTab(name);
           updateSaveBar();
+        } else if (act === "result") {
+          openRecordModal(cfg, JSON.parse(JSON.stringify(arr[i])), function (r) {
+            arr[i] = r;
+            if (name === "youtube") files.youtube.dirty = true; else files[name].dirty = true;
+            renderCollectionTab(name);
+            updateSaveBar();
+          }, { resultMode: true });
         } else if (act === "edit") {
           openRecordModal(cfg, JSON.parse(JSON.stringify(arr[i])), function (r) {
             arr[i] = r;

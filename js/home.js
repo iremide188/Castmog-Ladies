@@ -45,7 +45,9 @@
       '<div class="mc-teams">' +
       '<div class="mc-team"><img src="images/crest.png" alt="Castmog Ladies crest" class="mc-crest"><div class="mc-name">CASTMOG LADIES</div></div>' +
       '<div class="mc-vs">' + (m.status === "finished" ? "FT" : "VS") + "</div>" +
-      '<div class="mc-team"><div class="mc-crest">' + C.initials(m.opponent) + '</div><div class="mc-name">' + C.esc(m.opponent) + "</div></div>" +
+      '<div class="mc-team">' + (m.opponentLogo
+          ? '<img src="' + C.esc(m.opponentLogo) + '" alt="' + C.esc(m.opponent) + ' crest" class="mc-crest">'
+          : '<div class="mc-crest">' + C.initials(m.opponent) + "</div>") + '<div class="mc-name">' + C.esc(m.opponent) + "</div></div>" +
       "</div>" + scoreHtml +
       '<div class="mc-meta">' +
       "<span>" + C.fmtDate(m.date) + "</span>" +

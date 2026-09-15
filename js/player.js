@@ -73,7 +73,7 @@
     if (p.videos && p.videos.length) {
       html += '<section class="section" style="padding:2rem 0 0;"><h2 class="section-title" style="font-size:1.5rem;">VIDEOS</h2>' +
         '<div class="yt-grid" style="margin-top:1.2rem;">' + p.videos.map(function (v) {
-          return C.ytFacade(v, p.name);
+          return C.mediaItem ? C.mediaItem(v, p.name) : C.ytFacade(v, p.name);
         }).join("") + "</div></section>";
     }
 
@@ -84,11 +84,19 @@
         }).join("") + "</div></section>";
     }
 
-    if (p.social && (p.social.instagram || p.social.twitter)) {
-      html += '<section class="section" style="padding:2rem 0 0;"><div class="footer-social">' +
-        (p.social.instagram ? '<a href="' + C.esc(p.social.instagram) + '" target="_blank" rel="noopener">INSTAGRAM</a>' : "") +
-        (p.social.twitter ? '<a href="' + C.esc(p.social.twitter) + '" target="_blank" rel="noopener">X / TWITTER</a>' : "") +
-        "</div></section>";
+    var socialLinks = [];
+    if (p.socialUrl) {
+      var u = String(p.socialUrl).toLowerCase(), lab = "SOCIAL MEDIA";
+      if (u.indexOf("instagram") > -1) lab = "INSTAGRAM";
+      else if (u.indexOf("tiktok") > -1) lab = "TIKTOK";
+      else if (u.indexOf("twitter") > -1 || u.indexOf("x.com") > -1) lab = "X / TWITTER";
+      else if (u.indexOf("facebook") > -1) lab = "FACEBOOK";
+      socialLinks.push('<a href="' + C.esc(p.socialUrl) + '" target="_blank" rel="noopener">' + lab + "</a>");
+    }
+    if (p.social && p.social.instagram) socialLinks.push('<a href="' + C.esc(p.social.instagram) + '" target="_blank" rel="noopener">INSTAGRAM</a>');
+    if (p.social && p.social.twitter) socialLinks.push('<a href="' + C.esc(p.social.twitter) + '" target="_blank" rel="noopener">X / TWITTER</a>');
+    if (socialLinks.length) {
+      html += '<section class="section" style="padding:2rem 0 0;"><div class="footer-social">' + socialLinks.join("") + "</div></section>";
     }
 
     html += '<section class="section" style="padding:2rem 0;"><a class="btn btn-outline btn-sm" href="squad.html">&larr; BACK TO SQUAD</a></section>';

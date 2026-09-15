@@ -38,6 +38,7 @@
       return '<div class="card staff-card">' + img +
         '<p class="sc-name">' + C.esc(m.name) + "</p>" +
         '<span class="sc-role">' + C.esc(m.role) + "</span>" +
+        (m.socialUrl ? '<a class="sc-social" href="' + C.esc(m.socialUrl) + '" target="_blank" rel="noopener">FOLLOW ON SOCIAL MEDIA</a>' : "") +
         (m.bio ? '<p style="font-size:0.9rem;">' + C.esc(m.bio.slice(0, 200)) + "&hellip;</p>" : "") +
         "</div>";
     }).join("");

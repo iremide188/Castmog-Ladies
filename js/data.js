@@ -106,6 +106,17 @@ window.CLUB = (function () {
     return new Date(m.date + "T" + (parseTime(m.time) || "00:00") + ":00");
   }
 
+  /* direct video files render as <video>, everything else as YouTube facade */
+  function isFileVideo(v) {
+    v = String(v || "").toLowerCase();
+    return v.indexOf("assets/") === 0 || /\.(mp4|webm|mov|m4v|ogg)$/.test(v);
+  }
+
+  function mediaItem(v, label) {
+    if (isFileVideo(v)) return '<div class="video-file"><video controls preload="metadata" src="' + esc(v) + '"></video><div class="vf-cap">' + esc(label) + "</div></div>";
+    return ytFacade(v, label);
+  }
+
   function upcoming() {
     var today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -199,7 +210,7 @@ window.CLUB = (function () {
     upcoming: upcoming, nextMatch: nextMatch, finished: finished, latestResult: latestResult,
     headToHead: headToHead, initials: initials,
     ytThumb: ytThumb, ytFacade: ytFacade, activateFacades: activateFacades,
-    parseTime: parseTime, kickoff: kickoff,
+    parseTime: parseTime, kickoff: kickoff, mediaItem: mediaItem,
     waLink: waLink,
     onReady: function (cb) {
       onReady.push(cb);

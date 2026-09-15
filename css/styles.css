@@ -1280,3 +1280,65 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
   input, select, textarea { font-size: 16px; }
   .has-live-ticker .hero { padding-top: 8.4rem; }
 }
+
+/* ---------- Admin: file uploads & result divider ---------- */
+.field-wide { grid-column: 1 / -1; }
+
+.iu-wrap { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.iu-preview {
+  width: 92px; height: 92px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+
+.iu-status { font-size: 0.74rem; color: var(--muted); min-height: 1em; }
+.iu-status.iu-ok { color: #35c289; }
+.iu-status.iu-err { color: #e04545; }
+
+.modal-divider {
+  grid-column: 1 / -1;
+  margin: 0.4rem 0 -0.4rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgba(251, 192, 45, 0.45);
+  background: rgba(251, 192, 45, 0.07);
+  border-radius: 10px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--yellow);
+}
+
+/* staff social link on club page */
+.sc-social {
+  display: inline-block;
+  margin: 0.5rem 0 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--green);
+  text-decoration: none;
+  border-bottom: 1px solid var(--green);
+  padding-bottom: 2px;
+}
+
+/* direct uploaded video files */
+.video-file video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  display: block;
+}
+
+.video-file .vf-cap {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 0.4rem;
+}
