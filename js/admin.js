@@ -785,14 +785,145 @@
     return '<div class="stat-tile" style="text-align:left;padding:1.2rem 1.4rem;"><b>' + Number(n || 0) + "</b><span>" + label + "</span></div>";
   }
 
+  /* ---------- Applications & Payments (live server register) ---------- */
+
+  var APPS_API = "https://superagent-e3f5b6f2.base44.app/functions/";
+  var APP_STATUSES = ["Payment pending", "Payment received", "Payment verified", "Under review", "Further assessment", "Accepted", "Not selected"];
+
+  function appApi(fn, body) {
+    var token = localStorage.getItem("castmog_admin_token") || "";
+    return fetch(APPS_API + fn, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-castmog-admin": token },
+      body: JSON.stringify(body || {})
+    }).then(function (r) { return r.json(); });
+  }
+
+  function appRowHtml(x) {
+    var st = x.status || "Payment received";
+    var stColor = st === "Accepted" ? "var(--green)" : st === "Not selected" ? "var(--red)" : st === "Payment verified" || st === "Under review" || st === "Further assessment" ? "var(--yellow)" : "var(--muted)";
+    return '<div class="app-card" style="border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem;margin-bottom:0.9rem;background:rgba(255,255,255,0.02);">' +
+      '<div style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:center;">' +
+      '<b style="font-family:var(--font-head);">' + esc(x.ref || "") + "</b>" +
+      '<span style="font-weight:700;">' + esc(x.name || "") + "</span>" +
+      '<span style="color:var(--muted);font-size:0.85rem;">' + esc(x.position || "") + " · " + esc(String(x.created_date || "").slice(0, 10)) + "</span>" +
+      (x.source === "manual" ? '<span class="chip">MANUAL</span>' : "") +
+      '<span style="margin-left:auto;font-weight:800;color:' + stColor + ';">' + esc(st) + "</span></div>" +
+      '<div style="color:var(--muted);font-size:0.85rem;margin-top:0.35rem;">' +
+      "PHONE: " + esc(x.phone || "—") +
+      (x.email ? " · EMAIL: " + esc(x.email) : "") +
+      " · PAYMENT REF: " + esc(x.paymentRef || "—") +
+      (x.fee ? " · FEE: \u20A6" + esc(x.fee) : "") + "</div>" +
+      '<div style="display:flex;flex-wrap:wrap;gap:0.8rem;align-items:center;margin-top:0.7rem;">' +
+      '<label style="display:flex;gap:0.35rem;align-items:center;font-size:0.85rem;cursor:pointer;"><input type="checkbox" data-id="' + esc(x.id) + '" data-k="receiptReceived"' + (x.receiptReceived ? " checked" : "") + '> Receipt received</label>' +
+      '<label style="display:flex;gap:0.35rem;align-items:center;font-size:0.85rem;cursor:pointer;"><input type="checkbox" data-id="' + esc(x.id) + '" data-k="paymentVerified"' + (x.paymentVerified ? " checked" : "") + '> Payment verified</label>' +
+      '<select data-id="' + esc(x.id) + '" data-k="status" style="padding:0.4rem 0.6rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-size:0.85rem;">' +
+      APP_STATUSES.map(function (s) { return '<option' + (s === st ? " selected" : "") + ">" + s + "</option>"; }).join("") + "</select>" +
+      '<button class="btn btn-outline btn-sm" data-id="' + esc(x.id) + '" data-act="notes"' + (x.notes ? ' style="border-color:var(--yellow);"' : "") + "'>" + (x.notes ? "NOTES \u2713" : "NOTES") + "</button>" +
+      '<button class="btn btn-outline btn-sm" data-id="' + esc(x.id) + '" data-name="' + esc(x.name || "") + '" data-act="delete">DELETE</button>' +
+      "</div>" +
+      '<div class="app-notes-box" data-id="' + esc(x.id) + '" style="display:none;margin-top:0.7rem;">' +
+      '<textarea data-id="' + esc(x.id) + '" data-k="notes" rows="2" placeholder="Notes (e.g. receipt checked against bank statement, assessment notes)\u2026" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' + esc(x.notes || "") + "</textarea>" +
+      '<button class="btn btn-yellow btn-sm" data-id="' + esc(x.id) + '" data-act="savenotes" style="margin-top:0.4rem;">SAVE NOTES</button></div>' +
+      "</div>";
+  }
+
+  function renderAppsList(apps) {
+    var box = document.getElementById("apps-status");
+    var counts = {
+      total: apps.length,
+      received: apps.filter(function (x) { return ["Payment received", "Payment verified"].indexOf(x.status) >= 0 || x.paymentVerified; }).length,
+      verified: apps.filter(function (x) { return x.paymentVerified; }).length,
+      accepted: apps.filter(function (x) { return x.status === "Accepted"; }).length
+    };
+    box.innerHTML =
+      '<div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1.2rem;">' +
+      stat(counts.total, "Applications") + stat(counts.received, "Payments received") +
+      stat(counts.verified, "Verified") + stat(counts.accepted, "Accepted") + "</div>" +
+      '<div style="margin-bottom:0.8rem;"><button class="btn btn-outline btn-sm" id="apps-add">+ ADD APPLICATION (MANUAL)</button> ' +
+      '<button class="btn btn-outline btn-sm" id="apps-refresh">REFRESH</button></div>' +
+      '<div id="apps-addform" style="display:none;border:1px dashed var(--line);border-radius:12px;padding:1rem;margin-bottom:1.2rem;">' +
+      '<b style="font-family:var(--font-head);">LOG A PAYMENT MANUALLY</b>' +
+      '<p style="color:var(--muted);font-size:0.85rem;">For applicants who paid directly to the account without using the website.</p>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.7rem;">' +
+      '<input id="af-name" placeholder="Full name *" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
+      '<input id="af-phone" placeholder="Phone / WhatsApp" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
+      '<input id="af-ref" placeholder="Application ref" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
+      '<input id="af-paymentref" placeholder="Payment receipt / transaction ref" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
+      '<input id="af-position" placeholder="Position" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);">' +
+      '<input id="af-fee" placeholder="Fee paid (\u20A6)" style="padding:0.55rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);"></div>' +
+      '<button class="btn btn-green btn-sm" id="af-save" style="margin-top:0.8rem;">SAVE APPLICATION</button></div>' +
+      (apps.length ? apps.map(appRowHtml).join("") : '<div class="empty-state">No applications yet. When someone completes the website application flow after payment, they will appear here automatically.</div>');
+
+    document.getElementById("apps-add").addEventListener("click", function () {
+      var f = document.getElementById("apps-addform");
+      f.style.display = f.style.display === "none" ? "block" : "none";
+    });
+    document.getElementById("apps-refresh").addEventListener("click", function () { renderApplications(); });
+    document.getElementById("af-save").addEventListener("click", function () {
+      var name = document.getElementById("af-name").value.trim();
+      if (!name) { alert("Enter the applicant\u2019s name."); return; }
+      appApi("castmogAppUpdate", {
+        action: "create",
+        record: {
+          name: name,
+          phone: document.getElementById("af-phone").value.trim(),
+          ref: document.getElementById("af-ref").value.trim(),
+          paymentRef: document.getElementById("af-paymentref").value.trim(),
+          position: document.getElementById("af-position").value.trim(),
+          fee: document.getElementById("af-fee").value.trim(),
+          status: "Payment received",
+          receiptReceived: false,
+          paymentVerified: false,
+          notes: ""
+        }
+      }).then(function (r) { if (r.ok) renderApplications(); else alert(r.error || "Could not save."); });
+    });
+
+    box.addEventListener("change", function (e) {
+      var t = e.target;
+      var id = t.getAttribute("data-id");
+      if (!id) return;
+      var patch = {};
+      patch[t.getAttribute("data-k")] = t.type === "checkbox" ? t.checked : t.value;
+      appApi("castmogAppUpdate", Object.assign({ id: id }, patch)).then(function (r) {
+        if (!r.ok) { alert(r.error || "Could not update."); renderApplications(); }
+      });
+    });
+    box.addEventListener("click", function (e) {
+      var btn = e.target.closest("[data-act]");
+      if (!btn) return;
+      var id = btn.getAttribute("data-id");
+      if (btn.getAttribute("data-act") === "delete") {
+        if (!confirm("Delete the application for " + (btn.getAttribute("data-name") || "this applicant") + "?")) return;
+        appApi("castmogAppUpdate", { action: "delete", id: id }).then(function () { renderApplications(); });
+      } else if (btn.getAttribute("data-act") === "notes") {
+        var nb = box.querySelector('.app-notes-box[data-id="' + id + '"]');
+        if (nb) nb.style.display = nb.style.display === "none" ? "block" : "none";
+      } else if (btn.getAttribute("data-act") === "savenotes") {
+        var ta = box.querySelector('textarea[data-id="' + id + '"]');
+        appApi("castmogAppUpdate", { id: id, notes: ta ? ta.value : "" }).then(function (r) {
+          if (r.ok) renderApplications(); else alert(r.error || "Could not save.");
+        });
+      }
+    });
+  }
+
   function renderApplications() {
     var main = document.getElementById("admin-main");
-    var apps = [];
-    try { apps = JSON.parse(localStorage.getItem("castmog_applications") || "[]"); } catch (e) {}
-    main.innerHTML = head("Applications") +
-      '<div class="admin-note">Applications are submitted through the website and delivered to the club on WhatsApp. Payment is by bank transfer (any bank in the world can send to the account) and verified with the payment receipt the applicant sends in the WhatsApp chat. This tab lists applications submitted from <b>this browser only</b> — the authoritative record is the WhatsApp chat with the club number.</div>' +
-      (apps.length ? recordList({ titleKey: "name", sub: function (r) { return r.ref + " · " + (r.position || "") + " · " + (r.status || ""); } }, apps) : '<div class="empty-state">No applications from this browser yet.</div>');
+    main.innerHTML = head("Applications & Payments") +
+      '<div class="admin-note">Every website application lands here automatically the moment the applicant pays and submits — including their payment reference. Verify the payment against your bank statement, tick <b>Payment verified</b> when the money lands, and move the status along as you review. Applicants also send their receipt to the club WhatsApp; use <b>ADD APPLICATION</b> to log payments that arrive without the website (direct bank transfers).</div>' +
+      '<div id="apps-status" style="padding:0.5rem 0;">Loading applications\u2026</div>';
     updateSaveBar();
+    appApi("castmogAppList").then(function (res) {
+      if (!res || res.ok !== true) throw new Error((res && res.error) || "Could not load applications.");
+      renderAppsList(res.apps || []);
+    }).catch(function (err) {
+      var el = document.getElementById("apps-status");
+      el.innerHTML = '<div class="empty-state">Could not load the applications register: ' + esc(String(err.message || err)) +
+        '<br><br>If this keeps failing, your login token may have expired — log out and sign in again.<br><br><button class="btn btn-outline btn-sm" id="apps-retry">RETRY</button></div>';
+      document.getElementById("apps-retry").addEventListener("click", function () { renderApplications(); });
+    });
   }
 
   function renderTab(tab) {

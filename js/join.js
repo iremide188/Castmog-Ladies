@@ -238,8 +238,32 @@
     return "CAST-" + year + "-" + String(seq).padStart(4, "0");
   }
 
+  /* every completed application lands in the club's admin dashboard automatically */
+  function sendToDashboard(ref, d) {
+    try {
+      var S = C.get("settings") || {};
+      fetch("https://superagent-e3f5b6f2.base44.app/functions/castmogAppSubmit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ref: ref,
+          name: d.fullName || "",
+          phone: d.phone || "",
+          email: d.email || "",
+          position: d.position || "",
+          dob: d.dob || "",
+          location: d.location || "",
+          paymentRef: d.paymentRef || "",
+          fee: String(S.applicationFee || ""),
+          source: "website"
+        })
+      }).catch(function () {});
+    } catch (e) { /* never block the application on this */ }
+  }
+
   function finalize() {
     state.ref = makeRef();
+    sendToDashboard(state.ref, state.data);
     var apps = [];
     try { apps = JSON.parse(localStorage.getItem("castmog_applications") || "[]"); } catch (e) {}
     apps.push({
