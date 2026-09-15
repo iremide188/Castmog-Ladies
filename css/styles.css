@@ -1342,3 +1342,18 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
   color: var(--muted);
   margin-top: 0.4rem;
 }
+
+/* ---------- Admin: goalscorer rows ---------- */
+.scorer-box { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.6rem; }
+
+.scorer-row {
+  display: grid;
+  grid-template-columns: 1fr 110px auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+@media (max-width: 560px) {
+  .scorer-row { grid-template-columns: 1fr 80px auto; }
+  .scorer-row .sr-del { padding: 0.45rem 0.5rem; font-size: 0.62rem; }
+}

@@ -142,6 +142,7 @@
         F("homeAway", "Home / Away", "select", ["Home", "Away"]),
         F("status", "Match status", "select", STATUS),
         F("scoreCastmog", "Castmog score", "number"), F("scoreOpponent", "Opponent score", "number"),
+        F("scorers", "Goalscorers — who scored for Castmog", "scorers"),
         F("report", "Match report", "textarea"), F("lineup", "Starting lineup", "list"),
         F("subs", "Substitutes", "list"), F("events", "Match events", "list"),
         F("photos", "Match photo URLs", "list"), F("videos", "Match video IDs/URLs", "list"),
@@ -352,6 +353,28 @@
     }).join("") + "</div>";
   }
 
+  /* ---------- goalscorer rows (select from the squad) ---------- */
+
+  function scorerRowHtml(entry, oldMap) {
+    entry = entry || {};
+    var pid = entry.id || "";
+    var players = (files.players && files.players.data) || [];
+    var opts = '<option value="">— select player —</option>';
+    players.forEach(function (p) {
+      var v = p.id || "";
+      opts += '<option value="' + esc(v) + '"' + (v && v === pid ? " selected" : "") + ">#" + esc(p.number || "-") + " — " + esc(p.name || "(unnamed)") + "</option>";
+    });
+    if (pid && !players.some(function (p) { return (p.id || "") === pid; })) {
+      var nm = (oldMap[pid] && oldMap[pid].name) || pid;
+      opts += '<option value="' + esc(pid) + '" selected>' + esc(nm) + " (not in current squad)</option>";
+    }
+    return '<div class="scorer-row">' +
+      '<select class="sr-player">' + opts + "</select>" +
+      '<input type="text" inputmode="numeric" class="sr-minute" placeholder="Min e.g. 34" value="' + esc(entry.minute || "") + '">' +
+      '<button type="button" class="btn btn-red btn-sm sr-del">REMOVE</button>' +
+      "</div>";
+  }
+
   function openRecordModal(cfg, record, onSave, modalOpts) {
     modalOpts = modalOpts || {};
     var backdrop = document.getElementById("modal-back");
@@ -364,6 +387,12 @@
         var divider = f.key === "scoreCastmog"
           ? '<div class="modal-divider">FULL-TIME RESULT &mdash; only fill this in AFTER the match is played. When both scores are entered, the match is automatically marked FINISHED.</div>'
           : "";
+        if (f.type === "scorers") {
+          inner = '<div class="scorer-box" id="mf-' + f.key + '"></div>' +
+            '<button type="button" class="btn btn-outline btn-sm" id="mf-' + f.key + '-add">+ ADD GOALSCORER</button>' +
+            '<div class="iu-status">Pick players from your squad and add the goal minute if you know it.</div>';
+          return divider + '<div class="field field-wide"><label>' + esc(f.label) + "</label>" + inner + "</div>";
+        }
         if (f.type === "image") {
           inner = '<div class="iu-wrap">' +
             '<img class="iu-preview" id="mf-' + f.key + '-prev" src="' + esc(val) + '" alt=""' + (val ? "" : ' style="display:none"') + ">" +
@@ -439,6 +468,29 @@
       });
     });
 
+    /* goalscorer rows */
+    var scorerBox = modal.querySelector(".scorer-box");
+    var addGoalBtn = modal.querySelector("[id$='-add']");
+    if (scorerBox && addGoalBtn) {
+      var oldScorerMap = {};
+      (Array.isArray(getVal(record, "scorers")) ? getVal(record, "scorers") : []).forEach(function (s) {
+        if (s && s.id) oldScorerMap[s.id] = s;
+      });
+      var bindRow = function (row) {
+        var del = row.querySelector(".sr-del");
+        del.addEventListener("click", function () { row.remove(); });
+      };
+      var addScorerRow = function (entry) {
+        var w = document.createElement("div");
+        w.innerHTML = scorerRowHtml(entry, oldScorerMap);
+        var row = w.firstChild;
+        bindRow(row);
+        scorerBox.appendChild(row);
+      };
+      (Array.isArray(getVal(record, "scorers")) ? getVal(record, "scorers") : []).forEach(addScorerRow);
+      addGoalBtn.addEventListener("click", function () { addScorerRow(null); });
+    }
+
     /* result mode: jump straight to the score fields */
     if (modalOpts.resultMode) {
       var stSel = document.getElementById("mf-status");
@@ -457,6 +509,22 @@
 
     document.getElementById("modal-save").addEventListener("click", function () {
       cfg.fields.forEach(function (f) {
+        if (f.type === "scorers") {
+          var oldSc = {};
+          (Array.isArray(getVal(record, f.key)) ? getVal(record, f.key) : []).forEach(function (s) { if (s && s.id) oldSc[s.id] = s; });
+          var pById = {};
+          ((files.players && files.players.data) || []).forEach(function (p) { if (p.id) pById[p.id] = p; });
+          var rows = Array.prototype.slice.call(modal.querySelectorAll("#mf-" + f.key + " .scorer-row"));
+          setVal(record, f.key, rows.map(function (row) {
+            var sel = row.querySelector(".sr-player");
+            var minEl = row.querySelector(".sr-minute");
+            var pid = sel ? sel.value : "";
+            if (!pid) return null;
+            var p = pById[pid];
+            return { id: pid, name: p ? p.name : ((oldSc[pid] && oldSc[pid].name) || pid), minute: minEl ? minEl.value.trim() : "" };
+          }).filter(Boolean));
+          return;
+        }
         var el = document.getElementById("mf-" + f.key);
         if (!el) return;
         var v;

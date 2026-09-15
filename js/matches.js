@@ -61,6 +61,15 @@
       "<span>" + C.fmtDate(m.date) + "</span>" + (m.time ? "<span>" + C.esc(m.time) + "</span>" : "") +
       (m.venue ? "<span>" + C.esc(m.venue) + "</span>" : "") + "</div>";
 
+    if (m.scorers && m.scorers.length) {
+      html += '<div style="margin-top:1.1rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.7rem;">GOALS</h3><div class="lineup-grid">' +
+        m.scorers.map(function (s) {
+          var nm = typeof s === "string" ? s : (s.name || "");
+          var min = (s && s.minute) || "";
+          return '<div class="lineup-chip"><span class="lc-num">' + (min ? C.esc(min) + "&prime;" : "G") + '</span><span class="lc-name">' + C.esc(nm) + "</span></div>";
+        }).join("") + "</div></div>";
+    }
+
     if (m.report) html += '<div style="margin-top:1.4rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.5rem;">MATCH REPORT</h3><p style="color:rgba(244,247,241,0.88);">' + C.esc(m.report).replace(/\n/g, "<br>") + "</p></div>";
     if (m.lineup && m.lineup.length) html += '<div style="margin-top:1.2rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.7rem;">STARTING XI</h3><div class="lineup-grid">' +
       m.lineup.map(function (n, i) {
