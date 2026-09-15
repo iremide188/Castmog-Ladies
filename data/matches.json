@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": "jagunmolu-7ry5",
+    "published": true,
+    "opponent": "jagunmolu",
+    "opponentLogo": "",
+    "date": "2026-09-15",
+    "time": "11:40",
+    "competition": "FRIENDLY",
+    "venue": "MKO STADIUM, ABEOUKUTA",
+    "homeAway": "Home",
+    "status": "scheduled",
+    "liveScoreCastmog": null,
+    "liveScoreOpponent": null,
+    "scorers": [],
+    "scoreCastmog": null,
+    "scoreOpponent": null,
+    "report": "",
+    "lineup": [],
+    "subs": [],
+    "events": [],
+    "photos": [],
+    "videos": [],
+    "notes": ""
+  }
+]
