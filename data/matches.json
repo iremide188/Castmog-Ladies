@@ -10,12 +10,17 @@
     "venue": "",
     "homeAway": "Away",
     "status": "scheduled",
-    "liveScoreCastmog": 1,
+    "liveScoreCastmog": 2,
     "liveScoreOpponent": 0,
     "scorers": [
       {
         "id": "dosunmu-temitope",
         "name": "Dosunmu Temitope",
+        "minute": ""
+      },
+      {
+        "id": "fakeye-oluwanifemi",
+        "name": "Fakeye Oluwanifemi",
         "minute": ""
       }
     ],
