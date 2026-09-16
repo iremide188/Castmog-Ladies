@@ -1369,7 +1369,10 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
   .countdown .cd-num { font-size: 1.35rem; }
   .countdown .cd-lab { font-size: 0.52rem; letter-spacing: 0.14em; }
 
-  .match-row { flex-wrap: wrap; gap: 0.8rem; }
+  .match-row { gap: 0.7rem; }
+  .match-row .mr-date { min-width: 44px; }
+  .match-row .mr-teams { font-size: 0.92rem; }
+  .match-row .mr-score { font-size: 1.15rem; white-space: nowrap; }
   .form-card { padding: 1.1rem; }
   .panel { padding: 1.1rem; }
 

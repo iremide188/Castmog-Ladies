@@ -15,7 +15,7 @@ window.CLUB = (function () {
   function load() {
     var left = FILES.length;
     FILES.forEach(function (name) {
-      fetch("data/" + name + ".json", { cache: "no-cache" })
+      fetch("data/" + name + ".json?cb=" + Date.now(), { cache: "no-cache" })
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (j) { db[name] = j; })
         .catch(function () { db[name] = null; })
@@ -283,14 +283,16 @@ window.CLUB = (function () {
     var timer = null;
     function anyLive() {
       return ((db && db.matches) || []).some(function (m) {
-        var st = m.status === "scheduled" ? liveState(m) : null;
-        return st && isLivePhase(st.phase);
+        if (m.status !== "scheduled") return false;
+        if (m.liveScoreCastmog != null || m.liveScoreOpponent != null) return true;
+        var st = liveState(m);
+        return st && (isLivePhase(st.phase) || st.phase === "ft");
       });
     }
     function check() {
       if (anyLive() && !timer) {
         timer = setInterval(function () {
-          fetch("data/matches.json", { cache: "no-cache" })
+          fetch("data/matches.json?cb=" + Date.now(), { cache: "no-cache" })
             .then(function (r) { return r.ok ? r.json() : null; })
             .then(function (j) {
               if (!j) return;
