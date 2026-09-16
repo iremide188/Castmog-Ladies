@@ -2,7 +2,7 @@
   {
     "id": "akindele-taibat-abiodun",
     "name": "Akindele Taibat Abiodun",
-    "nickname": "",
+    "nickname": "Yahoo Keeper",
     "number": 1,
     "position": "GK",
     "positionLabel": "Goalkeeper",
@@ -24,7 +24,8 @@
       "instagram": "",
       "twitter": ""
     },
-    "published": true
+    "published": true,
+    "socialUrl": ""
   },
   {
     "id": "oladele-josephine",
@@ -245,12 +246,12 @@
   {
     "id": "fakeye-oluwanifemi",
     "name": "Fakeye Oluwanifemi",
-    "nickname": "",
+    "nickname": "Young Assisat",
     "number": 15,
     "position": "MID",
     "positionLabel": "Midfielder",
     "secondaryPosition": "",
-    "dob": "2009-01-21",
+    "dob": "",
     "nationality": "Nigeria",
     "foot": "Right",
     "height": "",
