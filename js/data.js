@@ -435,7 +435,14 @@ window.CLUB = (function () {
     return base + "?text=" + encodeURIComponent(text);
   }
 
+  /* true when the fixture is an AWAY match (opponent hosts) */
+  function isAway(m) {
+    var v = String((m && m.homeAway) || "").trim().toLowerCase();
+    return v === "away" || v === "a" || v === "@";
+  }
+
   return {
+    isAway: isAway,
     get: get, ready: ready, pub: pub, esc: esc,
     socialIconRow: socialIconRow,
     fmtDate: fmtDate, shortDate: shortDate,

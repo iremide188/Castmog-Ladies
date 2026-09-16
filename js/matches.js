@@ -15,7 +15,9 @@
       : '<span class="chip chip-yellow">' + C.esc(m.homeAway || "HOME") + "</span>";
     return '<div class="match-row">' +
       '<div class="mr-date"><span class="d">' + C.esc(d.d) + '</span><span class="m">' + C.esc(d.m) + "</span></div>" +
-      '<div class="mr-main"><div class="mr-teams">CASTMOG LADIES &nbsp;vs&nbsp; ' + C.esc(m.opponent).toUpperCase() + "</div>" +
+      '<div class="mr-main"><div class="mr-teams">' + (C.isAway(m)
+          ? C.esc(m.opponent).toUpperCase() + " &nbsp;vs&nbsp; CASTMOG LADIES"
+          : "CASTMOG LADIES &nbsp;vs&nbsp; " + C.esc(m.opponent).toUpperCase()) + "</div>" +
       '<div class="mr-meta"><span>' + C.esc(m.competition || "") + "</span>" +
       (m.time ? "<span>" + C.esc(m.time) + "</span>" : "") +
       (m.venue ? "<span>" + C.esc(m.venue) + "</span>" : "") +
@@ -63,7 +65,9 @@
 
   function matchDetail(m) {
     var html = '<div class="panel">' +
-      '<div class="section-head" style="margin-bottom:1rem;"><h2 class="section-title" style="font-size:1.6rem;">CASTMOG LADIES vs ' + C.esc(m.opponent).toUpperCase() + "</h2>" +
+      '<div class="section-head" style="margin-bottom:1rem;"><h2 class="section-title" style="font-size:1.6rem;">' + (C.isAway(m)
+        ? C.esc(m.opponent).toUpperCase() + " vs CASTMOG LADIES"
+        : "CASTMOG LADIES vs " + C.esc(m.opponent).toUpperCase()) + "</h2>" +
       '<a class="btn btn-outline btn-sm" href="#matches">&larr; ALL MATCHES</a></div>' +
       (window.CLUB_MATCHCARD ? window.CLUB_MATCHCARD(m, { countdown: m.status === "scheduled" }) : "") +
       "<div class='mc-meta' style='justify-content:flex-start;margin-top:1rem;'>" +

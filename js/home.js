@@ -45,6 +45,16 @@
         "</div>";
     }
 
+    var awayFirst = C.isAway(m);
+    var ourTeamBlock = '<div class="mc-team"><img src="images/crest.png" alt="Castmog Ladies crest" class="mc-crest"><div class="mc-name">CASTMOG LADIES</div>' +
+      '<div class="mc-num' + (cls ? " " + cls : "") + '">' + (ourScore == null ? "&ndash;" : ourScore) + "</div>" +
+      scorerHtml +
+      "</div>";
+    var oppTeamBlock = '<div class="mc-team">' + (m.opponentLogo
+        ? '<img src="' + C.esc(m.opponentLogo) + '" alt="' + C.esc(m.opponent) + ' crest" class="mc-crest">'
+        : '<div class="mc-crest">' + C.initials(m.opponent) + "</div>") + '<div class="mc-name">' + C.esc(m.opponent) + "</div>" +
+      '<div class="mc-num' + (cls ? " " + cls : "") + '">' + (oppScore == null ? "&ndash;" : oppScore) + "</div></div>";
+
     var scorerHtml = (ourScore != null && goals.length)
       ? '<div class="lv-goals mc-scorers">' + goals.map(function (s) {
           return '<span class="lv-goal" data-min="' + C.esc(s.minute || "") + '">(' +
@@ -55,16 +65,9 @@
     return (
       '<div class="match-card">' +
       '<span class="mc-comp">' + C.esc(m.competition || "FIXTURE") + " &middot; " + C.esc(m.homeAway || "HOME") + "</span>" +
-      '<div class="mc-teams">' +
-      '<div class="mc-team"><img src="images/crest.png" alt="Castmog Ladies crest" class="mc-crest"><div class="mc-name">CASTMOG LADIES</div>' +
-      '<div class="mc-num' + (cls ? " " + cls : "") + '">' + (ourScore == null ? "&ndash;" : ourScore) + "</div>" +
-      scorerHtml +
-      "</div>" +
+      (awayFirst ? oppTeamBlock : ourTeamBlock) +
       '<div class="mc-vs">' + (finished ? "FT" : "VS") + "</div>" +
-      '<div class="mc-team">' + (m.opponentLogo
-          ? '<img src="' + C.esc(m.opponentLogo) + '" alt="' + C.esc(m.opponent) + ' crest" class="mc-crest">'
-          : '<div class="mc-crest">' + C.initials(m.opponent) + "</div>") + '<div class="mc-name">' + C.esc(m.opponent) + "</div>" +
-      '<div class="mc-num' + (cls ? " " + cls : "") + '">' + (oppScore == null ? "&ndash;" : oppScore) + "</div></div>" +
+      (awayFirst ? ourTeamBlock : oppTeamBlock) +
       "</div>" + statusHtml +
       '<div class="mc-meta">' +
       "<span>" + C.fmtDate(m.date) + "</span>" +
