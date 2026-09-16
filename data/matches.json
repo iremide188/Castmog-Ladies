@@ -11,7 +11,7 @@
     "homeAway": "Away",
     "status": "scheduled",
     "liveScoreCastmog": 2,
-    "liveScoreOpponent": 0,
+    "liveScoreOpponent": 1,
     "scorers": [
       {
         "id": "dosunmu-temitope",
