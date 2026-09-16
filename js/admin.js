@@ -208,7 +208,7 @@
       title: "Achievements", titleKey: "trophy", sub: function (r) { return r.year || ""; },
       fields: [
         F("trophy", "Trophy / competition name"), F("year", "Year"), F("description", "Description", "textarea"),
-        F("image", "Image", "image", ["achievements"]), F("category", "Category"), F("source", "Source")
+        F("image", "TROPHY IMAGE \u2014 upload the cup photo from your device, or paste a link", "image", ["achievements"]), F("category", "Category"), F("source", "Source")
       ]
     },
     media: {
