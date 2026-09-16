@@ -55,7 +55,6 @@
     var awayFirst = C.isAway(m);
     var ourTeamBlock = '<div class="mc-team"><img src="images/crest.png" alt="Castmog Ladies crest" class="mc-crest"><div class="mc-name">CASTMOG LADIES</div>' +
       '<div class="mc-num' + (cls ? " " + cls : "") + '">' + (ourScore == null ? "&ndash;" : ourScore) + "</div>" +
-      scorerHtml +
       "</div>";
     var oppTeamBlock = '<div class="mc-team">' + (m.opponentLogo
         ? '<img src="' + C.esc(m.opponentLogo) + '" alt="' + C.esc(m.opponent) + ' crest" class="mc-crest">'
@@ -70,7 +69,9 @@
       (awayFirst ? oppTeamBlock : ourTeamBlock) +
       '<div class="mc-vs">' + (finished ? "FT" : "VS") + "</div>" +
       (awayFirst ? ourTeamBlock : oppTeamBlock) +
-      "</div>" + statusHtml +
+      "</div>" +
+      (scorerHtml ? '<div class="mc-scorers-row">' + scorerHtml + "</div>" : "") +
+      statusHtml +
       '<div class="mc-meta">' +
       "<span>" + C.weekdayDate(m.date) + "</span>" +
       (m.time ? "<span>KICK-OFF " + C.esc(C.parseTime(m.time)) + "</span>" : "") +
