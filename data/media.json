@@ -53,5 +53,16 @@
     "date": "",
     "featured": false,
     "published": true
+  },
+  {
+    "id": "video-hero-stadium",
+    "type": "video",
+    "category": "videos",
+    "url": "https://iremide188.github.io/Castmog-Ladies/assets/uploads/hero/hero-stadium-training.mp4",
+    "thumb": "https://iremide188.github.io/Castmog-Ladies/assets/uploads/hero/hero-stadium-training.jpg",
+    "caption": "Beautiful game — stadium training (royalty-free clip; replace anytime via the Media tab)",
+    "date": "2026-09-16",
+    "featured": true,
+    "published": true
   }
 ]

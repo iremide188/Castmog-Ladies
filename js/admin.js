@@ -189,7 +189,7 @@
         F("scorers", "Goalscorers — who scored for Castmog", "scorers"),
         F("scoreCastmog", "Final score — Castmog (after the match)", "number"),
         F("scoreOpponent", "Final score — Opponent (after the match)", "number"),
-        F("highlight", "MATCH HIGHLIGHT (paste the YouTube link of the highlight video)"),
+        F("highlight", "MATCH HIGHLIGHT \u2014 upload the video from your device, or paste a YouTube link", "media", ["matches"]),
         F("report", "Match report", "textarea"), F("lineup", "Starting lineup", "list"),
         F("subs", "Substitutes", "list"), F("events", "Match events", "list"),
         F("photos", "Match photo URLs", "list"), F("videos", "Match video IDs/URLs", "list"),
@@ -344,7 +344,7 @@
 
   var TABS = [
     ["overview", "Dashboard"], ["players", "Players"], ["staff", "Staff"],
-    ["matches", "Matches"], ["news", "News"], ["media", "Media"],
+    ["matches", "Matches"], ["news", "News"], ["media", "Media"], ["interviews", "Interviews"],
     ["youtube", "YouTube"], ["achievements", "Achievements"],
     ["club", "Club / Content Approval"], ["training", "Training"], ["settings", "Settings"],
     ["applications", "Applications"]
@@ -758,7 +758,8 @@
         }
         return '<div class="field"><label>' + esc(f.label) + "</label>" + inner + "</div>";
       }).join("") + "</div>" +
-      '<button class="btn btn-yellow" id="obj-save" style="margin-top:1.4rem;">SAVE CHANGES</button></div>';
+      '<button class="btn btn-yellow" id="obj-save" style="margin-top:1.4rem;">SAVE CHANGES</button>' +
+      (name === "training" ? trainingGallerySection() : "</div>");
 
     document.getElementById("obj-save").addEventListener("click", function () {
       cfg.fields.forEach(function (f) {
@@ -774,6 +775,7 @@
       updateSaveBar();
       alert("Changes saved locally — click SAVE TO GITHUB in the top bar to publish them to the website.");
     });
+    wireTrainingGallery(name);
     updateSaveBar();
   }
 
@@ -1055,6 +1057,161 @@
     });
   }
 
+  /* ---------- INTERVIEWS (media items with category "interviews") ---------- */
+  function interviewThumbHtml(r) {
+    if (r.type === "youtube" && r.youtubeId) return '<img src="https://i.ytimg.com/vi/' + esc(r.youtubeId) + '/hqdefault.jpg" alt="" style="width:120px;height:68px;object-fit:cover;border-radius:8px;border:1px solid var(--line);">';
+    if (r.thumb || r.url) return '<img src="' + esc(r.thumb || r.url) + '" alt="" style="width:120px;height:68px;object-fit:cover;border-radius:8px;border:1px solid var(--line);">';
+    return '<span class="chip">NO THUMB</span>';
+  }
+
+  function renderInterviews() {
+    var main = document.getElementById("admin-main");
+    var cfg = COLLECTIONS.media;
+    var items = (files.media.data || []).filter(function (r) { return (r.category || "") === "interviews"; });
+    main.innerHTML = head("Interviews", '<button class="btn btn-green btn-sm" id="iv-add">+ ADD INTERVIEW</button>') +
+      '<div class="admin-note">Player and coach interviews added here appear on the Media page under <b>INTERVIEWS</b>. In the form you can tap <b>UPLOAD FROM DEVICE</b> for a video file, paste a video link, or enter a YouTube video ID. Remember: SAVE RECORD, then SAVE TO GITHUB.</div>' +
+      (items.length ? '<div style="display:flex;flex-direction:column;gap:.7rem;margin-top:1rem;">' + items.map(function (r) {
+        return '<div style="display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;border:1px solid var(--line);border-radius:12px;padding:.7rem .9rem;background:rgba(255,255,255,0.02);">' +
+          interviewThumbHtml(r) +
+          '<div style="flex:1;min-width:180px;"><b>' + esc(r.caption || "Untitled interview") + "</b><br>" +
+          '<span style="color:var(--muted);font-size:.8rem;">' + esc(r.type || "video") + (r.published === false ? " · DRAFT (hidden from the site)" : "") + "</span></div>" +
+          '<button class="btn btn-outline btn-sm" data-act="edit" data-ivid="' + esc(r.id) + '">EDIT</button>' +
+          '<button class="btn btn-outline btn-sm" data-act="delete" data-ivid="' + esc(r.id) + '">DELETE</button></div>';
+      }).join("") + "</div>" : '<div class="empty-state" style="margin-top:1rem;">No interviews yet — tap <b>ADD INTERVIEW</b> to publish your first one.</div>');
+
+    document.getElementById("iv-add").addEventListener("click", function () {
+      var rec = { id: "interview-" + Math.random().toString(36).slice(2, 6), published: true, type: "video", category: "interviews" };
+      rec.__new = true;
+      openRecordModal(cfg, rec, function (r) {
+        delete r.__new;
+        files.media.data.push(r);
+        files.media.dirty = true;
+        renderInterviews();
+        updateSaveBar();
+      });
+    });
+
+    main.querySelectorAll("[data-ivid]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-ivid");
+        var act = b.getAttribute("data-act");
+        var idx = -1;
+        for (var i = 0; i < files.media.data.length; i++) { if (files.media.data[i].id === id) { idx = i; break; } }
+        if (idx < 0) return;
+        if (act === "delete") {
+          if (!confirm("Delete this interview?")) return;
+          files.media.data.splice(idx, 1);
+          files.media.dirty = true;
+          renderInterviews();
+          updateSaveBar();
+        } else if (act === "edit") {
+          openRecordModal(cfg, JSON.parse(JSON.stringify(files.media.data[idx])), function (r) {
+            files.media.data[idx] = r;
+            files.media.dirty = true;
+            renderInterviews();
+            updateSaveBar();
+          });
+        }
+      });
+    });
+  }
+
+  /* ---------- TRAINING GALLERY (photos & videos uploaded from the Training tab) ---------- */
+  function trainingGallerySection() {
+    var items = (files.media.data || []).filter(function (r) { return (r.category || "") === "training"; });
+    var listHtml = items.length ? items.map(function (r) {
+      var isPhoto = r.type === "photo";
+      return '<div style="display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;border:1px solid var(--line);border-radius:10px;padding:.55rem .7rem;background:rgba(255,255,255,0.02);">' +
+        '<img src="' + esc(r.thumb || r.url) + '" alt="" style="width:74px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--line);">' +
+        '<div style="flex:1;min-width:140px;font-size:.85rem;"><b>' + esc(r.caption || (isPhoto ? "Training photo" : "Training video")) + "</b><br>" +
+        '<span style="color:var(--muted);font-size:.75rem;">' + esc(isPhoto ? "photo" : "video") + " · shows on the MEDIA page under TRAINING" + (r.type === "video" ? " · joins the homepage hero slideshow" : "") + "</span></div>" +
+        '<button class="btn btn-outline btn-sm" data-act="tgedit" data-tgid="' + esc(r.id) + '">EDIT</button>' +
+        '<button class="btn btn-outline btn-sm" data-act="tgdelete" data-tgid="' + esc(r.id) + '">DELETE</button></div>';
+    }).join("") : '<div class="empty-state" style="margin-top:.8rem;">No training photos or videos yet.</div>';
+    return '</div>' +
+      '<div class="form-card" style="margin-top:1.4rem;">' +
+      '<h3 style="font-family:var(--font-head);letter-spacing:.05em;margin:0 0 .4rem;">TRAINING GALLERY</h3>' +
+      '<div class="admin-note" style="margin:0 0 .8rem;">Upload training photos and videos here — they appear on the Media page under <b>TRAINING</b>, and uploaded videos also join the homepage hero slideshow. Click SAVE TO GITHUB afterwards to publish.</div>' +
+      '<button type="button" class="btn btn-yellow btn-sm" id="tg-photo-btn">+ UPLOAD TRAINING PHOTO</button> ' +
+      '<button type="button" class="btn btn-yellow btn-sm" id="tg-video-btn">+ UPLOAD TRAINING VIDEO</button>' +
+      '<input type="file" accept="image/*" id="tg-photo-file" style="display:none">' +
+      '<input type="file" accept="video/*" id="tg-video-file" style="display:none">' +
+      '<div class="iu-status" id="tg-status" style="margin-top:.6rem;"></div>' +
+      '<div style="display:flex;flex-direction:column;gap:.6rem;margin-top:1rem;" id="tg-list">' + listHtml + "</div></div>";
+  }
+
+  /* returns the open div so renderObjectTab can close it correctly */
+  function wireTrainingGallery(name) {
+    if (name !== "training") return;
+    var status = document.getElementById("tg-status");
+    function pushMediaItem(file, url) {
+      files.media.data.push({
+        id: "training-" + Math.random().toString(36).slice(2, 6),
+        type: file.type.indexOf("video") === 0 ? "video" : "photo",
+        category: "training",
+        url: url,
+        thumb: url,
+        caption: "",
+        date: new Date().toISOString().slice(0, 10),
+        featured: false,
+        published: true
+      });
+      files.media.dirty = true;
+    }
+    function hook(fileBtnId, fileInputId) {
+      var btn = document.getElementById(fileBtnId);
+      var inp = document.getElementById(fileInputId);
+      if (!btn || !inp) return;
+      btn.addEventListener("click", function () { inp.click(); });
+      inp.addEventListener("change", function () {
+        var file = inp.files[0];
+        if (!file) return;
+        uploadAsset(file, "training", function (st, msg) {
+          if (st === "ok") {
+            status.textContent = "Uploaded \u2713 — click SAVE TO GITHUB in the top bar to publish.";
+            status.className = "iu-status iu-ok";
+            pushMediaItem(file, msg);
+            renderObjectTab(name);
+            updateSaveBar();
+          } else if (st === "busy") {
+            status.textContent = msg;
+            status.className = "iu-status";
+          } else {
+            status.textContent = msg;
+            status.className = "iu-status iu-err";
+          }
+        });
+        inp.value = "";
+      });
+    }
+    hook("tg-photo-btn", "tg-photo-file");
+    hook("tg-video-btn", "tg-video-file");
+
+    document.querySelectorAll("[data-tgid]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-tgid");
+        var act = b.getAttribute("data-act");
+        var idx = -1;
+        for (var i = 0; i < files.media.data.length; i++) { if (files.media.data[i].id === id) { idx = i; break; } }
+        if (idx < 0) return;
+        if (act === "tgdelete") {
+          if (!confirm("Delete this training photo/video?")) return;
+          files.media.data.splice(idx, 1);
+          files.media.dirty = true;
+          renderObjectTab(name);
+          updateSaveBar();
+        } else if (act === "tgedit") {
+          openRecordModal(COLLECTIONS.media, JSON.parse(JSON.stringify(files.media.data[idx])), function (r) {
+            files.media.data[idx] = r;
+            files.media.dirty = true;
+            renderObjectTab(name);
+            updateSaveBar();
+          });
+        }
+      });
+    });
+  }
+
   function renderApplications() {
     var main = document.getElementById("admin-main");
     main.innerHTML = head("Applications & Payments") +
@@ -1074,6 +1231,7 @@
 
   function renderTab(tab) {
     if (tab === "overview") return renderOverview();
+    if (tab === "interviews") return renderInterviews();
     if (tab === "applications") return renderApplications();
     if (tab === "training" || tab === "settings") return renderObjectTab(tab);
     return renderCollectionTab(tab);
