@@ -149,13 +149,22 @@ window.CLUB = (function () {
     return (list || []).filter(function (x) { return x.published !== false; });
   }
 
-  var MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    var DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+var MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
   function fmtDate(iso) {
     if (!iso) return "";
     var d = new Date(iso + "T00:00:00");
     if (isNaN(d)) return iso;
     return d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear();
+  }
+
+  /* "WED · 16 SEP 2026" — nicer than a bare date on the match card */
+  function weekdayDate(iso) {
+    if (!iso) return fmtDate(iso);
+    var d = new Date(iso + "T00:00:00");
+    if (isNaN(d)) return fmtDate(iso);
+    return DAYS[d.getDay()] + " &middot; " + d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear();
   }
 
   function shortDate(iso) {
@@ -302,7 +311,7 @@ window.CLUB = (function () {
               }
             })
             .catch(function () {});
-        }, 30000);
+        }, 12000);
       } else if (!anyLive() && timer) {
         clearInterval(timer);
         timer = null;
@@ -447,7 +456,7 @@ window.CLUB = (function () {
     isAway: isAway,
     get: get, ready: ready, pub: pub, esc: esc,
     socialIconRow: socialIconRow,
-    fmtDate: fmtDate, shortDate: shortDate,
+    fmtDate: fmtDate, shortDate: shortDate, weekdayDate: weekdayDate,
     squad: squad, squadByPosition: squadByPosition, playerById: playerById, goalLog: goalLog,
     POS_LABEL: POS_LABEL, POS_ORDER: POS_ORDER,
     upcoming: upcoming, nextMatch: nextMatch, finished: finished, latestResult: latestResult,

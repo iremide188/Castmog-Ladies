@@ -72,8 +72,8 @@
       (awayFirst ? ourTeamBlock : oppTeamBlock) +
       "</div>" + statusHtml +
       '<div class="mc-meta">' +
-      "<span>" + C.fmtDate(m.date) + "</span>" +
-      (m.time ? "<span>" + C.esc(m.time) + "</span>" : "") +
+      "<span>" + C.weekdayDate(m.date) + "</span>" +
+      (m.time ? "<span>KICK-OFF " + C.esc(C.parseTime(m.time)) + "</span>" : "") +
       (m.venue ? "<span>" + C.esc(m.venue) + "</span>" : "") +
       "</div></div>"
     );
@@ -148,6 +148,14 @@
     // NEXT MATCH
     var nm = C.nextMatch();
     var nmEl = document.getElementById("home-next-match");
+    var nmTitle = document.getElementById("home-next-match-title");
+    if (nmTitle) {
+      var nmLive = nm && nm.status === "scheduled" && (function (st) {
+        return st && (st.phase === "first" || st.phase === "ht" || st.phase === "second");
+      })(C.liveState(nm));
+      nmTitle.textContent = nmLive ? "LIVE MATCH" : "NEXT MATCH";
+      nmTitle.classList.toggle("live-title", !!nmLive);
+    }
     if (nmEl) {
       nmEl.innerHTML = nm
         ? matchCard(nm, { countdown: true })
