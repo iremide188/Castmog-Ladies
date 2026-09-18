@@ -4,7 +4,7 @@
    settings.launch.date, then an automatic premium transition
    into the website. Config lives in settings.json (admin
    Settings tab): launch = { enabled, date (ISO), headline, sub,
-   btnComing, welcome, logo }. Background media = the media.json
+   btnComing, welcome, logo, songUrl (YouTube link — plays via the SOUND button) }. Background media = the media.json
    "hero" items (admin Settings -> HOMEPAGE SLIDESHOW), falling
    back to all photos + videos. Dev/testing: add ?launchTest=<minutes>
    to the URL to preview the countdown + transition safely.
@@ -51,7 +51,45 @@
 
     bgMount = gate.querySelector(".lg-bg");
     startBackground();
+    wireMusic(gate, L);
     runCountdown(gate, target);
+  }
+
+  /* --- SOUND: tap once to play the launch song (YouTube), tap again to stop --- */
+  function wireMusic(gate, L) {
+    var url = (L.songUrl || "").trim();
+    if (!url) return;
+    var vid = null;
+    var m = /(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{6,})/.exec(url);
+    if (m) vid = m[1];
+    if (!vid) return;
+
+    var btn = document.createElement("button");
+    btn.className = "lg-music";
+    btn.type = "button";
+    btn.setAttribute("aria-label", "Play the launch song");
+    btn.innerHTML =
+      '<svg class="lg-music-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' +
+      '<span class="lg-music-lb">SOUND</span>';
+    gate.appendChild(btn);
+
+    var holder = null;
+    function stop() {
+      if (holder) { holder.remove(); holder = null; }
+      btn.classList.remove("lg-music-on");
+      btn.setAttribute("aria-label", "Play the launch song");
+    }
+    btn.addEventListener("click", function () {
+      if (holder) { stop(); return; }
+      holder = document.createElement("div");
+      holder.className = "lg-yt";
+      holder.innerHTML =
+        '<iframe src="https://www.youtube-nocookie.com/embed/' + vid + '?autoplay=1&enablejsapi=1&playsinline=1&loop=1&playlist=' + vid + '" title="Launch song" allow="autoplay; encrypted-media" tabindex="-1"></iframe>';
+      gate.appendChild(holder);
+      btn.classList.add("lg-music-on");
+      btn.setAttribute("aria-label", "Stop the launch song");
+    });
   }
 
   function countUnits() {
