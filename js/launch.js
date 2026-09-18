@@ -203,6 +203,14 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
     au.preload = "auto";
     au.muted = true;
     var lb = btn.querySelector(".lg-music-lb");
+    window.__lgSong = au; /* debug handle */
+    window.__lgEvents = [];
+    ["play", "pause", "ended", "volumechange", "error", "stalled"].forEach(function (ev) {
+      au.addEventListener(ev, function () {
+        window.__lgEvents.push({ ev: ev, paused: au.paused, muted: au.muted, rs: au.readyState, ct: au.currentTime,
+          err: au.error ? au.error.code : null });
+      });
+    });
 
     /* INSTANT SOUND: mobile browsers refuse to preload media before a
        user gesture, so without this a tap has to download the mp3 first
@@ -247,6 +255,7 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
       au.muted = false;
       au.volume = 1;
       au.play().catch(function () {});
+      paint(); /* unmute alone fires no play event — keep the button truthful */
     }
     ["pointerdown", "touchend", "click", "keydown"].forEach(function (ev) {
       document.addEventListener(ev, autoUnmute, { once: true, passive: true, capture: true });
