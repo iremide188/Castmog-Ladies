@@ -73,6 +73,8 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
          browsers block unmuted autoplay, so one tap on the SOUND button
          unmutes it; tap again to mute. --- */
   function wireMusic(gate, L) {
+    var file = (L.songFile || "").trim();
+    if (file) { wireSongFile(gate, file); return; }
     var url = (L.songUrl || "").trim();
     if (!url) return;
 
@@ -142,6 +144,64 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
       e.stopPropagation();
       setOpen(false);
     });
+  }
+
+  /* same-origin song file: fully controllable hidden <audio> — nothing shows, just the song */
+  function wireSongFile(gate, file) {
+    var btn = document.createElement("button");
+    btn.className = "lg-music";
+    btn.type = "button";
+    btn.setAttribute("aria-label", "Play the launch song");
+    btn.innerHTML =
+      '<svg class="lg-music-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' +
+      '<span class="lg-music-lb">SOUND</span>' +
+      '<span class="lg-music-eq" aria-hidden="true"><i></i><i></i><i></i></span>';
+    gate.appendChild(btn);
+
+    var notes = document.createElement("div");
+    notes.className = "lg-notes";
+    notes.setAttribute("aria-hidden", "true");
+    notes.innerHTML = "<span>\u266A</span><span>\u266B</span><span>\u266A</span>";
+    gate.appendChild(notes);
+
+    var au = new Audio(file);
+    au.loop = true;
+    au.preload = "auto";
+    au.muted = true;
+    var lb = btn.querySelector(".lg-music-lb");
+
+    function playing() {
+      return !au.paused && !au.muted;
+    }
+    function paint() {
+      var on = playing();
+      btn.classList.toggle("lg-music-on", on);
+      gate.classList.toggle("lg-dance", on);
+      lb.textContent = on ? "PLAYING" : "SOUND";
+      btn.setAttribute("aria-label", on ? "Stop the launch song" : "Play the launch song");
+    }
+    ["play", "pause", "ended"].forEach(function (ev) { au.addEventListener(ev, paint); });
+
+    /* try muted autoplay first — browsers allow it; the button brings the sound */
+    au.play().catch(function () {});
+    au.addEventListener("play", function once() {
+      au.removeEventListener("play", once);
+      if (au.muted) au.muted = false; /* if the muted start succeeded, stay quiet until the first tap */
+      au.muted = true;
+    });
+
+    btn.addEventListener("click", function () {
+      if (playing()) {
+        au.pause();
+      } else {
+        au.muted = false;
+        au.volume = 1;
+        au.play().catch(function () {});
+      }
+      paint();
+    });
+    paint();
   }
 
   function countUnits() {

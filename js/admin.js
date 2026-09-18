@@ -260,7 +260,8 @@
         F("launch.btnComing", "LAUNCH SCREEN — button text before launch"),
         F("launch.welcome", "LAUNCH MOMENT — welcome text shown when the countdown ends"),
         F("launch.logo", "LAUNCH SCREEN — logo image (default: the club crest)", "image", ["settings"]),
-    F("launch.songUrl", "LAUNCH SONG — plays from the SOUND button on the launch screen. Paste an Audiomack song link (audiomack.com/artist/song/name) or a YouTube link; leave empty for no music.")
+    F("launch.songFile", "LAUNCH SONG — UPLOAD THE SONG FROM YOUR DEVICE (mp3 etc, under 10MB). It plays hidden on the launch screen from the SOUND button — nothing shows, just the song. This takes priority over the link field below.", "audio", ["launch"]),
+    F("launch.songUrl", "LAUNCH SONG — ALTERNATIVE: paste an Audiomack song link (audiomack.com/artist/song/name) or a YouTube link. Ignored if you uploaded a song above.")
       ]
     }
   };
@@ -473,6 +474,14 @@
             '<div class="iu-status" id="mf-' + f.key + '-status"></div></div>';
           return divider + '<div class="field field-wide"><label>' + esc(f.label) + "</label>" + inner + "</div>";
         }
+        if (f.type === "audio") {
+          inner = '<div class="iu-wrap">' +
+            '<input type="text" id="mf-' + f.key + '" value="' + esc(val) + '" placeholder="Upload the song from your device">' +
+            '<button type="button" class="btn btn-outline btn-sm iu-btn" data-iu="' + f.key + '" data-folder="' + (f.opts[0] || "misc") + '" data-kind="audio">UPLOAD FROM DEVICE</button>' +
+            '<input type="file" accept="audio/*" style="display:none" id="mf-' + f.key + '-file" data-kind="audio">' +
+            '<div class="iu-status" id="mf-' + f.key + '-status"></div></div>';
+          return divider + '<div class="field field-wide"><label>' + esc(f.label) + "</label>" + inner + "</div>";
+        }
         if (f.type === "filelist") {
           inner = '<textarea id="mf-' + f.key + '" rows="3" placeholder="One entry per line — paste links or upload from your device">' + esc((val || []).join("\n")) + "</textarea>" +
             '<button type="button" class="btn btn-outline btn-sm iu-btn" data-iu="' + f.key + '" data-folder="' + (f.opts[0] || "misc") + '" data-kind="list">UPLOAD FROM DEVICE</button>' +
@@ -524,6 +533,8 @@
               var prev = document.getElementById("mf-" + key + "-prev");
               prev.src = msg;
               prev.style.display = "";
+            } else if (kind === "audio") {
+              target.value = msg;
             } else if (kind === "media") {
               target.value = msg;
               var typeSel = document.getElementById("mf-type");
