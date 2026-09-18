@@ -236,8 +236,21 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
     }
     ["play", "pause", "ended"].forEach(function (ev) { au.addEventListener(ev, paint); });
 
-    /* try muted autoplay first — browsers allow it; the button brings the sound */
+    /* AUTO-SOUND: browsers only allow muted autoplay, so the song starts
+       (silently) the moment the gate appears, and the FIRST touch anywhere
+       on the page — any tap, not just the button — brings the sound in.
+       The SOUND button stays as a stop/play control. */
     au.play().catch(function () {});
+    function autoUnmute(e) {
+      if (e && e.target && e.target.closest && e.target.closest(".lg-music")) return; /* let the button do it */
+      if (!au.muted) return;
+      au.muted = false;
+      au.volume = 1;
+      au.play().catch(function () {});
+    }
+    ["pointerdown", "touchend", "click", "keydown"].forEach(function (ev) {
+      document.addEventListener(ev, autoUnmute, { once: true, passive: true, capture: true });
+    });
 
     var tapped = false;
     btn.addEventListener("click", function () {
