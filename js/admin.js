@@ -254,7 +254,7 @@
         F("social.facebook", "Facebook URL"), F("social.tiktok", "TikTok URL"), F("social.twitter", "X/Twitter URL"),
         F("alertText", "IMPORTANT ALERT — moving gold banner on every page (leave empty to hide)", "textarea"),
         F("launch.enabled", "LAUNCH EXPERIENCE ON/OFF — show the coming-soon launch screen on the homepage", "select", ["true", "false"]),
-        F("launch.date", "LAUNCH DATE & TIME — the website goes live automatically at this moment (set in your local time). Until then visitors see the launch screen with the live countdown.", "datetime-local"),
+        F("launch.date", "LAUNCH DATE & TIME (tap the field to open the calendar) — the website goes live automatically at this moment, in your local time. Until then visitors see the launch screen with the live countdown.", "datetime-local"),
         F("launch.headline", "LAUNCH SCREEN — headline (e.g. THE NEXT CHAPTER STARTS HERE)"),
         F("launch.sub", "LAUNCH SCREEN — sub-line (e.g. OFFICIAL WEBSITE LAUNCH)"),
         F("launch.btnComing", "LAUNCH SCREEN — button text before launch"),
@@ -771,6 +771,19 @@
           inner = '<textarea id="of-' + f.key + '" rows="3">' + esc(Array.isArray(val) ? val.join("\n") : val) + "</textarea>";
         } else if (f.type === "check") {
           return '<div class="field"><label>' + esc(f.label) + '</label><label class="checkbox-row"><input type="checkbox" id="of-' + f.key + '"' + (val ? " checked" : "") + "><span>Enabled</span></label></div>";
+        } else if (f.type === "select") {
+          inner = '<select id="of-' + f.key + '">' + f.opts.map(function (o) {
+            return '<option value="' + esc(o) + '"' + (String(val) === String(o) ? " selected" : "") + ">" + esc(o) + "</option>";
+          }).join("") + "</select>";
+        } else if (f.type === "datetime-local") {
+          inner = '<input type="datetime-local" id="of-' + f.key + '" value="' + esc(dtLocalVal(val)) + '">';
+        } else if (f.type === "image") {
+          inner = '<div class="iu-wrap">' +
+            '<img class="iu-preview" id="of-' + f.key + '-prev" src="' + esc(val) + '" alt=""' + (val ? "" : ' style="display:none"') + ">" +
+            '<input type="text" id="of-' + f.key + '" value="' + esc(val) + '" placeholder="Paste a URL or upload from your device">' +
+            '<button type="button" class="btn btn-outline btn-sm iu-btn" data-iu="' + f.key + '" data-folder="' + (f.opts[0] || "misc") + '" data-kind="image">UPLOAD FROM DEVICE</button>' +
+            '<input type="file" accept="image/*" style="display:none" id="of-' + f.key + '-file" data-kind="image">' +
+            '<div class="iu-status" id="of-' + f.key + '-status"></div></div>';
         } else {
           inner = '<input type="' + f.type + '" id="of-' + f.key + '" value="' + esc(val) + '">';
         }
@@ -788,6 +801,7 @@
         if (f.type === "check") v = el.checked;
         else if (f.type === "list") v = el.value.split("\n").map(function (x) { return x.trim(); }).filter(Boolean);
         else if (f.type === "number") v = el.value === "" ? null : Number(el.value);
+        else if (f.type === "datetime-local") v = el.value === "" ? null : new Date(el.value).toISOString();
         else v = el.value.trim();
         setVal(files[name].data, f.key, v);
       });
@@ -795,6 +809,34 @@
       files[name].dirty = true;
       updateSaveBar();
       alert("Changes saved locally — click SAVE TO GITHUB in the top bar to publish them to the website.");
+    });
+    /* wire device uploads for the of- fields (e.g. launch logo, page banner) */
+    main.querySelectorAll("[data-iu]").forEach(function (btn) {
+      var key = btn.getAttribute("data-iu");
+      var fileInput = document.getElementById("of-" + key + "-file");
+      btn.addEventListener("click", function () { fileInput.click(); });
+      fileInput.addEventListener("change", function () {
+        var file = fileInput.files[0];
+        if (!file) return;
+        uploadAsset(file, btn.getAttribute("data-folder"), function (st, msg) {
+          var el = document.getElementById("of-" + key + "-status");
+          if (st === "ok") {
+            el.textContent = "Uploaded \u2713 — it will go live after you press SAVE CHANGES, then SAVE TO GITHUB.";
+            el.className = "iu-status iu-ok";
+            var target = document.getElementById("of-" + key);
+            target.value = msg;
+            var prev = document.getElementById("of-" + key + "-prev");
+            prev.src = msg;
+            prev.style.display = "";
+          } else if (st === "busy") {
+            el.textContent = msg;
+            el.className = "iu-status";
+          } else {
+            el.textContent = msg;
+            el.className = "iu-status iu-err";
+          }
+        });
+      });
     });
     wireTrainingGallery(name);
     if (name === "training") {
