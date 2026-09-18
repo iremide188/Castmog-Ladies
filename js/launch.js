@@ -204,6 +204,26 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
     au.muted = true;
     var lb = btn.querySelector(".lg-music-lb");
 
+    /* INSTANT SOUND: mobile browsers refuse to preload media before a
+       user gesture, so without this a tap has to download the mp3 first
+       and the song comes in late. Fetch the WHOLE song up front as a
+       blob while the visitor reads the countdown — by the time they
+       press SOUND it is fully in memory and starts the same instant. */
+    fetch(file).then(function (r) { return r.blob(); }).then(function (b) {
+      if (!au.muted) return; /* visitor already tapped — never interrupt the live song */
+      var t = au.currentTime || 0;
+      au.src = URL.createObjectURL(b);
+      au.loop = true;
+      au.preload = "auto";
+      au.muted = true;
+      au.addEventListener("loadedmetadata", function once() {
+        au.removeEventListener("loadedmetadata", once);
+        try { au.currentTime = t; } catch (e) {}
+        au.play().catch(function () {});
+      });
+      au.play().catch(function () {});
+    }).catch(function () {});
+
     function playing() {
       return !au.paused && !au.muted;
     }
