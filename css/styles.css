@@ -1754,7 +1754,7 @@ html.has-banner .page-hero::before { opacity: 1; }
 
 .wk-info { display: flex; flex-wrap: wrap; gap: 0.2rem 0.9rem; font-size: 0.86rem; }
 
-.wk-time { color: var(--text); font-weight: 700; }
+.wk-time { color: var(--yellow); font-weight: 700; }
 
 .wk-loc { color: var(--muted); }
 
