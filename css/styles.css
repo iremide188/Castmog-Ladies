@@ -1740,31 +1740,43 @@ html.has-banner .page-hero::before { opacity: 1; }
 .wire-sub{margin:.35rem 0 0;font-size:.92rem;color:rgba(224,226,223,.65)}
 .wire-sync-badge{display:inline-flex;align-items:center;gap:.45rem;font-size:.72rem;letter-spacing:.1em;color:#d4af37;border:1px solid rgba(212,175,55,.4);padding:.3rem .6rem;border-radius:999px}
 
-/* ---------- Weekly training schedule (homepage panel) ---------- */
-.wk-table { display: flex; flex-direction: column; gap: 0.5rem; margin: 0.7rem 0 0.9rem; }
-
-.wk-tr {
-  display: flex; flex-direction: column; gap: 0.15rem;
-  border: 1px solid var(--line); border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 0.6rem 0.8rem;
+/* ---------- Weekly training schedule (homepage panel) — clean fixture-list ---------- */
+.wk-table {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+  margin: 0.9rem 0 0.5rem;
 }
 
-.wk-day { font-family: var(--font-head); font-weight: 700; letter-spacing: 0.08em; color: var(--yellow); font-size: 0.85rem; }
+.wk-tr { display: flex; align-items: center; gap: 1rem; padding: 0.72rem 1rem; }
 
-.wk-info { display: flex; flex-wrap: wrap; gap: 0.2rem 0.9rem; font-size: 0.86rem; }
+.wk-tr + .wk-tr { border-top: 1px solid var(--line); }
 
-.wk-time { color: var(--yellow); font-weight: 700; }
+.wk-day {
+  flex: 0 0 auto; min-width: 96px;
+  font-family: var(--font-head); font-weight: 700;
+  letter-spacing: 0.14em; font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.wk-info { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.9rem; flex: 1; min-width: 0; font-size: 0.86rem; }
+
+.wk-time { color: var(--yellow); font-weight: 800; letter-spacing: 0.04em; }
 
 .wk-loc { color: var(--muted); }
 
 .wk-type {
+  margin-left: auto;
   color: var(--green); border: 1px solid rgba(47, 191, 113, 0.35);
   background: rgba(47, 191, 113, 0.1); border-radius: 999px;
-  padding: 0.05rem 0.55rem; font-size: 0.74rem; letter-spacing: 0.04em;
+  padding: 0.1rem 0.6rem; font-size: 0.72rem; letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 @media (max-width: 480px) {
-  .wk-tr { padding: 0.5rem 0.65rem; }
-  .wk-day { font-size: 0.8rem; }
+  .wk-tr { flex-wrap: wrap; gap: 0.2rem 0.7rem; padding: 0.6rem 0.8rem; }
+  .wk-day { width: 100%; min-width: 0; }
+  .wk-type { margin-left: 0; }
+}
 }
