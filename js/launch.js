@@ -1,3 +1,4 @@
+var PRELOADER_MAX_WAIT_SECONDS = 7;
 /* ============================================================
    CASTMOG LADIES FC — OFFICIAL WEBSITE LAUNCH EXPERIENCE
    Full-screen cinematic coming-soon gate on the homepage until
@@ -25,7 +26,20 @@
     var m = /launchTest=(\d+)/.exec(window.location.search);
     if (m) target = new Date(Date.now() + Number(m[1]) * 60000);
     if (Date.now() >= target.getTime()) return; /* launch has passed -> normal site */
-    build(L, target);
+    /* the crest preloader plays first on fresh visits — gate starts after it */
+    if (window.CLUB_PRELOADER_ACTIVE) {
+      var started = false;
+      var start = function () {
+        if (started) return;
+        started = true;
+        build(L, target);
+      };
+      document.addEventListener("club:preloader-done", start, { once: true });
+      /* safety net: never let a missed event block the gate */
+      window.setTimeout(start, (PRELOADER_MAX_WAIT_SECONDS || 7) * 1000);
+    } else {
+      build(L, target);
+    }
   }
   C.onReady(begin);
 

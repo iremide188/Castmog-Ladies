@@ -309,12 +309,45 @@
   }
 
   function showPreloaderThenGo(url) {
+    /* tell the landing page it just saw a preloader — no double-run there */
+    try { sessionStorage.setItem("castmog-preloaded", "1"); } catch (e) {}
     var preloader = buildPreloader();
     void preloader.offsetWidth;
     preloader.classList.add("is-visible");
     document.body.style.overflow = "hidden";
     window.setTimeout(function () {
       window.location.href = url;
+    }, PRELOAD_SECONDS * 1000);
+  }
+
+  /* ---------- Entry preloader — fresh visits to the homepage ----------
+     Someone opening the site link (typed, shared link, search) sees the
+     crest shatter first; the launch gate / homepage appears after it.
+     Skipped when arriving from another page of the site (already saw one). */
+  function isHomepage() {
+    var p = window.location.pathname.split("/").pop();
+    return p === "" || p === "index.html";
+  }
+
+  function initEntryPreloader() {
+    if (!isHomepage()) return;
+    var seenNav = false;
+    try { seenNav = sessionStorage.getItem("castmog-preloaded") === "1"; sessionStorage.removeItem("castmog-preloaded"); } catch (e) {}
+    var fromInside = false;
+    try { fromInside = document.referrer.indexOf(window.location.origin) === 0; } catch (e) {}
+    if (seenNav || fromInside) return;
+
+    var el = buildPreloader();
+    void el.offsetWidth;
+    el.classList.add("is-visible");
+    document.body.style.overflow = "hidden";
+    window.CLUB_PRELOADER_ACTIVE = true;
+    window.setTimeout(function () {
+      window.CLUB_PRELOADER_ACTIVE = false;
+      el.classList.remove("is-visible");
+      document.body.style.overflow = "";
+      window.setTimeout(function () { if (el.parentNode) el.remove(); }, 700);
+      try { document.dispatchEvent(new CustomEvent("club:preloader-done")); } catch (e) {}
     }, PRELOAD_SECONDS * 1000);
   }
 
@@ -374,5 +407,6 @@
 
   document.addEventListener("DOMContentLoaded", initPreloader);
   document.addEventListener("DOMContentLoaded", initReveal);
+  document.addEventListener("DOMContentLoaded", initEntryPreloader);
 
 })();
