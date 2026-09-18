@@ -138,6 +138,18 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
       '<div class="lg-player-frame"><iframe title="Launch song" allow="autoplay; encrypted-media" tabindex="0"></iframe></div>';
     gate.appendChild(card);
 
+    /* PRE-WARM: a hidden 1px iframe loads the player page + audio handshake
+       WHILE the visitor reads the countdown, so the SOUND tap starts the
+       song from a hot browser cache — near-instant instead of a cold load.
+       (Autoplay without a tap is blocked by browsers, so it stays silent.) */
+    var warm = document.createElement("iframe");
+    warm.src = embed;
+    warm.title = "";
+    warm.setAttribute("aria-hidden", "true");
+    warm.allow = "autoplay; encrypted-media";
+    warm.style.cssText = "position:absolute;bottom:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none;border:0;";
+    gate.appendChild(warm);
+
     var open = false;
     function setOpen(v) {
       if (v && !open) track("sound", "launch-gate");
