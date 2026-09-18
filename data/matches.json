@@ -10,9 +10,15 @@
     "venue": "MKO STADIUM, ABEOUKUTA",
     "homeAway": "Away",
     "status": "scheduled",
-    "liveScoreCastmog": null,
-    "liveScoreOpponent": null,
-    "scorers": [],
+    "liveScoreCastmog": 1,
+    "liveScoreOpponent": 0,
+    "scorers": [
+      {
+        "id": "fafore-temilade",
+        "name": "Fafore Temilade",
+        "minute": "2"
+      }
+    ],
     "scoreCastmog": null,
     "scoreOpponent": null,
     "highlight": "",
