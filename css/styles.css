@@ -1790,3 +1790,104 @@ html.has-banner .page-hero::before { opacity: 1; }
 @media (min-width: 769px) {
   #achievements-mount .hc-img { aspect-ratio: 21 / 9; max-height: 360px; }
 }
+
+/* ============================================================
+   OFFICIAL WEBSITE LAUNCH GATE (js/launch.js) — cinematic
+   coming-soon experience shown on the homepage until
+   settings.launch.date, then an automatic premium transition.
+   ============================================================ */
+html.launch-on, html.launch-on body { overflow: hidden; height: 100%; }
+html.launch-on body > *:not(#launch-gate) { visibility: hidden; }
+
+#launch-gate {
+  position: fixed; inset: 0; z-index: 2000;
+  background: #0a0d0a; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+}
+#launch-gate[hidden] { display: none; }
+
+/* full-screen background — photos + muted videos */
+.lg-bg { position: absolute; inset: 0; overflow: hidden; background: #0a0d0a; }
+.lg-slide {
+  position: absolute; inset: 0; opacity: 0;
+  background-size: cover; background-position: center;
+  transition: opacity 1.2s ease; will-change: transform, opacity;
+}
+.lg-slide.lg-on { opacity: 1; }
+.lg-slide video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lg-kba { animation: lg-zoom-a 14s ease-out forwards; }
+.lg-kbb { animation: lg-zoom-b 14s ease-out forwards; }
+@keyframes lg-zoom-a { from { transform: scale(1.02); } to { transform: scale(1.12); } }
+@keyframes lg-zoom-b { from { transform: scale(1.12); } to { transform: scale(1.02); } }
+
+/* subtle broadcast-style dark gradient — text readable, photos visible */
+.lg-veil {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(6, 8, 6, 0.74) 0%, rgba(6, 8, 6, 0.42) 45%, rgba(6, 8, 6, 0.86) 100%);
+}
+
+.lg-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; padding: 0 1.2rem; width: 100%; }
+
+@keyframes lg-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+.lg-logo {
+  width: clamp(84px, 16vw, 132px); height: auto; margin-bottom: 1.2rem;
+  filter: drop-shadow(0 8px 22px rgba(0, 0, 0, 0.55));
+  animation: lg-rise 0.8s ease-out both 0.2s;
+  transition: transform 1.2s ease;
+}
+.lg-title {
+  font-family: var(--font-head); font-weight: 900;
+  font-size: clamp(1.7rem, 5vw, 3.1rem); letter-spacing: 0.06em;
+  margin: 0 0 0.5rem; animation: lg-rise 0.8s ease-out both 0.55s;
+}
+.lg-tag {
+  color: var(--yellow); font-weight: 800; letter-spacing: 0.18em;
+  font-size: clamp(0.78rem, 2.2vw, 1.05rem); margin: 0 0 0.35rem;
+  animation: lg-rise 0.8s ease-out both 0.85s;
+}
+.lg-sub {
+  color: rgba(255, 255, 255, 0.75); letter-spacing: 0.3em;
+  font-size: clamp(0.62rem, 1.8vw, 0.8rem); margin: 0 0 clamp(1.6rem, 4vh, 2.4rem);
+  animation: lg-rise 0.8s ease-out both 1.05s;
+}
+
+.lg-count { display: flex; align-items: flex-start; justify-content: center; gap: clamp(0.5rem, 2vw, 1.2rem); animation: lg-rise 0.8s ease-out both 1.3s; }
+.lg-unit { display: flex; flex-direction: column; align-items: center; min-width: clamp(3.1rem, 11vw, 6.4rem); }
+.lg-num {
+  font-family: var(--font-head); font-weight: 900; line-height: 1;
+  font-size: clamp(2rem, 8.5vw, 4.4rem); color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.lg-sep { font-size: clamp(1.5rem, 6.5vw, 3.2rem); color: rgba(255, 255, 255, 0.26); line-height: 1; padding-top: 0.25rem; }
+.lg-lab { margin-top: 0.4rem; font-size: clamp(0.56rem, 1.6vw, 0.7rem); letter-spacing: 0.22em; color: rgba(255, 255, 255, 0.6); }
+
+.lg-btn {
+  margin: clamp(1.8rem, 4vh, 2.6rem) 0 0; padding: 0.65rem 1.7rem;
+  border: 1px solid rgba(245, 197, 24, 0.45); border-radius: 999px;
+  color: var(--yellow); letter-spacing: 0.18em; font-size: 0.72rem; font-weight: 700;
+  animation: lg-rise 0.8s ease-out both 1.55s;
+}
+
+/* ---------- zero-crossing: countdown ends -> welcome -> reveal ---------- */
+.lg-count, .lg-btn { transition: opacity 0.6s ease; }
+.lg-welcome {
+  margin: clamp(1.8rem, 4vh, 2.6rem) 0 0;
+  font-family: var(--font-head); font-weight: 800; letter-spacing: 0.22em;
+  font-size: clamp(0.9rem, 3vw, 1.5rem); color: #fff;
+  opacity: 0; transform: scale(0.97); transition: opacity 0.9s ease, transform 0.9s ease;
+  pointer-events: none;
+}
+#launch-gate.lg-zero .lg-count, #launch-gate.lg-zero .lg-btn { opacity: 0; pointer-events: none; }
+#launch-gate.lg-zero .lg-logo { transform: scale(1.1); }
+#launch-gate.lg-welcome-in .lg-welcome { opacity: 1; transform: none; }
+#launch-gate.lg-out { opacity: 0; transition: opacity 1s ease; pointer-events: none; }
+
+/* ---------- accessibility: reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .lg-slide { animation: none !important; }
+  .lg-logo, .lg-title, .lg-tag, .lg-sub, .lg-count, .lg-btn { animation: none !important; opacity: 1 !important; }
+  .lg-slide { transition: opacity 0.25s ease; }
+  #launch-gate.lg-out, .lg-welcome { transition: opacity 0.25s ease; }
+}

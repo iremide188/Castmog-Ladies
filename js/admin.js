@@ -252,7 +252,14 @@
         F("bannerImage", "Page banner photo — displayed at the top of every page (one wide photo, e.g. the team or stadium)", "image", ["settings"]),
         F("social.youtube", "YouTube URL"), F("social.instagram", "Instagram URL"),
         F("social.facebook", "Facebook URL"), F("social.tiktok", "TikTok URL"), F("social.twitter", "X/Twitter URL"),
-        F("alertText", "IMPORTANT ALERT — moving gold banner on every page (leave empty to hide)", "textarea")
+        F("alertText", "IMPORTANT ALERT — moving gold banner on every page (leave empty to hide)", "textarea"),
+        F("launch.enabled", "LAUNCH EXPERIENCE ON/OFF — show the coming-soon launch screen on the homepage", "select", ["true", "false"]),
+        F("launch.date", "LAUNCH DATE & TIME — the website goes live automatically at this moment (set in your local time). Until then visitors see the launch screen with the live countdown.", "datetime-local"),
+        F("launch.headline", "LAUNCH SCREEN — headline (e.g. THE NEXT CHAPTER STARTS HERE)"),
+        F("launch.sub", "LAUNCH SCREEN — sub-line (e.g. OFFICIAL WEBSITE LAUNCH)"),
+        F("launch.btnComing", "LAUNCH SCREEN — button text before launch"),
+        F("launch.welcome", "LAUNCH MOMENT — welcome text shown when the countdown ends"),
+        F("launch.logo", "LAUNCH SCREEN — logo image (default: the club crest)", "image", ["settings"])
       ]
     }
   };
@@ -285,6 +292,15 @@
       o = o[parts[i]];
     }
     o[parts[parts.length - 1]] = val;
+  }
+
+  /* datetime-local helpers: store absolute ISO, edit in the admin's local time */
+  function dtLocalVal(iso) {
+    if (!iso) return "";
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    function p(n) { return (n < 10 ? "0" : "") + n; }
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes());
   }
 
   /* ---------- auth & boot ---------- */
@@ -467,6 +483,8 @@
           inner = '<textarea id="mf-' + f.key + '" rows="4">' + esc(Array.isArray(val) ? val.join("\n") : val) + "</textarea>";
         } else if (f.type === "list") {
           inner = '<textarea id="mf-' + f.key + '" rows="3" placeholder="One entry per line">' + esc((val || []).join("\n")) + "</textarea>";
+        } else if (f.type === "datetime-local") {
+          inner = '<input type="datetime-local" id="mf-' + f.key + '" value="' + esc(dtLocalVal(val)) + '">';
         } else if (f.type === "select") {
           inner = '<select id="mf-' + f.key + '">' + f.opts.map(function (o) {
             return '<option value="' + esc(o) + '"' + (String(val) === String(o) ? " selected" : "") + ">" + esc(o || "—") + "</option>";
@@ -602,6 +620,7 @@
         if (f.type === "check") v = el.checked;
         else if (f.type === "list" || f.type === "filelist") v = el.value.split("\n").map(function (x) { return x.trim(); }).filter(Boolean);
         else if (f.type === "number") v = el.value === "" ? null : Number(el.value);
+        else if (f.type === "datetime-local") v = el.value === "" ? null : new Date(el.value).toISOString();
         else v = el.value.trim();
         setVal(record, f.key, v);
       });

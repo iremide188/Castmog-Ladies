@@ -20,5 +20,14 @@
   },
   "colours": "GREEN + YELLOW",
   "bannerImage": "",
-  "alertText": ""
+  "alertText": "",
+  "launch": {
+    "enabled": "true",
+    "date": "2026-09-20T15:00:00.000Z",
+    "headline": "THE NEXT CHAPTER STARTS HERE",
+    "sub": "OFFICIAL WEBSITE LAUNCH",
+    "btnComing": "COMING SOON",
+    "welcome": "WELCOME TO CASTMOG",
+    "logo": "images/crest.png"
+  }
 }
