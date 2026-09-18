@@ -796,6 +796,12 @@
             '<button type="button" class="btn btn-outline btn-sm iu-btn" data-iu="' + f.key + '" data-folder="' + (f.opts[0] || "misc") + '" data-kind="image">UPLOAD FROM DEVICE</button>' +
             '<input type="file" accept="image/*" style="display:none" id="of-' + f.key + '-file" data-kind="image">' +
             '<div class="iu-status" id="of-' + f.key + '-status"></div></div>';
+        } else if (f.type === "audio") {
+          inner = '<div class="iu-wrap">' +
+            '<input type="text" id="of-' + f.key + '" value="' + esc(val) + '" placeholder="Upload the song from your device (mp3 etc, under 10MB)">' +
+            '<button type="button" class="btn btn-outline btn-sm iu-btn" data-iu="' + f.key + '" data-folder="' + (f.opts[0] || "misc") + '" data-kind="audio">UPLOAD SONG FROM DEVICE</button>' +
+            '<input type="file" accept="audio/*" style="display:none" id="of-' + f.key + '-file" data-kind="audio">' +
+            '<div class="iu-status" id="of-' + f.key + '-status"></div></div>';
         } else {
           inner = '<input type="' + f.type + '" id="of-' + f.key + '" value="' + esc(val) + '">';
         }
@@ -838,8 +844,10 @@
             var target = document.getElementById("of-" + key);
             target.value = msg;
             var prev = document.getElementById("of-" + key + "-prev");
-            prev.src = msg;
-            prev.style.display = "";
+            if (prev) {
+              prev.src = msg;
+              prev.style.display = "";
+            }
           } else if (st === "busy") {
             el.textContent = msg;
             el.className = "iu-status";
