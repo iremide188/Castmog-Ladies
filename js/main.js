@@ -199,6 +199,27 @@
     document.querySelectorAll(".page-hero .hero-slideshow").forEach(buildSlideshow);
   }
 
+  /* ---------- Visitor counter (see the admin TRAFFIC tab) ---------- */
+  (function trackVisit() {
+    try {
+      var page = (location.pathname.split("/").pop() || "home").replace(/\.html$/, "");
+      if (!page) page = "home";
+      var sk = "castmog_seen_" + page;
+      if (sessionStorage.getItem(sk)) return; /* once per visit per page */
+      sessionStorage.setItem(sk, "1");
+      var vid = localStorage.getItem("castmog_vid");
+      if (!vid) {
+        vid = "v" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        localStorage.setItem("castmog_vid", vid);
+      }
+      fetch("https://superagent-e3f5b6f2.base44.app/functions/castmogTrack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind: "view", page: page, visitorId: vid })
+      }).catch(function () {});
+    } catch (e) { /* never break the site for analytics */ }
+  })();
+
   /* ---------- IMPORTANT ALERT — moving gold banner, set from the admin Settings tab ---------- */
   function injectAlert() {
     var s = (window.CLUB && window.CLUB.get("settings")) || {};

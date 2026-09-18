@@ -364,7 +364,8 @@
     ["matches", "Matches"], ["news", "News"], ["media", "Media"], ["interviews", "Interviews"],
     ["youtube", "YouTube"], ["achievements", "Achievements"],
     ["club", "Club / Content Approval"], ["training", "Training"], ["settings", "Settings"],
-    ["applications", "Applications"]
+    ["applications", "Applications"],
+    ["traffic", "Traffic"]
   ];
 
   function dirtyCount() {
@@ -1489,10 +1490,74 @@
     });
   }
 
+  /* ---------- TRAFFIC — who pressed / watched the link ---------- */
+  function friendlyPage(p) {
+    var map = {
+      "home": "Homepage", "join": "Join the club", "club": "Club", "squad": "Squad",
+      "matches": "Match Centre", "news": "News", "media": "Media", "achievements": "Achievements",
+      "training": "Training", "contact": "Contact", "coach": "Coach profile",
+      "player": "Player profile", "match": "Match detail", "launch-gate": "Launch screen"
+    };
+    return map[p] || p;
+  }
+
+  function timeAgoLabel(d) {
+    try {
+      var s = Math.max(0, (Date.now() - new Date(d).getTime()) / 1000);
+      if (s < 60) return "just now";
+      if (s < 3600) return Math.floor(s / 60) + " min ago";
+      if (s < 86400) return Math.floor(s / 3600) + " hr ago";
+      return new Date(d).toLocaleDateString() + " " + new Date(d).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    } catch (e) { return String(d || ""); }
+  }
+
+  function renderTraffic() {
+    var main = document.getElementById("admin-main");
+    main.innerHTML = head("Traffic") +
+      '<div class="form-card"><p class="muted">Loading live traffic…</p></div>';
+    appApi("castmogStats", {}).then(function (res) {
+      if (!res || !res.ok) {
+        main.innerHTML = head("Traffic") +
+          '<div class="form-card"><p class="muted">Could not load traffic right now' +
+          (res && res.error ? " — " + esc(res.error) : "") + ". Refresh the page and try again.</p></div>";
+        return;
+      }
+      var gate = (res.pages || []).filter(function (p) { return p.page === "launch-gate"; })[0];
+      var home = (res.pages || []).filter(function (p) { return p.page === "home"; })[0];
+      var rows = (res.pages || []).map(function (p) {
+        return '<tr><td>' + esc(friendlyPage(p.page)) + '</td><td><b>' + Number(p.count) + "</b></td></tr>";
+      }).join("");
+      var recent = (res.recent || []).map(function (r) {
+        return '<li><span class="chip" style="' + (r.kind === "sound" ? "background:#e5c31a;color:#111;" : "") + '">' +
+          esc(r.kind === "sound" ? "SOUND" : "OPEN") + "</span> " + esc(friendlyPage(r.page)) +
+          ' <span class="muted" style="float:right;">' + esc(timeAgoLabel(r.date)) + "</span></li>";
+      }).join("");
+      main.innerHTML = head("Traffic") +
+        '<div class="form-card">' +
+        '<p class="muted" style="margin-bottom:1rem;">Live counts of people opening the website \u2014 the launch screen, every page, and how many tapped SOUND. Updates as people visit.</p>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:0.8rem;margin-bottom:1.4rem;">' +
+        stat(res.total, "Total link opens") +
+        stat(res.today, "Opens today") +
+        stat(res.devices, "Devices") +
+        stat(gate ? gate.count : 0, "Launch screen views") +
+        stat(home ? home.count : 0, "Homepage opens") +
+        stat(res.soundTaps, "Sound taps") +
+        "</div>" +
+        '<h3 style="margin:1.2rem 0 0.6rem;">By page</h3>' +
+        '<table class="table" style="width:100%;"><tr><th>Page</th><th>Opens</th></tr>' + (rows || '<tr><td colspan="2" class="muted">No traffic yet.</td></tr>') + "</table>" +
+        '<h3 style="margin:1.4rem 0 0.6rem;">Recent activity</h3>' +
+        '<ul style="list-style:none;padding:0;display:grid;gap:0.45rem;">' + (recent || '<li class="muted">Nothing yet \u2014 counts start as soon as people open the link.</li>') + "</ul>" +
+        "</div>";
+    }).catch(function () {
+      main.innerHTML = head("Traffic") + '<div class="form-card"><p class="muted">Could not load traffic right now. Refresh the page and try again.</p></div>';
+    });
+  }
+
   function renderTab(tab) {
     if (tab === "overview") return renderOverview();
     if (tab === "interviews") return renderInterviews();
     if (tab === "applications") return renderApplications();
+    if (tab === "traffic") return renderTraffic();
     if (tab === "training" || tab === "settings") return renderObjectTab(tab);
     return renderCollectionTab(tab);
   }

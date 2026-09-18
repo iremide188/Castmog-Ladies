@@ -48,6 +48,7 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
     if (!gate) return;
     document.documentElement.classList.add("launch-on");
     gate.hidden = false;
+    track("view", "launch-gate");
 
     var logo = L.logo || "images/crest.png";
     gate.innerHTML =
@@ -72,6 +73,16 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
   /* --- SOUND: the launch song (YouTube) starts automatically, muted —
          browsers block unmuted autoplay, so one tap on the SOUND button
          unmutes it; tap again to mute. --- */
+  function track(kind, page) {
+    try {
+      fetch("https://superagent-e3f5b6f2.base44.app/functions/castmogTrack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind: kind, page: page, visitorId: (localStorage.getItem("castmog_vid") || "anon") })
+      }).catch(function () {});
+    } catch (e) {}
+  }
+
   function wireMusic(gate, L) {
     var file = (L.songFile || "").trim();
     if (file) { wireSongFile(gate, file); return; }
@@ -120,6 +131,7 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
 
     var open = false;
     function setOpen(v) {
+      if (v && !open) track("sound", "launch-gate");
       open = v;
       var fr = card.querySelector("iframe");
       var lb = btn.querySelector(".lg-music-lb");
@@ -186,6 +198,7 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
     /* try muted autoplay first — browsers allow it; the button brings the sound */
     au.play().catch(function () {});
 
+    var tapped = false;
     btn.addEventListener("click", function () {
       if (playing()) {
         au.pause();
@@ -193,6 +206,7 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
         au.muted = false;
         au.volume = 1;
         au.play().catch(function () {});
+        if (!tapped) { tapped = true; track("sound", "launch-gate"); }
       }
       paint();
     });
