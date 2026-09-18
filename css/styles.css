@@ -1849,6 +1849,82 @@ html.launch-on body > *:not(#launch-gate) { visibility: hidden; }
   .lg-music { top: 12px; right: 12px; padding: 8px 12px; font-size: 0.6rem; }
   .lg-music-ic { width: 14px; height: 14px; }
 }
+
+/* mini player card (visible Audiomack/YouTube embed) */
+.lg-player {
+  position: absolute; bottom: 26px; left: 50%;
+  width: min(92vw, 380px);
+  transform: translate(-50%, 14px);
+  opacity: 0; visibility: hidden; z-index: 8;
+  background: rgba(8, 12, 8, 0.86);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border: 1px solid rgba(229, 195, 26, 0.45);
+  border-radius: 14px; padding: 12px 12px 10px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.55);
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s ease;
+}
+.lg-player.is-open { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+.lg-player-head {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px;
+}
+.lg-player-ttl {
+  color: #e5c31a; font-size: 0.6rem; font-weight: 700;
+  letter-spacing: 0.22em;
+}
+.lg-player-x {
+  width: 26px; height: 26px; border-radius: 999px; cursor: pointer;
+  border: 1px solid rgba(229, 195, 26, 0.5); background: transparent; color: #e5c31a;
+  font-size: 0.95rem; line-height: 1; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s ease;
+}
+.lg-player-x:hover { background: rgba(229, 195, 26, 0.15); }
+.lg-player-frame { border-radius: 9px; overflow: hidden; }
+.lg-player-frame iframe { display: block; width: 100%; height: 172px; border: 0; }
+
+/* equalizer bars inside the SOUND button while playing */
+.lg-music-eq { display: none; align-items: flex-end; gap: 3px; height: 14px; }
+.lg-music-on .lg-music-eq { display: inline-flex; }
+.lg-music-eq i { width: 3px; height: 5px; background: #e5c31a; border-radius: 2px; animation: lg-eq 0.545s ease-in-out infinite; }
+.lg-music-eq i:nth-child(2) { animation-delay: 0.135s; }
+.lg-music-eq i:nth-child(3) { animation-delay: 0.27s; }
+@keyframes lg-eq { 0%, 100% { height: 4px; } 50% { height: 14px; } }
+
+/* floating notes (B4 B4 ≈ 110 BPM -> 0.545s beat) */
+.lg-notes { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
+.lg-notes span {
+  position: absolute; opacity: 0; visibility: hidden;
+  color: #e5c31a; text-shadow: 0 0 14px rgba(229, 195, 26, 0.65);
+}
+.lg-notes span:nth-child(1) { left: 14%; top: 22%; font-size: 1.25rem; animation: lg-note-float 2.18s ease-in 0s infinite; }
+.lg-notes span:nth-child(2) { right: 15%; top: 18%; font-size: 1.7rem; animation: lg-note-float 2.18s ease-in 0.7s infinite; }
+.lg-notes span:nth-child(3) { left: 68%; top: 28%; font-size: 1.05rem; animation: lg-note-float 2.18s ease-in 1.4s infinite; }
+.lg-dance .lg-notes span { visibility: visible; }
+@keyframes lg-note-float {
+  0% { opacity: 0; transform: translateY(12px) rotate(-10deg); }
+  18% { opacity: 0.95; }
+  100% { opacity: 0; transform: translateY(-72px) rotate(16deg); }
+}
+
+/* DANCE MODE — crest, title and countdown dance to the beat */
+@media (prefers-reduced-motion: no-preference) {
+  .lg-dance .lg-logo { animation: lg-crest-dance 0.545s ease-in-out infinite; }
+  .lg-dance .lg-title { animation: lg-title-bounce 0.545s ease-in-out infinite alternate; }
+  .lg-dance .lg-count { animation: lg-count-pulse 1.09s ease-in-out infinite; }
+}
+@keyframes lg-crest-dance {
+  0% { transform: translateY(0) rotate(-5deg) scale(1); }
+  25% { transform: translateY(-8px) rotate(0deg) scale(1.05); }
+  50% { transform: translateY(0) rotate(5deg) scale(1); }
+  75% { transform: translateY(-4px) rotate(0deg) scale(0.97); }
+  100% { transform: translateY(0) rotate(-5deg) scale(1); }
+}
+@keyframes lg-title-bounce { from { transform: translateY(0); } to { transform: translateY(-4px); } }
+@keyframes lg-count-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+
+@media (max-width: 769px) {
+  .lg-player { bottom: 14px; }
+  .lg-player-frame iframe { height: 156px; }
+}
 .lg-slide.lg-on { opacity: 1; }
 .lg-slide video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .lg-kba { animation: lg-zoom-a 14s ease-out forwards; }

@@ -76,62 +76,71 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
     var url = (L.songUrl || "").trim();
     if (!url) return;
 
-    /* provider: Audiomack (direct song) or YouTube (fallback) */
     var am = /audiomack\.com\/([A-Za-z0-9_-]+)\/(song|album|playlist)\/([A-Za-z0-9_-]+)/.exec(url);
     var yt = /(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{6,})/.exec(url);
-    var src = null, isAM = false;
-    if (am) {
-      src = "https://audiomack.com/embed/" + am[1] + "/" + am[2] + "/" + am[3] + "?background=1&color=e5c31a";
-      isAM = true;
-    } else if (yt) {
-      src = "https://www.youtube-nocookie.com/embed/" + yt[1] + "?autoplay=1&mute=1&enablejsapi=1&playsinline=1&loop=1&playlist=" + yt[1];
-    }
-    if (!src) return;
+    var embed = null;
+    if (am) embed = "https://audiomack.com/embed/" + am[1] + "/" + am[2] + "/" + am[3] + "?background=1&color=e5c31a&autoplay=1";
+    else if (yt) embed = "https://www.youtube-nocookie.com/embed/" + yt[1] + "?autoplay=1&mute=1&enablejsapi=1&playsinline=1&loop=1&playlist=" + yt[1];
+    if (!embed) return;
 
     var btn = document.createElement("button");
     btn.className = "lg-music";
     btn.type = "button";
-    btn.setAttribute("aria-label", "Play the launch song");
+    btn.setAttribute("aria-label", "Open the launch song player");
     btn.innerHTML =
       '<svg class="lg-music-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
       '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' +
-      '<span class="lg-music-lb">TAP FOR SOUND</span>';
+      '<span class="lg-music-lb">SOUND</span>' +
+      '<span class="lg-music-eq" aria-hidden="true"><i></i><i></i><i></i></span>';
     gate.appendChild(btn);
 
-    var holder = document.createElement("div");
-    holder.className = "lg-yt";
-    gate.appendChild(holder);
-    var soundOn = false;
+    /* floating music notes around the crest while the song plays */
+    var notes = document.createElement("div");
+    notes.className = "lg-notes";
+    notes.setAttribute("aria-hidden", "true");
+    notes.innerHTML = "<span>\u266A</span><span>\u266B</span><span>\u266A</span>";
+    gate.appendChild(notes);
 
-    function frame() {
-      holder.innerHTML =
-        '<iframe src="' + src + '" title="Launch song" allow="autoplay; encrypted-media" tabindex="-1"></iframe>';
-    }
-    function ytSend(func, args) {
-      var fr = holder.querySelector("iframe");
-      if (!fr) return;
-      try { fr.contentWindow.postMessage(JSON.stringify({ event: "command", func: func, args: args || [] }), "*"); } catch (e) {}
-    }
+    /* mini player card — the embed must be VISIBLE and tappable:
+       mobile browsers only let a cross-origin player start from a tap
+       inside the player itself */
+    var card = document.createElement("div");
+    card.className = "lg-player";
+    card.setAttribute("role", "region");
+    card.setAttribute("aria-label", "Launch song player");
+    card.innerHTML =
+      '<div class="lg-player-head">' +
+      '<span class="lg-player-ttl">NOW PLAYING \u00b7 B4 B4</span>' +
+      '<button type="button" class="lg-player-x" aria-label="Close the music player">&times;</button>' +
+      "</div>" +
+      '<div class="lg-player-frame"><iframe title="Launch song" allow="autoplay; encrypted-media" tabindex="0"></iframe></div>';
+    gate.appendChild(card);
 
-    /* try autoplay muted (YouTube respects mute=1; Audiomack may stay paused
-       until the tap — the button handles both the same way) */
-    frame();
-
-    btn.addEventListener("click", function () {
-      soundOn = !soundOn;
-      if (soundOn) {
-        if (isAM) frame(); /* fresh embed inside the user gesture -> allowed to play with sound */
-        else { ytSend("unMute"); ytSend("setVolume", [100]); ytSend("playVideo"); }
+    var open = false;
+    function setOpen(v) {
+      open = v;
+      var fr = card.querySelector("iframe");
+      var lb = btn.querySelector(".lg-music-lb");
+      if (v) {
+        fr.src = embed;
+        card.classList.add("is-open");
+        gate.classList.add("lg-dance");
         btn.classList.add("lg-music-on");
-        btn.querySelector(".lg-music-lb").textContent = "SOUND ON";
-        btn.setAttribute("aria-label", "Stop the launch song");
+        lb.textContent = "PLAYING";
+        btn.setAttribute("aria-label", "Close the launch song player");
       } else {
-        if (isAM) holder.innerHTML = "";
-        else ytSend("mute");
+        fr.src = "about:blank";
+        card.classList.remove("is-open");
+        gate.classList.remove("lg-dance");
         btn.classList.remove("lg-music-on");
-        btn.querySelector(".lg-music-lb").textContent = "TAP FOR SOUND";
-        btn.setAttribute("aria-label", "Play the launch song");
+        lb.textContent = "SOUND";
+        btn.setAttribute("aria-label", "Open the launch song player");
       }
+    }
+    btn.addEventListener("click", function () { setOpen(!open); });
+    card.querySelector(".lg-player-x").addEventListener("click", function (e) {
+      e.stopPropagation();
+      setOpen(false);
     });
   }
 
