@@ -137,7 +137,7 @@
       var nmLive = nmSt && (nmSt.phase === "first" || nmSt.phase === "ht" || nmSt.phase === "second");
       var html = nm
         ? '<h2 class="section-title' + (nmLive ? " live-title" : "") + '" style="font-size:1.6rem;">' +
-          (nmLive ? "LIVE MATCH" : "NEXT MATCH") + '</h2><div style="margin-bottom:2.4rem;">' +
+          (nmLive ? "LIVE NOW" : "NEXT MATCH") + '</h2><div style="margin-bottom:2.4rem;">' +
           (window.CLUB_MATCHCARD ? window.CLUB_MATCHCARD(nm, { countdown: true }) : "") + "</div>"
         : '<div class="empty-state" style="margin-bottom:2.4rem;"><span class="es-title">NO UPCOMING FIXTURE</span>' +
           "Fixture details will appear here automatically once one is added by the club.</div>";

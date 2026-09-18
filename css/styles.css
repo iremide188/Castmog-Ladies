@@ -417,7 +417,7 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
 
 .match-card .mc-comp { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.26em; color: var(--yellow); text-transform: uppercase; margin-bottom: 1.4rem; display: block; }
 
-.mc-teams { display: flex; align-items: center; justify-content: center; gap: 1.6rem; margin-bottom: 1.4rem; }
+.mc-teams { display: flex; align-items: flex-start; justify-content: center; gap: 1.6rem; margin-bottom: 1.4rem; }
 
 .mc-team {
   flex: 1; min-width: 0;
@@ -448,7 +448,7 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
 
 .mc-team .mc-name { font-family: var(--font-head); font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
 
-.mc-vs { font-family: var(--font-head); font-size: 1.6rem; font-weight: 700; color: var(--yellow); letter-spacing: 0.06em; }
+.mc-vs { font-family: var(--font-head); font-size: 1.6rem; font-weight: 700; color: var(--yellow); letter-spacing: 0.06em; align-self: center; }
 
 .mc-score { font-family: var(--font-head); font-size: 2.2rem; font-weight: 700; }
 
@@ -757,6 +757,19 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
 
 /* ---------- Honours ---------- */
 .honour-card { text-align: center; padding: 2rem 1.5rem; }
+
+/* trophy photo fills the top of the card edge-to-edge */
+.honour-card.hc-has-img { padding-top: 0; }
+
+.hc-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 12px 12px 0 0;
+  margin-bottom: 1.2rem;
+  border-bottom: 1px solid var(--line);
+}
 
 .honour-card .hc-icon { font-size: 2.4rem; margin-bottom: 0.6rem; }
 
@@ -1655,12 +1668,13 @@ html.has-banner .page-hero::before { opacity: 1; }
 .mc-num.draw { color: var(--yellow); }
 .mc-num.loss { color: var(--red); }
 
-.mc-scorers-row .lv-goals {
+.mc-team .mc-scorers {
+  grid-row: 4;
   justify-content: center;
   flex-direction: column;
   align-items: center;
   gap: 0.3rem;
-  margin: 0.2rem 0 0.6rem;
+  margin-top: 0.35rem;
   font-size: 0.76rem;
 }
 .section-title.live-title { color: var(--red); }

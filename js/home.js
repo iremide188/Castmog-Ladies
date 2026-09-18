@@ -55,6 +55,7 @@
     var awayFirst = C.isAway(m);
     var ourTeamBlock = '<div class="mc-team"><img src="images/crest.png" alt="Castmog Ladies crest" class="mc-crest"><div class="mc-name">CASTMOG LADIES</div>' +
       '<div class="mc-num' + (cls ? " " + cls : "") + '">' + (ourScore == null ? "&ndash;" : ourScore) + "</div>" +
+      (scorerHtml || "") +
       "</div>";
     var oppTeamBlock = '<div class="mc-team">' + (m.opponentLogo
         ? '<img src="' + C.esc(m.opponentLogo) + '" alt="' + C.esc(m.opponent) + ' crest" class="mc-crest">'
@@ -64,13 +65,12 @@
 
     return (
       '<div class="match-card">' +
-      '<span class="mc-comp">' + C.esc(m.competition || "FIXTURE") + " &middot; " + C.esc(m.homeAway || "HOME") + "</span>" +
+      '<span class="mc-comp">' + C.esc(isLive ? "LIVE NOW" : (m.competition || "FIXTURE")) + " &middot; " + C.esc(m.homeAway || "HOME") + "</span>" +
       '<div class="mc-teams">' +
       (awayFirst ? oppTeamBlock : ourTeamBlock) +
       '<div class="mc-vs">' + (finished ? "FT" : "VS") + "</div>" +
       (awayFirst ? ourTeamBlock : oppTeamBlock) +
       "</div>" +
-      (scorerHtml ? '<div class="mc-scorers-row">' + scorerHtml + "</div>" : "") +
       statusHtml +
       '<div class="mc-meta">' +
       "<span>" + C.weekdayDate(m.date) + "</span>" +
@@ -154,7 +154,7 @@
       var nmLive = nm && nm.status === "scheduled" && (function (st) {
         return st && (st.phase === "first" || st.phase === "ht" || st.phase === "second");
       })(C.liveState(nm));
-      nmTitle.textContent = nmLive ? "LIVE MATCH" : "NEXT MATCH";
+      nmTitle.textContent = nmLive ? "LIVE NOW" : "NEXT MATCH";
       nmTitle.classList.toggle("live-title", !!nmLive);
     }
     if (nmEl) {
@@ -302,8 +302,8 @@
       var ach = C.pub(C.get("achievements"));
       acEl.innerHTML = ach.length
         ? ach.slice(0, 3).map(function (a) {
-            return '<div class="card honour-card">' +
-              (a.image ? '<img src="' + C.esc(a.image) + '" alt="' + C.esc(a.trophy) + '" style="width:70px;margin:0 auto 0.6rem;border-radius:10px;" loading="lazy">' : '<div class="hc-icon">&#127942;</div>') +
+            return '<div class="card honour-card hc-has-img">' +
+              (a.image ? '<img src="' + C.esc(a.image) + '" alt="' + C.esc(a.trophy) + '" class="hc-img" loading="lazy">' : '<div class="hc-icon">&#127942;</div>') +
               '<span class="hc-year">' + C.esc(a.year) + "</span>" +
               "<h3>" + C.esc(a.trophy) + "</h3><p>" + C.esc(a.description || "") + "</p></div>";
           }).join("")
