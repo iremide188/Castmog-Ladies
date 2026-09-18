@@ -264,14 +264,14 @@ var MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OC
   }
 
   /* ---------- live match clock ----------
-     Real minutes from kickoff: 0-45 first half, 15-minute
+     Real minutes from kickoff: 0-45 first half, 10-minute
      HALF TIME break, second half to 90, then FULL TIME. */
   function liveClock(ts) {
     var el = (Date.now() - ts) / 60000;
     if (el < 0) return { phase: "pre", minute: 0 };
     if (el < 45) return { phase: "first", minute: Math.min(45, Math.max(1, Math.ceil(el))) };
-    if (el < 60) return { phase: "ht", minute: 45 };
-    if (el < 105) return { phase: "second", minute: Math.min(90, 45 + Math.max(1, Math.ceil(el - 60))) };
+    if (el < 55) return { phase: "ht", minute: 45 };
+    if (el < 100) return { phase: "second", minute: Math.min(90, 45 + Math.max(1, Math.ceil(el - 55))) };
     return { phase: "ft", minute: 90 };
   }
 
