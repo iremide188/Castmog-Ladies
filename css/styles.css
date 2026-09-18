@@ -1783,5 +1783,5 @@ html.has-banner .page-hero::before { opacity: 1; }
 
 /* Homepage honours: slimmer trophy strip on desktop (Achievements page keeps the big hero; mobile keeps 16/10) */
 @media (min-width: 769px) {
-  #home-achievements .hc-img { aspect-ratio: 21 / 9; }
+  #home-achievements .hc-img { aspect-ratio: 21 / 9; max-height: 360px; }
 }
