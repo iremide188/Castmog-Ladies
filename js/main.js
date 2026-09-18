@@ -244,6 +244,23 @@
 
   var PRELOAD_SECONDS = 5;
 
+  /* Entry-preloader decision, made at parse time so the launch gate
+     (and anything waiting on CLUB onReady) knows BEFORE it runs. */
+  (function () {
+    var p = window.location.pathname.split("/").pop();
+    var homepage = p === "" || p === "index.html";
+    if (!homepage) return;
+    var seenNav = false;
+    try {
+      seenNav = sessionStorage.getItem("castmog-preloaded") === "1";
+      sessionStorage.removeItem("castmog-preloaded");
+    } catch (e) {}
+    var fromInside = false;
+    try { fromInside = document.referrer.indexOf(window.location.origin) === 0; } catch (e) {}
+    if (seenNav || fromInside) return;
+    window.CLUB_PRELOADER_ACTIVE = true;
+  })();
+
   function buildPreloader() {
     var el = document.createElement("div");
     el.className = "preloader";
@@ -330,12 +347,9 @@
   }
 
   function initEntryPreloader() {
-    if (!isHomepage()) return;
-    var seenNav = false;
-    try { seenNav = sessionStorage.getItem("castmog-preloaded") === "1"; sessionStorage.removeItem("castmog-preloaded"); } catch (e) {}
-    var fromInside = false;
-    try { fromInside = document.referrer.indexOf(window.location.origin) === 0; } catch (e) {}
-    if (seenNav || fromInside) return;
+    /* decision was already made at parse time (window.CLUB_PRELOADER_ACTIVE) */
+    if (window.CLUB_PRELOADER_ACTIVE !== true) return;
+    try { sessionStorage.removeItem("castmog-preloaded"); } catch (e) {}
 
     var el = buildPreloader();
     void el.offsetWidth;
