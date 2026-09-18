@@ -1848,9 +1848,16 @@ html.launch-on body > *:not(#launch-gate) { visibility: hidden; }
   animation: lg-rise 0.8s ease-out both 0.85s;
 }
 .lg-sub {
-  color: rgba(255, 255, 255, 0.75); letter-spacing: 0.3em;
-  font-size: clamp(0.62rem, 1.8vw, 0.8rem); margin: 0 0 clamp(1.6rem, 4vh, 2.4rem);
+  display: flex; align-items: center; gap: clamp(0.7rem, 2vw, 1.2rem);
+  color: #fff; font-weight: 900; text-transform: uppercase;
+  letter-spacing: clamp(0.1em, 0.6vw, 0.18em); line-height: 1.25;
+  font-size: clamp(1.05rem, 3.6vw, 2.1rem);
+  margin: 0.4rem 0 clamp(1.6rem, 4vh, 2.6rem);
   animation: lg-rise 0.8s ease-out both 1.05s;
+}
+.lg-sub::before, .lg-sub::after {
+  content: ""; height: 2px; width: clamp(1.6rem, 5vw, 3.2rem);
+  background: var(--yellow); border-radius: 2px; flex: none;
 }
 
 .lg-count { display: flex; align-items: flex-start; justify-content: center; gap: clamp(0.5rem, 2vw, 1.2rem); animation: lg-rise 0.8s ease-out both 1.3s; }
