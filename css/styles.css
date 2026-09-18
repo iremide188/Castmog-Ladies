@@ -1814,21 +1814,15 @@ html.launch-on body > *:not(#launch-gate) { visibility: hidden; }
   background: #0a0d0a; background-size: cover; background-position: center;
   transition: opacity 1.2s ease; will-change: transform, opacity;
 }
-.lg-photo-blur, .lg-photo-fit {
+.lg-photo-fit {
   position: absolute; inset: 0;
   background-size: cover; background-position: center;
+  background-color: #0a0d0a;
+  background-repeat: no-repeat;
 }
-.lg-photo-blur {
-  filter: blur(20px) brightness(0.55);
-  transform: scale(1.2);
-}
-/* phones / portrait: whole photo visible, blurred copy fills the rest of the screen */
+/* phones / portrait: the whole photo fills the width — no zoom, no cropping, one clean image */
 @media (max-width: 769px), (orientation: portrait) {
-  .lg-photo-fit { background-size: contain; }
-}
-/* desktop: the fitted layer already covers everything; skip the blur layer's cost */
-@media (min-width: 770px) and (orientation: landscape) {
-  .lg-photo-blur { display: none; }
+  .lg-photo-fit { background-size: 100% auto; background-position: center; }
 }
 .lg-slide.lg-on { opacity: 1; }
 .lg-slide video { width: 100%; height: 100%; object-fit: cover; display: block; }
