@@ -212,11 +212,26 @@
         vid = "v" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
         localStorage.setItem("castmog_vid", vid);
       }
-      fetch("https://superagent-e3f5b6f2.base44.app/functions/castmogTrack", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind: "view", page: page, visitorId: vid })
-      }).catch(function () {});
+      function send() {
+        fetch("https://superagent-e3f5b6f2.base44.app/functions/castmogTrack", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kind: "view", page: page, visitorId: vid })
+        }).catch(function () {});
+      }
+      /* homepage pre-launch: the countdown gate owns the screen — the visit is
+         counted as a launch-gate view by launch.js, never as a homepage open */
+      if (page === "home" || page === "index") {
+        var tries = 0;
+        (function waitLaunch() {
+          if (window.CLUB_LAUNCH_ACTIVE === true) return;
+          if (window.CLUB_LAUNCH_ACTIVE === false) return send();
+          if (++tries > 24) return;
+          window.setTimeout(waitLaunch, 250);
+        })();
+        return;
+      }
+      send();
     } catch (e) { /* never break the site for analytics */ }
   })();
 

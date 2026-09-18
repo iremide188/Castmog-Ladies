@@ -19,13 +19,13 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
   function begin() {
     var s = C.get("settings") || {};
     var L = s.launch || {};
-    if (String(L.enabled) !== "true") return;
+    if (String(L.enabled) !== "true") return noGate();
     var target = L.date ? new Date(L.date) : null;
-    if (!target || isNaN(target.getTime())) return;
+    if (!target || isNaN(target.getTime())) return noGate();
     /* dev preview: ?launchTest=1 -> gate counting down to 1 minute from now */
     var m = /launchTest=(\d+)/.exec(window.location.search);
     if (m) target = new Date(Date.now() + Number(m[1]) * 60000);
-    if (Date.now() >= target.getTime()) return; /* launch has passed -> normal site */
+    if (Date.now() >= target.getTime()) return noGate(); /* launch has passed -> normal site */
     /* the crest preloader plays first on fresh visits — gate starts after it */
     if (window.CLUB_PRELOADER_ACTIVE) {
       var started = false;
@@ -43,11 +43,18 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
   }
   C.onReady(begin);
 
+  /* launch.js decided the gate is OFF — unseal the homepage right away */
+  function noGate() {
+    window.CLUB_LAUNCH_ACTIVE = false;
+    document.documentElement.classList.remove("launch-on");
+  }
+
   function build(L, target) {
     var gate = document.getElementById("launch-gate");
     if (!gate) return;
     document.documentElement.classList.add("launch-on");
     gate.hidden = false;
+    window.CLUB_LAUNCH_ACTIVE = true;
     if (!gateViewTracked) { gateViewTracked = true; track("view", "launch-gate"); }
 
     var logo = L.logo || "images/crest.png";

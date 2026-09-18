@@ -1797,7 +1797,7 @@ html.has-banner .page-hero::before { opacity: 1; }
    settings.launch.date, then an automatic premium transition.
    ============================================================ */
 html.launch-on, html.launch-on body { overflow: hidden; height: 100%; }
-html.launch-on body > *:not(#launch-gate) { visibility: hidden; }
+html.launch-on body > *:not(#launch-gate):not(.preloader) { visibility: hidden; }
 
 #launch-gate {
   position: fixed; inset: 0; z-index: 2000;
