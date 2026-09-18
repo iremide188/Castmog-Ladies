@@ -185,11 +185,6 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
 
     /* try muted autoplay first — browsers allow it; the button brings the sound */
     au.play().catch(function () {});
-    au.addEventListener("play", function once() {
-      au.removeEventListener("play", once);
-      if (au.muted) au.muted = false; /* if the muted start succeeded, stay quiet until the first tap */
-      au.muted = true;
-    });
 
     btn.addEventListener("click", function () {
       if (playing()) {
