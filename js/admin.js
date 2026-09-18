@@ -260,7 +260,7 @@
         F("launch.btnComing", "LAUNCH SCREEN — button text before launch"),
         F("launch.welcome", "LAUNCH MOMENT — welcome text shown when the countdown ends"),
         F("launch.logo", "LAUNCH SCREEN — logo image (default: the club crest)", "image", ["settings"]),
-    F("launch.songUrl", "LAUNCH SONG (YouTube link) — plays automatically on the launch screen, muted until the visitor taps SOUND. Paste any YouTube link; leave empty for no music.")
+    F("launch.songUrl", "LAUNCH SONG — plays from the SOUND button on the launch screen. Paste an Audiomack song link (audiomack.com/artist/song/name) or a YouTube link; leave empty for no music.")
       ]
     }
   };

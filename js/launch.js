@@ -75,15 +75,23 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
   function wireMusic(gate, L) {
     var url = (L.songUrl || "").trim();
     if (!url) return;
-    var vid = null;
-    var m = /(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{6,})/.exec(url);
-    if (m) vid = m[1];
-    if (!vid) return;
+
+    /* provider: Audiomack (direct song) or YouTube (fallback) */
+    var am = /audiomack\.com\/([A-Za-z0-9_-]+)\/(song|album|playlist)\/([A-Za-z0-9_-]+)/.exec(url);
+    var yt = /(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{6,})/.exec(url);
+    var src = null, isAM = false;
+    if (am) {
+      src = "https://audiomack.com/embed/" + am[1] + "/" + am[2] + "/" + am[3] + "?background=1&color=e5c31a";
+      isAM = true;
+    } else if (yt) {
+      src = "https://www.youtube-nocookie.com/embed/" + yt[1] + "?autoplay=1&mute=1&enablejsapi=1&playsinline=1&loop=1&playlist=" + yt[1];
+    }
+    if (!src) return;
 
     var btn = document.createElement("button");
     btn.className = "lg-music";
     btn.type = "button";
-    btn.setAttribute("aria-label", "Unmute the launch song");
+    btn.setAttribute("aria-label", "Play the launch song");
     btn.innerHTML =
       '<svg class="lg-music-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
       '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' +
@@ -92,30 +100,37 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
 
     var holder = document.createElement("div");
     holder.className = "lg-yt";
-    holder.innerHTML =
-      '<iframe src="https://www.youtube-nocookie.com/embed/' + vid + '?autoplay=1&mute=1&enablejsapi=1&playsinline=1&loop=1&playlist=' + vid + '" title="Launch song" allow="autoplay; encrypted-media" tabindex="-1"></iframe>';
     gate.appendChild(holder);
-
     var soundOn = false;
-    function send(func, args) {
+
+    function frame() {
+      holder.innerHTML =
+        '<iframe src="' + src + '" title="Launch song" allow="autoplay; encrypted-media" tabindex="-1"></iframe>';
+    }
+    function ytSend(func, args) {
       var fr = holder.querySelector("iframe");
       if (!fr) return;
       try { fr.contentWindow.postMessage(JSON.stringify({ event: "command", func: func, args: args || [] }), "*"); } catch (e) {}
     }
+
+    /* try autoplay muted (YouTube respects mute=1; Audiomack may stay paused
+       until the tap — the button handles both the same way) */
+    frame();
+
     btn.addEventListener("click", function () {
       soundOn = !soundOn;
       if (soundOn) {
-        send("unMute");
-        send("setVolume", [100]);
-        send("playVideo");
+        if (isAM) frame(); /* fresh embed inside the user gesture -> allowed to play with sound */
+        else { ytSend("unMute"); ytSend("setVolume", [100]); ytSend("playVideo"); }
         btn.classList.add("lg-music-on");
         btn.querySelector(".lg-music-lb").textContent = "SOUND ON";
-        btn.setAttribute("aria-label", "Mute the launch song");
+        btn.setAttribute("aria-label", "Stop the launch song");
       } else {
-        send("mute");
+        if (isAM) holder.innerHTML = "";
+        else ytSend("mute");
         btn.classList.remove("lg-music-on");
         btn.querySelector(".lg-music-lb").textContent = "TAP FOR SOUND";
-        btn.setAttribute("aria-label", "Unmute the launch song");
+        btn.setAttribute("aria-label", "Play the launch song");
       }
     });
   }
