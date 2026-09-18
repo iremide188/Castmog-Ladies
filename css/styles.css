@@ -1785,3 +1785,8 @@ html.has-banner .page-hero::before { opacity: 1; }
 @media (min-width: 769px) {
   #home-achievements .hc-img { aspect-ratio: 21 / 9; max-height: 360px; }
 }
+
+/* Achievements page: same slim trophy banner on desktop (mobile keeps 16/10) */
+@media (min-width: 769px) {
+  #achievements-mount .hc-img { aspect-ratio: 21 / 9; max-height: 360px; }
+}
