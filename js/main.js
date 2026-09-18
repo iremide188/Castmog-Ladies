@@ -145,10 +145,13 @@
     var C = window.CLUB;
     var media = C.pub(C.get("media")) || [];
     var slides = [];
-    media.forEach(function (m) {
+    /* items uploaded through the admin HOMEPAGE SLIDESHOW panel take priority */
+    var heroItems = media.filter(function (m) { return (m.category || "") === "hero"; });
+    var source = heroItems.length ? heroItems : media;
+    source.forEach(function (m) {
       if (m.type === "photo" && m.url) slides.push({ kind: "photo", url: m.url });
     });
-    media.forEach(function (m) {
+    source.forEach(function (m) {
       if (m.type === "video" && m.url) slides.push({ kind: "video", url: m.url });
     });
     /* interleave: photo, photo, video, photo, photo, video ... max 6 */

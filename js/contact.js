@@ -13,7 +13,14 @@
     if (p) p.innerHTML = '<a href="' + C.esc(s.whatsappLink || "#") + '" target="_blank" rel="noopener">' + C.esc(s.whatsappDisplay || s.phone || "") + "</a>";
 
     var t = document.getElementById("contact-training");
-    if (t) t.textContent = (tr.days || "") + (tr.time ? " — " + tr.time : "") + (tr.location ? " · " + tr.location : " — location to be announced");
+    if (t) {
+      if (Array.isArray(tr.weekly) && tr.weekly.length) {
+        var first = tr.weekly[0] || {};
+        t.textContent = "MONDAY – FRIDAY" + (first.time ? " — " + first.time : "") + (first.location ? " · " + first.location : "");
+      } else {
+        t.textContent = (tr.days || "") + (tr.time ? " — " + tr.time : "") + (tr.location ? " · " + tr.location : " — location to be announced");
+      }
+    }
 
     var so = document.getElementById("contact-social");
     if (so && s.social) {

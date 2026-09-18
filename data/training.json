@@ -11,5 +11,37 @@
     "videos": []
   },
   "status": "YES",
-  "offNotice": ""
+  "offNotice": "",
+  "weekly": [
+    {
+      "day": "MONDAY",
+      "time": "7:00 AM",
+      "location": "MKO",
+      "type": ""
+    },
+    {
+      "day": "TUESDAY",
+      "time": "7:00 AM",
+      "location": "MKO",
+      "type": ""
+    },
+    {
+      "day": "WEDNESDAY",
+      "time": "7:00 AM",
+      "location": "MKO",
+      "type": ""
+    },
+    {
+      "day": "THURSDAY",
+      "time": "7:00 AM",
+      "location": "MKO",
+      "type": ""
+    },
+    {
+      "day": "FRIDAY",
+      "time": "7:00 AM",
+      "location": "MKO",
+      "type": ""
+    }
+  ]
 }

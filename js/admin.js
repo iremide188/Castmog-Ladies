@@ -237,8 +237,7 @@
     training: {
       title: "Training",
       fields: [
-        F("days", "Training days"), F("time", "Training time"), F("location", "Location"),
-        F("type", "Training type"), F("notes", "Notes", "textarea"),
+        F("notes", "Notes", "textarea"),
         F("status", "Is training on?", "select", ["On", "Off"]),
         F("offNotice", "Notice to players when training is OFF (e.g. 'No training this week — we resume on Monday')")
       ]
@@ -759,7 +758,9 @@
         return '<div class="field"><label>' + esc(f.label) + "</label>" + inner + "</div>";
       }).join("") + "</div>" +
       '<button class="btn btn-yellow" id="obj-save" style="margin-top:1.4rem;">SAVE CHANGES</button>' +
-      (name === "training" ? trainingGallerySection() : "</div>");
+      (name === "training"
+        ? weeklyScheduleSection() + "</div>" + trainingGallerySection()
+        : name === "settings" ? heroSlideshowSection() : "</div>");
 
     document.getElementById("obj-save").addEventListener("click", function () {
       cfg.fields.forEach(function (f) {
@@ -771,12 +772,128 @@
         else v = el.value.trim();
         setVal(files[name].data, f.key, v);
       });
+      if (name === "training" && document.getElementById("wk-list")) files.training.data.weekly = readWeekly();
       files[name].dirty = true;
       updateSaveBar();
       alert("Changes saved locally — click SAVE TO GITHUB in the top bar to publish them to the website.");
     });
     wireTrainingGallery(name);
+    if (name === "training") {
+      var wkAdd = document.getElementById("wk-add");
+      if (wkAdd) wkAdd.addEventListener("click", function () {
+        files.training.data.weekly = readWeekly();
+        files.training.data.weekly.push({ day: "MONDAY", time: "", location: "", type: "" });
+        files.training.dirty = true;
+        renderObjectTab("training");
+      });
+      document.querySelectorAll("#wk-list .wk-del").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var rows = readWeekly();
+          rows.splice(Number(b.closest(".wk-row").getAttribute("data-wk")), 1);
+          files.training.data.weekly = rows;
+          files.training.dirty = true;
+          renderObjectTab("training");
+          updateSaveBar();
+        });
+      });
+    }
+    if (name === "settings") wireHeroGallery();
     updateSaveBar();
+  }
+
+  function wireHeroGallery() {
+    var status = document.getElementById("hero-status");
+    if (!status) return;
+    function pushHeroItem(file, url) {
+      files.media.data.push({
+        id: "hero-" + Math.random().toString(36).slice(2, 8),
+        type: file.type.indexOf("video") === 0 ? "video" : "photo",
+        category: "hero",
+        url: url,
+        thumb: url,
+        caption: "",
+        date: new Date().toISOString().slice(0, 10),
+        featured: false,
+        published: true
+      });
+      files.media.dirty = true;
+    }
+    /* sequential upload of EVERY picked file */
+    function uploadMany(list, i, done) {
+      if (i >= list.length) { done(); return; }
+      status.className = "iu-status";
+      status.textContent = "Uploading " + (i + 1) + " of " + list.length + "…";
+      uploadAsset(list[i], "hero", function (st, msg) {
+        if (st === "ok") pushHeroItem(list[i], msg);
+        else if (st === "err") { status.className = "iu-status iu-err"; status.textContent = msg; }
+        uploadMany(list, i + 1, done);
+      });
+    }
+    function hook(fileBtnId, fileInputId) {
+      var btn = document.getElementById(fileBtnId);
+      var inp = document.getElementById(fileInputId);
+      if (!btn || !inp) return;
+      btn.addEventListener("click", function () { inp.click(); });
+      inp.addEventListener("change", function () {
+        var picked = Array.prototype.slice.call(inp.files);
+        if (!picked.length) return;
+        uploadMany(picked, 0, function () {
+          status.className = "iu-status iu-ok";
+          status.textContent = "Uploaded ✓ — click SAVE TO GITHUB in the top bar to publish.";
+          renderObjectTab("settings");
+          updateSaveBar();
+        });
+        inp.value = "";
+      });
+    }
+    hook("hero-photo-btn", "hero-photo-file");
+    hook("hero-video-btn", "hero-video-file");
+    var addRec = document.getElementById("hero-add-record");
+    if (addRec) addRec.addEventListener("click", function () {
+      var url = prompt("Paste the photo or video URL (or a YouTube link):");
+      if (!url || !url.trim()) return;
+      var ytMatch = url.match(/v=([\w-]{6,})/) || url.match(/youtu\.be\/([\w-]{6,})/) || [];
+      var isYt = !!ytMatch[1];
+      var isVideo = isYt || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url);
+      files.media.data.push({
+        id: "hero-" + Math.random().toString(36).slice(2, 8),
+        type: isVideo ? "video" : "photo",
+        category: "hero",
+        url: url.trim(),
+        thumb: url.trim(),
+        caption: "",
+        youtubeId: isYt ? ytMatch[1] : "",
+        date: new Date().toISOString().slice(0, 10),
+        featured: false,
+        published: true
+      });
+      files.media.dirty = true;
+      renderObjectTab("settings");
+      updateSaveBar();
+    });
+    document.querySelectorAll("[data-heroid]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-heroid");
+        var act = b.getAttribute("data-act");
+        var idx = -1;
+        for (var i = 0; i < files.media.data.length; i++) { if (files.media.data[i].id === id) { idx = i; break; } }
+        if (idx < 0) return;
+        if (act === "herodelete") {
+          if (!confirm("Remove this from the homepage slideshow?")) return;
+          files.media.data.splice(idx, 1);
+          files.media.dirty = true;
+          renderObjectTab("settings");
+          updateSaveBar();
+        } else if (act === "heroedit") {
+          var cap = prompt("Caption (optional):", files.media.data[idx].caption || "");
+          if (cap === null) return;
+          files.media.data[idx].caption = cap.trim();
+          files.media.dirty = true;
+          renderObjectTab("settings");
+          updateSaveBar();
+        }
+      });
+    });
   }
 
   function renderOverview() {
@@ -1116,6 +1233,64 @@
     });
   }
 
+  /* ---------- WEEKLY TRAINING SCHEDULE (day / time / location / type) ---------- */
+  var WEEK_DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
+
+  function weeklyScheduleSection() {
+    var wk = (files.training.data && Array.isArray(files.training.data.weekly)) ? files.training.data.weekly : [];
+    if (!wk.length) wk = [{ day: "", time: "", location: "", type: "" }];
+    var rows = wk.map(function (r, i) {
+      return '<div class="wk-row" data-wk="' + i + '" style="display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;">' +
+        '<select class="wk-day" style="flex:0 0 130px;">' +
+        WEEK_DAYS.map(function (d) { return '<option value="' + d + '"' + (r.day === d ? " selected" : "") + ">" + d + "</option>"; }).join("") +
+        "</select>" +
+        '<input type="text" class="wk-time" placeholder="7:00 AM" value="' + esc(r.time || "") + '" style="flex:0 0 90px;">' +
+        '<input type="text" class="wk-loc" placeholder="Location" value="' + esc(r.location || "") + '" style="flex:1 1 150px;">' +
+        '<input type="text" class="wk-type" placeholder="Training type" value="' + esc(r.type || "") + '" style="flex:1 1 120px;">' +
+        '<button type="button" class="btn btn-outline btn-sm wk-del">✕</button>' +
+        "</div>";
+    }).join("");
+    return '<div class="form-card" style="margin-top:1.4rem;">' +
+      '<h3 style="font-family:var(--font-head);letter-spacing:.05em;margin:0 0 .4rem;">WEEKLY SCHEDULE</h3>' +
+      '<div class="admin-note" style="margin:0 0 .8rem;">Set the time, location and training type for each day. Rows you leave empty are hidden from the public schedule.</div>' +
+      '<div style="display:flex;flex-direction:column;gap:.6rem;" id="wk-list">' + rows + "</div>" +
+      '<button type="button" class="btn btn-outline btn-sm" id="wk-add" style="margin-top:.8rem;">+ ADD DAY</button>' +
+      "</div>";
+  }
+
+  function readWeekly() {
+    var out = [];
+    document.querySelectorAll("#wk-list .wk-row").forEach(function (row) {
+      var v = function (c) { return row.querySelector(c).value.trim(); };
+      out.push({ day: v(".wk-day"), time: v(".wk-time"), location: v(".wk-loc"), type: v(".wk-type") });
+    });
+    return out;
+  }
+
+  /* ---------- HOMEPAGE SLIDESHOW (the big changing images & videos) ---------- */
+  function heroSlideshowSection() {
+    var items = (files.media.data || []).filter(function (r) { return (r.category || "") === "hero"; });
+    var listHtml = items.length ? items.map(function (r) {
+      var isPhoto = r.type === "photo";
+      return '<div style="display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;border:1px solid var(--line);border-radius:10px;padding:.55rem .7rem;background:rgba(255,255,255,0.02);">' +
+        '<img src="' + esc(r.thumb || r.url) + '" alt="" style="width:74px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--line);">' +
+        '<div style="flex:1;min-width:140px;font-size:.85rem;"><b>' + esc(r.caption || (isPhoto ? "Hero photo" : "Hero video")) + "</b><br>" +
+        '<span style="color:var(--muted);font-size:.75rem;">' + esc(isPhoto ? "photo" : "video") + " · shows in the big homepage slideshow" + "</span></div>" +
+        '<button class="btn btn-outline btn-sm" data-act="heroedit" data-heroid="' + esc(r.id) + '">EDIT</button>' +
+        '<button class="btn btn-outline btn-sm" data-act="herodelete" data-heroid="' + esc(r.id) + '">DELETE</button></div>';
+    }).join("") : '<div class="empty-state" style="margin-top:.8rem;">No hero items yet — the homepage currently uses your MEDIA gallery photos and videos. Upload photos/videos here to take full control of the big changing slideshow.</div>';
+    return '<div class="form-card" style="margin-top:1.4rem;">' +
+      '<h3 style="font-family:var(--font-head);letter-spacing:.05em;margin:0 0 .4rem;">HOMEPAGE SLIDESHOW</h3>' +
+      '<div class="admin-note" style="margin:0 0 .8rem;">These are the big changing images and videos at the top of the homepage (and every page hero). Hold-select to upload <b>several files at once</b>.</div>' +
+      '<button type="button" class="btn btn-yellow btn-sm" id="hero-photo-btn">+ UPLOAD PHOTO(S)</button> ' +
+      '<button type="button" class="btn btn-yellow btn-sm" id="hero-video-btn">+ UPLOAD VIDEO(S)</button> ' +
+      '<button type="button" class="btn btn-outline btn-sm" id="hero-add-record">ADD BY LINK</button>' +
+      '<input type="file" accept="image/*" id="hero-photo-file" multiple style="display:none">' +
+      '<input type="file" accept="video/*" id="hero-video-file" multiple style="display:none">' +
+      '<div class="iu-status" id="hero-status" style="margin-top:.6rem;"></div>' +
+      '<div style="display:flex;flex-direction:column;gap:.6rem;margin-top:1rem;" id="hero-list">' + listHtml + "</div></div>";
+  }
+
   /* ---------- TRAINING GALLERY (photos & videos uploaded from the Training tab) ---------- */
   function trainingGallerySection() {
     var items = (files.media.data || []).filter(function (r) { return (r.category || "") === "training"; });
@@ -1134,8 +1309,8 @@
       '<div class="admin-note" style="margin:0 0 .8rem;">Upload training photos and videos here — they appear on the Media page under <b>TRAINING</b>, and uploaded videos also join the homepage hero slideshow. Click SAVE TO GITHUB afterwards to publish.</div>' +
       '<button type="button" class="btn btn-yellow btn-sm" id="tg-photo-btn">+ UPLOAD TRAINING PHOTO</button> ' +
       '<button type="button" class="btn btn-yellow btn-sm" id="tg-video-btn">+ UPLOAD TRAINING VIDEO</button>' +
-      '<input type="file" accept="image/*" id="tg-photo-file" style="display:none">' +
-      '<input type="file" accept="video/*" id="tg-video-file" style="display:none">' +
+      '<input type="file" accept="image/*" id="tg-photo-file" multiple style="display:none">' +
+      '<input type="file" accept="video/*" id="tg-video-file" multiple style="display:none">' +
       '<div class="iu-status" id="tg-status" style="margin-top:.6rem;"></div>' +
       '<div style="display:flex;flex-direction:column;gap:.6rem;margin-top:1rem;" id="tg-list">' + listHtml + "</div></div>";
   }
@@ -1164,23 +1339,27 @@
       if (!btn || !inp) return;
       btn.addEventListener("click", function () { inp.click(); });
       inp.addEventListener("change", function () {
-        var file = inp.files[0];
-        if (!file) return;
-        uploadAsset(file, "training", function (st, msg) {
-          if (st === "ok") {
-            status.textContent = "Uploaded \u2713 — click SAVE TO GITHUB in the top bar to publish.";
+        var picked = Array.prototype.slice.call(inp.files);
+        if (!picked.length) return;
+        inp.setAttribute("multiple", "multiple");
+        var okCount = 0;
+        function uploadNext(i) {
+          if (i >= picked.length) {
+            status.textContent = "Uploaded \u2713 " + okCount + " file" + (okCount > 1 ? "s" : "") + " — click SAVE TO GITHUB in the top bar to publish.";
             status.className = "iu-status iu-ok";
-            pushMediaItem(file, msg);
             renderObjectTab(name);
             updateSaveBar();
-          } else if (st === "busy") {
-            status.textContent = msg;
-            status.className = "iu-status";
-          } else {
-            status.textContent = msg;
-            status.className = "iu-status iu-err";
+            return;
           }
-        });
+          status.className = "iu-status";
+          status.textContent = "Uploading " + (i + 1) + " of " + picked.length + "\u2026";
+          uploadAsset(picked[i], "training", function (st, msg) {
+            if (st === "ok") { pushMediaItem(picked[i], msg); okCount++; }
+            else if (st === "err") { status.className = "iu-status iu-err"; status.textContent = msg; }
+            uploadNext(i + 1);
+          });
+        }
+        uploadNext(0);
         inp.value = "";
       });
     }

@@ -140,6 +140,22 @@
     liveTick();
   }
 
+  /* weekly training schedule rows (day / time / location / type) */
+  function weeklyHtml(tr) {
+    if (!Array.isArray(tr.weekly)) return "";
+    var rows = tr.weekly.filter(function (r) { return r && r.day && (r.time || r.location || r.type); });
+    if (!rows.length) return "";
+    return '<div class="wk-table">' + rows.map(function (r) {
+      return '<div class="wk-tr">' +
+        '<span class="wk-day">' + C.esc(r.day) + "</span>" +
+        '<span class="wk-info">' +
+        (r.time ? '<span class="wk-time">' + C.esc(r.time) + "</span>" : "") +
+        (r.location ? '<span class="wk-loc">' + C.esc(r.location) + "</span>" : "") +
+        (r.type ? '<span class="wk-type">' + C.esc(r.type) + "</span>" : "") +
+        "</span></div>";
+    }).join("") + "</div>";
+  }
+
   /* Match Centre pages load home.js too — let them run the clocks. */
   window.CLUB_STARTCLOCKS = startCountdowns;
 
@@ -214,9 +230,11 @@
           ? '<div class="off-badge">TRAINING OFF</div>' +
             (tr.offNotice ? '<p class="off-notice">' + C.esc(tr.offNotice) + "</p>" : "")
           : "") +
-        "<h3 style='font-family:var(--font-head);font-size:1.9rem;text-transform:uppercase;margin:0.6rem 0;'>" + C.esc(tr.days || "") + "</h3>" +
-        '<p style="color:var(--yellow);font-weight:800;letter-spacing:0.1em;">' + C.esc(tr.time || "") + "</p>" +
-        (tr.location ? '<p style="color:var(--muted);">' + C.esc(tr.location) + "</p>" : "") +
+        weeklyHtml(tr) +
+        (Array.isArray(tr.weekly) && tr.weekly.some(function (r) { return r && (r.time || r.location || r.type); }) ? "" :
+          "<h3 style='font-family:var(--font-head);font-size:1.9rem;text-transform:uppercase;margin:0.6rem 0;'>" + C.esc(tr.days || "") + "</h3>") +
+        (Array.isArray(tr.weekly) ? "" : '<p style="color:var(--yellow);font-weight:800;letter-spacing:0.1em;">' + C.esc(tr.time || "") + "</p>") +
+        (Array.isArray(tr.weekly) || !tr.location ? "" : '<p style="color:var(--muted);">' + C.esc(tr.location) + "</p>") +
         (tr.notes ? '<p style="color:var(--muted);font-size:0.88rem;">' + C.esc(tr.notes) + "</p>" : "") +
         "</div>";
     }
