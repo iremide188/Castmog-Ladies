@@ -259,7 +259,8 @@
         F("launch.sub", "LAUNCH SCREEN — sub-line (e.g. OFFICIAL WEBSITE LAUNCH)"),
         F("launch.btnComing", "LAUNCH SCREEN — button text before launch"),
         F("launch.welcome", "LAUNCH MOMENT — welcome text shown when the countdown ends"),
-        F("launch.logo", "LAUNCH SCREEN — logo image (default: the club crest)", "image", ["settings"])
+        F("launch.logo", "LAUNCH SCREEN — logo image (default: the club crest)", "image", ["settings"]),
+    F("launch.songUrl", "LAUNCH SONG (YouTube link) — plays automatically on the launch screen, muted until the visitor taps SOUND. Paste any YouTube link; leave empty for no music.")
       ]
     }
   };

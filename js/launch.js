@@ -55,7 +55,9 @@
     runCountdown(gate, target);
   }
 
-  /* --- SOUND: tap once to play the launch song (YouTube), tap again to stop --- */
+  /* --- SOUND: the launch song (YouTube) starts automatically, muted —
+         browsers block unmuted autoplay, so one tap on the SOUND button
+         unmutes it; tap again to mute. --- */
   function wireMusic(gate, L) {
     var url = (L.songUrl || "").trim();
     if (!url) return;
@@ -67,28 +69,40 @@
     var btn = document.createElement("button");
     btn.className = "lg-music";
     btn.type = "button";
-    btn.setAttribute("aria-label", "Play the launch song");
+    btn.setAttribute("aria-label", "Unmute the launch song");
     btn.innerHTML =
       '<svg class="lg-music-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
       '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' +
-      '<span class="lg-music-lb">SOUND</span>';
+      '<span class="lg-music-lb">TAP FOR SOUND</span>';
     gate.appendChild(btn);
 
-    var holder = null;
-    function stop() {
-      if (holder) { holder.remove(); holder = null; }
-      btn.classList.remove("lg-music-on");
-      btn.setAttribute("aria-label", "Play the launch song");
+    var holder = document.createElement("div");
+    holder.className = "lg-yt";
+    holder.innerHTML =
+      '<iframe src="https://www.youtube-nocookie.com/embed/' + vid + '?autoplay=1&mute=1&enablejsapi=1&playsinline=1&loop=1&playlist=' + vid + '" title="Launch song" allow="autoplay; encrypted-media" tabindex="-1"></iframe>';
+    gate.appendChild(holder);
+
+    var soundOn = false;
+    function send(func, args) {
+      var fr = holder.querySelector("iframe");
+      if (!fr) return;
+      try { fr.contentWindow.postMessage(JSON.stringify({ event: "command", func: func, args: args || [] }), "*"); } catch (e) {}
     }
     btn.addEventListener("click", function () {
-      if (holder) { stop(); return; }
-      holder = document.createElement("div");
-      holder.className = "lg-yt";
-      holder.innerHTML =
-        '<iframe src="https://www.youtube-nocookie.com/embed/' + vid + '?autoplay=1&enablejsapi=1&playsinline=1&loop=1&playlist=' + vid + '" title="Launch song" allow="autoplay; encrypted-media" tabindex="-1"></iframe>';
-      gate.appendChild(holder);
-      btn.classList.add("lg-music-on");
-      btn.setAttribute("aria-label", "Stop the launch song");
+      soundOn = !soundOn;
+      if (soundOn) {
+        send("unMute");
+        send("setVolume", [100]);
+        send("playVideo");
+        btn.classList.add("lg-music-on");
+        btn.querySelector(".lg-music-lb").textContent = "SOUND ON";
+        btn.setAttribute("aria-label", "Mute the launch song");
+      } else {
+        send("mute");
+        btn.classList.remove("lg-music-on");
+        btn.querySelector(".lg-music-lb").textContent = "TAP FOR SOUND";
+        btn.setAttribute("aria-label", "Unmute the launch song");
+      }
     });
   }
 
