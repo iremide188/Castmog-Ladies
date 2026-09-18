@@ -129,11 +129,7 @@
     var el = document.createElement("div");
     el.className = "lg-slide lg-kb" + (bgIdx % 2 ? "b" : "a");
     if (sl.kind === "photo") {
-      /* single fitted photo — full width on phones, full cover on desktop */
-      var fit = document.createElement("div");
-      fit.className = "lg-photo-fit";
-      fit.style.backgroundImage = "url('" + sl.url + "')";
-      el.appendChild(fit);
+      el.style.backgroundImage = "url('" + sl.url + "')";
       bgMount.appendChild(el);
       window.requestAnimationFrame(function () { el.classList.add("lg-on"); });
       bgRetire();

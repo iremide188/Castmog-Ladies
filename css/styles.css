@@ -1811,18 +1811,8 @@ html.launch-on body > *:not(#launch-gate) { visibility: hidden; }
 .lg-bg { position: absolute; inset: 0; overflow: hidden; background: #0a0d0a; }
 .lg-slide {
   position: absolute; inset: 0; opacity: 0;
-  background: #0a0d0a; background-size: cover; background-position: center;
-  transition: opacity 1.2s ease; will-change: transform, opacity;
-}
-.lg-photo-fit {
-  position: absolute; inset: 0;
   background-size: cover; background-position: center;
-  background-color: #0a0d0a;
-  background-repeat: no-repeat;
-}
-/* phones / portrait: the whole photo fills the width — no zoom, no cropping, one clean image */
-@media (max-width: 769px), (orientation: portrait) {
-  .lg-photo-fit { background-size: 100% auto; background-position: center; }
+  transition: opacity 1.2s ease; will-change: transform, opacity;
 }
 .lg-slide.lg-on { opacity: 1; }
 .lg-slide video { width: 100%; height: 100%; object-fit: cover; display: block; }
