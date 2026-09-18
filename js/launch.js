@@ -48,7 +48,7 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
     if (!gate) return;
     document.documentElement.classList.add("launch-on");
     gate.hidden = false;
-    track("view", "launch-gate");
+    if (!gateViewTracked) { gateViewTracked = true; track("view", "launch-gate"); }
 
     var logo = L.logo || "images/crest.png";
     gate.innerHTML =
@@ -82,6 +82,8 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
       }).catch(function () {});
     } catch (e) {}
   }
+
+  var gateViewTracked = false;
 
   function wireMusic(gate, L) {
     var file = (L.songFile || "").trim();

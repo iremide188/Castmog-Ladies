@@ -1493,7 +1493,7 @@
   /* ---------- TRAFFIC — who pressed / watched the link ---------- */
   function friendlyPage(p) {
     var map = {
-      "home": "Homepage", "join": "Join the club", "club": "Club", "squad": "Squad",
+      "home": "Homepage", "index": "Homepage", "join": "Join the club", "club": "Club", "squad": "Squad",
       "matches": "Match Centre", "news": "News", "media": "Media", "achievements": "Achievements",
       "training": "Training", "contact": "Contact", "coach": "Coach profile",
       "player": "Player profile", "match": "Match detail", "launch-gate": "Launch screen"
@@ -1522,8 +1522,16 @@
           (res && res.error ? " — " + esc(res.error) : "") + ". Refresh the page and try again.</p></div>";
         return;
       }
-      var gate = (res.pages || []).filter(function (p) { return p.page === "launch-gate"; })[0];
-      var home = (res.pages || []).filter(function (p) { return p.page === "home"; })[0];
+      var pagesMerged = (res.pages || []).map(function (p) {
+        return p.page === "index" ? { page: "home", count: p.count } : p;
+      }).reduce(function (acc, p) {
+        var ex = acc.filter(function (x) { return x.page === p.page; })[0];
+        if (ex) ex.count += p.count; else acc.push(p);
+        return acc;
+      }, []);
+      res.pages = pagesMerged;
+      var gate = pagesMerged.filter(function (p) { return p.page === "launch-gate"; })[0];
+      var home = pagesMerged.filter(function (p) { return p.page === "home"; })[0];
       var rows = (res.pages || []).map(function (p) {
         return '<tr><td>' + esc(friendlyPage(p.page)) + '</td><td><b>' + Number(p.count) + "</b></td></tr>";
       }).join("");
