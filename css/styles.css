@@ -1290,7 +1290,7 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.08; }
 
 /* birthday strip on the launch gate — full-width moving ticker */
 .lg-bday {
-  position: absolute;
+  position: fixed;
   top: 0; left: 0; right: 0;
   margin: 0;
   padding: 0.55rem 0;
