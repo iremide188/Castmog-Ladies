@@ -25,12 +25,15 @@
 (function () {
   function h(s) { var x = 5381; for (var i = 0; i < s.length; i++) x = ((x << 5) + x + s.charCodeAt(i)) | 0; return String(x); }
   try {
+    var gateView = /(?:^|[?&])gate=1/.test(location.search); /* ?gate=1 = watch the countdown like a visitor */
     var m = /(?:^|[?&])key=([^&]+)/.exec(location.search);
     if (m) {
       var k = decodeURIComponent(m[1]);
       if (h(k) === "745514829") localStorage.setItem("castmog_owner", k); /* remember on this device */
     }
-    if (h(localStorage.getItem("castmog_owner") || "") === "745514829") {
+    var owner = h(localStorage.getItem("castmog_owner") || "") === "745514829";
+    if (gateView && owner) window.CLUB_LAUNCH_OWNER_PREVIEW = true; /* owner previewing the gate — never logged */
+    if (owner && !gateView) {
       window.CLUB_LAUNCH_OWNER = true; /* owner device — homepage stays open */
       return;
     }
@@ -158,6 +161,6 @@
   
 
   <div id="site-footer-mount"></div>
-  <script src="js/data.js?v=40"></script><script src="js/main.js?v=39"></script><script src="js/launch.js?v=20"></script><script src="js/home.js?v=41"></script>
+  <script src="js/data.js?v=40"></script><script src="js/main.js?v=39"></script><script src="js/launch.js?v=21"></script><script src="js/home.js?v=41"></script>
 </body>
 </html>
