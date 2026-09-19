@@ -17,16 +17,12 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
   var bgMount = null, bgIdx = -1, bgSlides = [], bgTimer = null, bgKilled = false;
 
   function begin() {
-    if (window.CLUB_LAUNCH_OWNER) return noGate(); /* owner device — no gate, no tracking */
     var s = C.get("settings") || {};
     var L = s.launch || {};
     if (String(L.enabled) !== "true") return noGate();
     var target = L.date ? new Date(L.date) : null;
     if (!target || isNaN(target.getTime())) return noGate();
-    /* dev preview — OWNER ONLY: a visitor with ?launchTest could otherwise
-       let the fake countdown run out and see the homepage before launch */
-    var m = window.CLUB_LAUNCH_OWNER && /launchTest=(\d+)/.exec(window.location.search);
-    if (m) target = new Date(Date.now() + Number(m[1]) * 60000);
+    var m = null; /* v77: dev preview removed — no special links */
     if (Date.now() >= target.getTime()) return noGate(); /* launch has passed -> normal site */
     /* the crest preloader plays first on fresh visits — gate starts after it */
     if (window.CLUB_PRELOADER_ACTIVE) {
@@ -57,7 +53,7 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
     document.documentElement.classList.add("launch-on");
     gate.hidden = false;
     window.CLUB_LAUNCH_ACTIVE = true;
-    if (!gateViewTracked) { gateViewTracked = true; if (!window.CLUB_LAUNCH_OWNER_PREVIEW) track("view", "launch-gate"); }
+    if (!gateViewTracked) { gateViewTracked = true; track("view", "launch-gate"); }
 
     /* birthday strip — shows on the gate too when it is the person's day */
     var B = (C.get("settings") || {}).birthday || {};
@@ -168,7 +164,7 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
 
     var open = false;
     function setOpen(v) {
-      if (v && !open && !window.CLUB_LAUNCH_OWNER_PREVIEW) track("sound", "launch-gate");
+      if (v && !open) track("sound", "launch-gate");
       open = v;
       var fr = card.querySelector("iframe");
       var lb = btn.querySelector(".lg-music-lb");
@@ -285,7 +281,7 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
         au.muted = false;
         au.volume = 1;
         au.play().catch(function () {});
-        if (!tapped) { tapped = true; if (!window.CLUB_LAUNCH_OWNER_PREVIEW) track("sound", "launch-gate"); }
+        if (!tapped) { tapped = true; track("sound", "launch-gate"); }
       }
       paint();
     });

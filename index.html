@@ -19,25 +19,9 @@
    This runs before the page paints: the countdown gate owns the screen
    immediately. launch.js removes the seal if the launch is off/passed,
    and the safety timeout below frees the page if launch.js never loads.
-   OWNER KEY — the club owner opens the site ONCE with ?key=<secret>:
-   the key is remembered on that device and the homepage shows normally
-   there, while every other visitor still only sees the countdown. */
+   v77: no special links — everyone, including the owner, sees only the
+   countdown until the launch moment. */
 (function () {
-  function h(s) { var x = 5381; for (var i = 0; i < s.length; i++) x = ((x << 5) + x + s.charCodeAt(i)) | 0; return String(x); }
-  try {
-    var gateView = /(?:^|[?&])gate=1/.test(location.search); /* ?gate=1 = watch the countdown like a visitor */
-    var m = /(?:^|[?&])key=([^&]+)/.exec(location.search);
-    if (m) {
-      var k = decodeURIComponent(m[1]);
-      if (h(k) === "745514829") localStorage.setItem("castmog_owner", k); /* remember on this device */
-    }
-    var owner = h(localStorage.getItem("castmog_owner") || "") === "745514829";
-    if (gateView && owner) window.CLUB_LAUNCH_OWNER_PREVIEW = true; /* owner previewing the gate — never logged */
-    if (owner && !gateView) {
-      window.CLUB_LAUNCH_OWNER = true; /* owner device — homepage stays open */
-      return;
-    }
-  } catch (e) { /* private mode etc. — stay sealed */ }
   document.documentElement.classList.add("launch-on");
   (function poll(i) {
     window.setTimeout(function () {
@@ -161,6 +145,6 @@
   
 
   <div id="site-footer-mount"></div>
-  <script src="js/data.js?v=40"></script><script src="js/main.js?v=39"></script><script src="js/launch.js?v=21"></script><script src="js/home.js?v=41"></script>
+  <script src="js/data.js?v=40"></script><script src="js/main.js?v=40"></script><script src="js/launch.js?v=22"></script><script src="js/home.js?v=41"></script>
 </body>
 </html>
