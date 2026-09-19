@@ -1885,6 +1885,7 @@ html.launch-on body > *:not(#launch-gate):not(.preloader) { visibility: hidden; 
   transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 .lg-music:hover { background: rgba(10, 13, 10, 0.8); border-color: #e5c31a; }
+#launch-gate.lg-bday-on .lg-music { top: 52px; }
 .lg-music-on {
   background: rgba(229, 195, 26, 0.16);
   border-color: #e5c31a;

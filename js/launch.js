@@ -83,6 +83,7 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
         '<p class="lg-welcome" aria-hidden="true">' + C.esc(L.welcome || "WELCOME TO CASTMOG") + '</p>' +
       '</div>';
 
+    if (bline) gate.classList.add("lg-bday-on"); /* sound button clears the birthday bar */
     bgMount = gate.querySelector(".lg-bg");
     startBackground();
     wireMusic(gate, L);
