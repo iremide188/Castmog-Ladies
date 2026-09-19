@@ -212,6 +212,7 @@
         vid = "v" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
         localStorage.setItem("castmog_vid", vid);
       }
+      if (window.CLUB_LAUNCH_OWNER === true) return; /* owner previews never pollute the Traffic tab */
       function send() {
         fetch("https://superagent-e3f5b6f2.base44.app/functions/castmogTrack", {
           method: "POST",

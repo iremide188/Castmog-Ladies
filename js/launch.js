@@ -17,13 +17,15 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
   var bgMount = null, bgIdx = -1, bgSlides = [], bgTimer = null, bgKilled = false;
 
   function begin() {
+    if (window.CLUB_LAUNCH_OWNER) return noGate(); /* owner device — no gate, no tracking */
     var s = C.get("settings") || {};
     var L = s.launch || {};
     if (String(L.enabled) !== "true") return noGate();
     var target = L.date ? new Date(L.date) : null;
     if (!target || isNaN(target.getTime())) return noGate();
-    /* dev preview: ?launchTest=1 -> gate counting down to 1 minute from now */
-    var m = /launchTest=(\d+)/.exec(window.location.search);
+    /* dev preview — OWNER ONLY: a visitor with ?launchTest could otherwise
+       let the fake countdown run out and see the homepage before launch */
+    var m = window.CLUB_LAUNCH_OWNER && /launchTest=(\d+)/.exec(window.location.search);
     if (m) target = new Date(Date.now() + Number(m[1]) * 60000);
     if (Date.now() >= target.getTime()) return noGate(); /* launch has passed -> normal site */
     /* the crest preloader plays first on fresh visits — gate starts after it */
