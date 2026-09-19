@@ -273,8 +273,33 @@
     inject();
   }
 
+  /* ---------- Birthday banner — shows automatically on the day, every year ----------
+     Settings tab: BIRTHDAY ALERT (name + date MM-DD). Nothing shows on other days. */
+  function injectBirthday() {
+    var s = (window.CLUB && window.CLUB.get("settings")) || {};
+    var b = s.birthday || {};
+    var name = String(b.name || "").trim();
+    var d = String(b.date || "").trim();
+    if (!name || !d || document.querySelector(".birthday-ticker")) return;
+    var p = d.split("-");
+    if (p.length === 3) p = p.slice(1); /* accept YYYY-MM-DD too */
+    var n = new Date();
+    var mm = ("0" + (n.getMonth() + 1)).slice(-2);
+    var dd = ("0" + n.getDate()).slice(-2);
+    if (p[0] !== mm || p[1] !== dd) return; /* not the day */
+    var C = window.CLUB;
+    var txt = "\uD83C\uDF82 HAPPY BIRTHDAY TO " + C.esc(name.toUpperCase()) + " \u2014 FROM THE CASTMOG FAMILY \uD83C\uDF89";
+    var span = txt + " &nbsp;\u2022&nbsp; ";
+    var bar = document.createElement("div");
+    bar.className = "birthday-ticker";
+    bar.setAttribute("role", "status");
+    bar.innerHTML = '<div class="bt-track">' + span + span + span + span + "</div>";
+    document.body.insertBefore(bar, document.body.firstChild);
+    document.body.classList.add("has-birthday-bar");
+  }
+
   if (window.CLUB && window.CLUB.onReady) {
-    window.CLUB.onReady(function () { inject(); injectSlideshows(); injectTicker(); injectAlert(); });
+    window.CLUB.onReady(function () { inject(); injectSlideshows(); injectTicker(); injectAlert(); injectBirthday(); });
   }
 
   /* ---------- Crest shatter preloader ---------- */

@@ -59,6 +59,19 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
     window.CLUB_LAUNCH_ACTIVE = true;
     if (!gateViewTracked) { gateViewTracked = true; track("view", "launch-gate"); }
 
+    /* birthday strip — shows on the gate too when it is the person's day */
+    var B = (C.get("settings") || {}).birthday || {};
+    var bname = String(B.name || "").trim();
+    var bdate = String(B.date || "").trim();
+    var bp = bdate.split("-");
+    if (bp.length === 3) bp = bp.slice(1);
+    var bn = new Date();
+    var bmm = ("0" + (bn.getMonth() + 1)).slice(-2);
+    var bdd = ("0" + bn.getDate()).slice(-2);
+    var bline = (bname && bp.length === 2 && bp[0] === bmm && bp[1] === bdd)
+      ? '<p class="lg-bday">\uD83C\uDF82 HAPPY BIRTHDAY TO ' + C.esc(bname.toUpperCase()) + ' \uD83C\uDF89</p>'
+      : "";
+
     var logo = L.logo || "images/crest.png";
     gate.innerHTML =
       '<div class="lg-bg" aria-hidden="true"></div>' +
@@ -70,6 +83,7 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
         '<p class="lg-sub">' + C.esc(L.sub || "OFFICIAL WEBSITE LAUNCH") + '</p>' +
         '<div class="lg-count" role="timer" aria-live="off">' + countUnits() + '</div>' +
         '<p class="lg-btn" aria-hidden="true">' + C.esc(L.btnComing || "COMING SOON") + '</p>' +
+        bline +
         '<p class="lg-welcome" aria-hidden="true">' + C.esc(L.welcome || "WELCOME TO CASTMOG") + '</p>' +
       '</div>';
 

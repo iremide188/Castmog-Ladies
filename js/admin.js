@@ -253,6 +253,8 @@
         F("social.youtube", "YouTube URL"), F("social.instagram", "Instagram URL"),
         F("social.facebook", "Facebook URL"), F("social.tiktok", "TikTok URL"), F("social.twitter", "X/Twitter URL"),
         F("alertText", "IMPORTANT ALERT — moving gold banner on every page (leave empty to hide)", "textarea"),
+        F("birthday.name", "BIRTHDAY ALERT — whose birthday (e.g. OUR CHAIRMAN, Coach Samuel, a player's name). Shows automatically every year on the day."),
+        F("birthday.date", "BIRTHDAY DATE — 19 September = 09-19. Every year on this day the birthday banner shows on the site."),
         F("launch.enabled", "LAUNCH EXPERIENCE ON/OFF — show the coming-soon launch screen on the homepage", "select", ["true", "false"]),
         F("launch.date", "LAUNCH DATE & TIME (tap the field to open the calendar) — the website goes live automatically at this moment, in your local time. Until then visitors see the launch screen with the live countdown.", "datetime-local"),
         F("launch.headline", "LAUNCH SCREEN — headline (e.g. THE NEXT CHAPTER STARTS HERE)"),
