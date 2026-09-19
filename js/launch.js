@@ -65,7 +65,7 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
     var bmm = ("0" + (bn.getMonth() + 1)).slice(-2);
     var bdd = ("0" + bn.getDate()).slice(-2);
     var bline = (bname && bp.length === 2 && bp[0] === bmm && bp[1] === bdd)
-      ? '<p class="lg-bday">\uD83C\uDF82 HAPPY BIRTHDAY TO ' + C.esc(bname.toUpperCase()) + ' \uD83C\uDF89</p>'
+      ? '<div class="lg-bday" aria-label="Happy birthday to ' + C.esc(bname) + '"><div class="lg-bday-track"><span>\uD83C\uDF82 HAPPY BIRTHDAY TO ' + C.esc(bname.toUpperCase()) + ' \uD83C\uDF89</span><span>\uD83C\uDF82 HAPPY BIRTHDAY TO ' + C.esc(bname.toUpperCase()) + ' \uD83C\uDF89</span></div></div>'
       : "";
 
     var logo = L.logo || "images/crest.png";
