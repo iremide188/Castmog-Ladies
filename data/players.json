@@ -99,14 +99,18 @@
     "goals": 0,
     "assists": 0,
     "photo": "",
-    "gallery": [],
+    "gallery": [
+      "assets/uploads/player-photos/1789907514266-dsc-5340.jpg",
+      "assets/uploads/player-photos/1789907559560-dsc-5344.jpg"
+    ],
     "videos": [],
     "highlight": "",
     "social": {
       "instagram": "",
       "twitter": ""
     },
-    "published": true
+    "published": true,
+    "socialUrl": ""
   },
   {
     "id": "olalekan-bunmi",
