@@ -1,6 +1,6 @@
 var PRELOADER_MAX_WAIT_SECONDS = 7;
 /* ============================================================
-   CASTMOG LADIES FC — OFFICIAL WEBSITE LAUNCH EXPERIENCE
+   CASTMOG LADIES FA — OFFICIAL WEBSITE LAUNCH EXPERIENCE
    Full-screen cinematic coming-soon gate on the homepage until
    settings.launch.date, then an automatic premium transition
    into the website. Config lives in settings.json (admin
@@ -73,8 +73,8 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
       '<div class="lg-bg" aria-hidden="true"></div>' +
       '<div class="lg-veil" aria-hidden="true"></div>' +
       '<div class="lg-content">' +
-        '<img class="lg-logo" src="' + C.esc(logo) + '" alt="Castmog Ladies FC crest">' +
-        '<h1 class="lg-title">CASTMOG LADIES FC</h1>' +
+        '<img class="lg-logo" src="' + C.esc(logo) + '" alt="Castmog Ladies FA crest">' +
+        '<h1 class="lg-title">CASTMOG LADIES FA</h1>' +
         '<p class="lg-tag">' + C.esc(L.headline || "THE NEXT CHAPTER STARTS HERE") + '</p>' +
         '<p class="lg-sub">' + C.esc(L.sub || "OFFICIAL WEBSITE LAUNCH") + '</p>' +
         '<div class="lg-count" role="timer" aria-live="off">' + countUnits() + '</div>' +

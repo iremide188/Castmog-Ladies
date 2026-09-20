@@ -27,7 +27,7 @@
       '<div class="profile-head">' + avatar +
       '<div><div class="ph-name">' + C.esc(m.name) + "</div>" +
       '<div class="ph-chips"><span class="chip chip-yellow">' + C.esc(m.role || "COACH") + "</span>" +
-      '<span class="chip">CASTMOG LADIES FC</span></div></div>' +
+      '<span class="chip">CASTMOG LADIES FA</span></div></div>' +
       "</div>";
 
     if (m.bio) {
