@@ -1009,7 +1009,7 @@
     hook("hero-video-btn", "hero-video-file");
     var addRec = document.getElementById("hero-add-record");
     if (addRec) addRec.addEventListener("click", function () {
-      var url = prompt("Paste the photo or video URL (or a YouTube link):");
+      var url = prompt("Paste the photo or video URL — a YouTube link works for big/long videos:");
       if (!url || !url.trim()) return;
       var ytMatch = url.match(/v=([\w-]{6,})/) || url.match(/youtu\.be\/([\w-]{6,})/) || [];
       var isYt = !!ytMatch[1];

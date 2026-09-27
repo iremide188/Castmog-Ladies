@@ -152,7 +152,10 @@
       if (m.type === "photo" && m.url) slides.push({ kind: "photo", url: m.url });
     });
     source.forEach(function (m) {
-      if (m.type === "video" && m.url) slides.push({ kind: "video", url: m.url });
+      if (m.type !== "video" || !m.url) return;
+      var yt = m.youtubeId || C.ytId(m.url);
+      if (yt) slides.push({ kind: "yt", id: yt });              /* YouTube links play as embedded slides */
+      else if (!/youtube\.com|youtu\.be/i.test(m.url)) slides.push({ kind: "video", url: m.url });
     });
     /* interleave: photo, photo, video, photo, photo, video ... max 6 */
     var ordered = [], photos = slides.filter(function (s) { return s.kind === "photo"; });
@@ -169,6 +172,13 @@
       s.className = "hero-slide" + (i === 0 ? " is-active" : "");
       if (sl.kind === "photo") {
         s.style.backgroundImage = "url('" + sl.url + "')";
+      } else if (sl.kind === "yt") {
+        var f = document.createElement("iframe");
+        f.src = "https://www.youtube-nocookie.com/embed/" + sl.id +
+          "?autoplay=1&mute=1&loop=1&playlist=" + sl.id + "&controls=0&rel=0&playsinline=1&modestbranding=1";
+        f.allow = "autoplay; encrypted-media";
+        f.title = "Slideshow video";
+        s.appendChild(f);
       } else {
         var v = document.createElement("video");
         v.src = sl.url; v.muted = true; v.loop = true;
@@ -186,8 +196,12 @@
       els[cur].classList.remove("is-active");
       els[next].classList.add("is-active");
       var va = els[cur].querySelector("video"); if (va) va.pause();
+      var fa = els[cur].querySelector("iframe");
+      if (fa && fa.contentWindow) { try { fa.contentWindow.postMessage(JSON.stringify({ event: "command", func: "pauseVideo" }), "*"); } catch (_e) {} }
       var vb = els[next].querySelector("video");
       if (vb) { try { vb.currentTime = 0; } catch (_e) {} vb.play().catch(function () {}); }
+      var fb = els[next].querySelector("iframe");
+      if (fb && fb.contentWindow) { try { fb.contentWindow.postMessage(JSON.stringify({ event: "command", func: "playVideo" }), "*"); } catch (_e) {} }
       cur = next;
     }, 6000);
   }
