@@ -346,11 +346,14 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
     var videos = source.filter(function (x) {
       return x.type === "video" && x.url && !/youtube\.com|youtu\.be/i.test(x.url);
     });
+    /* same rhythm as the homepage hero: a video after every 2nd photo, then
+       any remaining videos — so EVERY uploaded video gets shown */
     var ordered = [];
     photos.forEach(function (p, i) {
       ordered.push({ kind: "photo", url: p.url });
-      if (videos.length && (i + 1) % 3 === 0) ordered.push({ kind: "video", url: videos[((i / 3) | 0) % videos.length] });
+      if (videos.length && (i + 1) % 2 === 0) ordered.push(videos.shift());
     });
+    ordered = ordered.concat(videos);
     if (!ordered.length) videos.forEach(function (v) { ordered.push({ kind: "video", url: v.url }); });
     if (!ordered.length) return; /* no media -> dark cinematic background only */
     bgSlides = ordered;
