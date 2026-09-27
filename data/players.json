@@ -58,13 +58,13 @@
     "id": "odeyiola-itunuoluwa",
     "name": "Odeyiola Itunuoluwa",
     "nickname": "",
-    "number": 16,
+    "number": 23,
     "position": "DEF",
     "positionLabel": "Defender",
     "secondaryPosition": "",
     "dob": "",
-    "nationality": "",
-    "foot": "",
+    "nationality": "Nigeria",
+    "foot": "Right",
     "height": "",
     "previousClubs": [],
     "biography": "",
@@ -79,7 +79,8 @@
       "instagram": "",
       "twitter": ""
     },
-    "published": true
+    "published": true,
+    "socialUrl": ""
   },
   {
     "id": "edeh-linda",
