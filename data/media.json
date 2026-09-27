@@ -141,5 +141,16 @@
     "date": "2026-09-16",
     "featured": true,
     "published": true
+  },
+  {
+    "id": "hero-39pah9",
+    "type": "video",
+    "category": "hero",
+    "url": "assets/uploads/hero/1790517198937-20260812-091337.mp4",
+    "thumb": "assets/uploads/hero/1790517198937-20260812-091337.mp4",
+    "caption": "",
+    "date": "2026-09-27",
+    "featured": false,
+    "published": true
   }
 ]
