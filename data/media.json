@@ -108,5 +108,16 @@
     "date": "2026-09-27",
     "featured": false,
     "published": true
+  },
+  {
+    "id": "hero-93s1l5",
+    "type": "video",
+    "category": "hero",
+    "url": "assets/uploads/hero/1790517990329-20260812-091125.mp4",
+    "thumb": "assets/uploads/hero/1790517990329-20260812-091125.mp4",
+    "caption": "",
+    "date": "2026-09-27",
+    "featured": false,
+    "published": true
   }
 ]
