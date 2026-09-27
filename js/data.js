@@ -461,7 +461,7 @@ var MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OC
     POS_LABEL: POS_LABEL, POS_ORDER: POS_ORDER,
     upcoming: upcoming, nextMatch: nextMatch, finished: finished, latestResult: latestResult,
     headToHead: headToHead, initials: initials,
-    ytThumb: ytThumb, ytFacade: ytFacade, activateFacades: activateFacades,
+    ytThumb: ytThumb, ytId: ytId, ytFacade: ytFacade, activateFacades: activateFacades,
     parseTime: parseTime, kickoff: kickoff, mediaItem: mediaItem,
     liveClock: liveClock, liveState: liveState,
     waLink: waLink, wire: wire, timeAgo: timeAgo,

@@ -153,7 +153,7 @@
     });
     source.forEach(function (m) {
       if (m.type !== "video" || !m.url) return;
-      var yt = m.youtubeId || C.ytId(m.url);
+      var yt = m.youtubeId || (typeof C.ytId === "function" && C.ytId(m.url)) || "";
       if (yt) slides.push({ kind: "yt", id: yt });              /* YouTube links play as embedded slides */
       else if (!/youtube\.com|youtu\.be/i.test(m.url)) slides.push({ kind: "video", url: m.url });
     });
