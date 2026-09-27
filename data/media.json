@@ -33,50 +33,6 @@
     "published": true
   },
   {
-    "id": "hero-1789870235645-dsc-5150",
-    "type": "photo",
-    "category": "hero",
-    "url": "assets/uploads/hero/1789870235645-dsc-5150.jpg",
-    "thumb": "assets/uploads/hero/1789870235645-dsc-5150.jpg",
-    "caption": "",
-    "date": "2026-09-20",
-    "featured": false,
-    "published": true
-  },
-  {
-    "id": "hero-1789869974994-dsc-5140",
-    "type": "photo",
-    "category": "hero",
-    "url": "assets/uploads/hero/1789869974994-dsc-5140.jpg",
-    "thumb": "assets/uploads/hero/1789869974994-dsc-5140.jpg",
-    "caption": "",
-    "date": "2026-09-20",
-    "featured": false,
-    "published": true
-  },
-  {
-    "id": "hero-1789869913459-dsc-5139",
-    "type": "photo",
-    "category": "hero",
-    "url": "assets/uploads/hero/1789869913459-dsc-5139.jpg",
-    "thumb": "assets/uploads/hero/1789869913459-dsc-5139.jpg",
-    "caption": "",
-    "date": "2026-09-20",
-    "featured": false,
-    "published": true
-  },
-  {
-    "id": "hero-1789869896132-dsc-5137",
-    "type": "photo",
-    "category": "hero",
-    "url": "assets/uploads/hero/1789869896132-dsc-5137.jpg",
-    "thumb": "assets/uploads/hero/1789869896132-dsc-5137.jpg",
-    "caption": "",
-    "date": "2026-09-20",
-    "featured": false,
-    "published": true
-  },
-  {
     "id": "photo-1",
     "type": "photo",
     "category": "photos",
