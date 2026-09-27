@@ -141,5 +141,17 @@
     "date": "2026-09-16",
     "featured": true,
     "published": true
+  },
+  {
+    "id": "hero-z6hgfe",
+    "type": "video",
+    "category": "hero",
+    "url": "https://iremide188.github.io/Castmog-Ladies/assets/uploads/hero/hero-stadium-training.mp4",
+    "thumb": "https://iremide188.github.io/Castmog-Ladies/assets/uploads/hero/hero-stadium-training.mp4",
+    "caption": "",
+    "youtubeId": "",
+    "date": "2026-09-27",
+    "featured": false,
+    "published": true
   }
 ]
