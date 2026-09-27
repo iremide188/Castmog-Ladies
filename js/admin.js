@@ -85,8 +85,66 @@
     });
   }
 
+  /* Big phone videos can't go through GitHub's API (>~40MB). Re-encode them
+     to 720p in the browser (like photo optimisation) so they upload fine.
+     Slideshow/background videos play muted anyway, so sound is dropped. */
+  var VIDEO_MAX_BYTES = 40 * 1024 * 1024;
+  function compressVideo(file, onStatus) {
+    return new Promise(function (resolve) {
+      if (!/^video\//.test(file.type) || file.size <= VIDEO_MAX_BYTES) return resolve(file);
+      if (!window.MediaRecorder) return resolve(file);
+      var url = URL.createObjectURL(file);
+      var v = document.createElement("video");
+      v.preload = "auto"; v.muted = true; v.playsInline = true;
+      v.setAttribute("playsinline", "");
+      v.src = url;
+      var settled = false;
+      function finish(f) {
+        if (settled) return; settled = true;
+        try { URL.revokeObjectURL(url); } catch (e) {}
+        resolve(f);
+      }
+      v.onerror = function () { finish(file); };
+      v.onloadedmetadata = function () {
+        try {
+          var dur = v.duration || 0;
+          if (!isFinite(dur) || dur <= 0 || dur > 210) return finish(file); /* too long to re-encode in real time */
+          var mimes = ["video/mp4;codecs=avc1", "video/mp4", "video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"];
+          var mime = "";
+          for (var i = 0; i < mimes.length; i++) { if (MediaRecorder.isTypeSupported(mimes[i])) { mime = mimes[i]; break; } }
+          if (!mime) return finish(file);
+          var scale = Math.min(1, 1280 / Math.max(v.videoWidth || 1280, v.videoHeight || 720));
+          var c = document.createElement("canvas");
+          c.width = Math.max(2, Math.round((v.videoWidth || 1280) * scale));
+          c.height = Math.max(2, Math.round((v.videoHeight || 720) * scale));
+          var ctx = c.getContext("2d");
+          var stream = c.captureStream(30);
+          var vb = Math.max(800000, Math.min(4000000, Math.floor(33 * 1024 * 1024 * 8 / dur)));
+          var rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: vb });
+          var chunks = [];
+          rec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+          rec.onstop = function () {
+            try {
+              var blob = new Blob(chunks, { type: mime.split(";")[0] });
+              if (!blob.size || blob.size >= file.size) return finish(file);
+              var ext = blob.type.indexOf("mp4") > -1 ? ".mp4" : ".webm";
+              finish(new File([blob], file.name.replace(/\.[^.]+$/, "") + ext, { type: blob.type }));
+            } catch (e) { finish(file); }
+          };
+          v.onended = function () { window.setTimeout(function () { try { if (rec.state !== "inactive") rec.stop(); } catch (e) { finish(file); } }, 250); };
+          window.setTimeout(function () { try { if (!settled && rec.state !== "inactive") rec.stop(); } catch (e) { finish(file); } }, dur * 1000 + 8000);
+          v.play().then(function () {
+            rec.start(1000);
+            onStatus("busy", "Compressing big video to 720p (no sound) — takes about " + Math.max(5, Math.round(dur)) + "s…");
+            (function draw() { if (settled) return; try { ctx.drawImage(v, 0, 0, c.width, c.height); } catch (e) {} window.requestAnimationFrame(draw); })();
+          }).catch(function () { finish(file); });
+        } catch (e) { finish(file); }
+      };
+    });
+  }
+
   function uploadAsset(rawFile, folder, onStatus) {
-    compressImage(rawFile, onStatus).then(function (file) {
+    compressImage(rawFile, onStatus).then(function (f1) { return compressVideo(f1, onStatus); }).then(function (file) {
       var ext = (/\.[a-z0-9]+$/i.exec(file.name) || [""])[0].toLowerCase();
       if (!ext && file.type && file.type.split("/")[1]) ext = "." + file.type.split("/")[1];
       var isVideo = /^video\//.test(file.type) || /\.(mp4|webm|mov|m4v|ogg)$/i.test(file.name);
@@ -913,6 +971,24 @@
         uploadMany(list, i + 1, done);
       });
     }
+    /* slideshow changes publish to the live site IMMEDIATELY — no top-bar SAVE needed */
+    function autoPublish() {
+      if (!files.media || !files.media.dirty) return;
+      var st = document.getElementById("hero-status") || status;
+      st.className = "iu-status";
+      st.textContent = "Publishing to the live site…";
+      saveFile("media", "Homepage slideshow update via Castmog admin")
+        .then(function () {
+          st.className = "iu-status iu-ok";
+          st.textContent = "Live \u2713 — the homepage slideshow shows the change within a minute or two (refresh the site).";
+          updateSaveBar();
+        })
+        .catch(function (e) {
+          st.className = "iu-status iu-err";
+          st.textContent = "Saved on this device but publishing failed (" + (e.message || "conflict") + ") — click SAVE TO GITHUB in the top bar.";
+          updateSaveBar();
+        });
+    }
     function hook(fileBtnId, fileInputId) {
       var btn = document.getElementById(fileBtnId);
       var inp = document.getElementById(fileInputId);
@@ -922,10 +998,9 @@
         var picked = Array.prototype.slice.call(inp.files);
         if (!picked.length) return;
         uploadMany(picked, 0, function () {
-          status.className = "iu-status iu-ok";
-          status.textContent = "Uploaded ✓ — click SAVE TO GITHUB in the top bar to publish.";
           renderObjectTab("settings");
           updateSaveBar();
+          autoPublish();
         });
         inp.value = "";
       });
@@ -953,7 +1028,7 @@
       });
       files.media.dirty = true;
       renderObjectTab("settings");
-      updateSaveBar();
+      autoPublish();
     });
     document.querySelectorAll("[data-heroid]").forEach(function (b) {
       b.addEventListener("click", function () {
@@ -967,14 +1042,14 @@
           files.media.data.splice(idx, 1);
           files.media.dirty = true;
           renderObjectTab("settings");
-          updateSaveBar();
+          autoPublish();
         } else if (act === "heroedit") {
           var cap = prompt("Caption (optional):", files.media.data[idx].caption || "");
           if (cap === null) return;
           files.media.data[idx].caption = cap.trim();
           files.media.dirty = true;
           renderObjectTab("settings");
-          updateSaveBar();
+          autoPublish();
         }
       });
     });
@@ -1365,7 +1440,7 @@
     }).join("") : '<div class="empty-state" style="margin-top:.8rem;">No hero items yet — the homepage currently uses your MEDIA gallery photos and videos. Upload photos/videos here to take full control of the big changing slideshow.</div>';
     return '<div class="form-card" style="margin-top:1.4rem;">' +
       '<h3 style="font-family:var(--font-head);letter-spacing:.05em;margin:0 0 .4rem;">HOMEPAGE SLIDESHOW</h3>' +
-      '<div class="admin-note" style="margin:0 0 .8rem;">These are the big changing images and videos at the top of the homepage (and every page hero). Hold-select to upload <b>several files at once</b>.</div>' +
+      '<div class="admin-note" style="margin:0 0 .8rem;">These are the big changing images and videos at the top of the homepage (and every page hero). Hold-select to upload <b>several files at once</b>. Every change here <b>publishes to the live site straight away</b> — no SAVE needed. Videos over 40MB are auto-compressed to 720p (no sound); clips longer than 3\u00bd minutes are better on YouTube (ADD BY LINK).</div>' +
       '<button type="button" class="btn btn-yellow btn-sm" id="hero-photo-btn">+ UPLOAD PHOTO(S)</button> ' +
       '<button type="button" class="btn btn-yellow btn-sm" id="hero-video-btn">+ UPLOAD VIDEO(S)</button> ' +
       '<button type="button" class="btn btn-outline btn-sm" id="hero-add-record">ADD BY LINK</button>' +
