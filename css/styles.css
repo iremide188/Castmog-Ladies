@@ -2068,23 +2068,3 @@ html.launch-on body > *:not(#launch-gate):not(.preloader) { visibility: hidden; 
   .lg-slide { transition: opacity 0.25s ease; }
   #launch-gate.lg-out, .lg-welcome { transition: opacity 0.25s ease; }
 }
-
-/* --- launch gate: GET LAUNCH UPDATES fan box --- */
-.lg-fans { margin: 1.1rem auto 0; max-width: 420px; width: calc(100% - 3rem);
-  padding: 0.9rem 1rem 1rem; border: 1px solid rgba(229,195,26,0.35); border-radius: 12px;
-  background: rgba(0,0,0,0.35); backdrop-filter: blur(6px); }
-.lg-fans-t { margin: 0 0 0.6rem; font-size: 0.68rem; letter-spacing: 0.12em;
-  font-weight: 700; color: var(--gold, #e5c31a); text-align: center; }
-.lg-fans input { width: 100%; box-sizing: border-box; padding: 0.6rem 0.8rem;
-  border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; background: rgba(0,0,0,0.45);
-  color: #fff; font-size: 0.9rem; font-family: inherit; outline: none; }
-.lg-fans input:focus { border-color: rgba(229,195,26,0.65); }
-.lg-fans button { display: block; margin: 0.6rem auto 0; padding: 0.55rem 1.4rem;
-  border: 0; border-radius: 999px; background: var(--gold, #e5c31a); color: #111;
-  font-weight: 800; font-size: 0.72rem; letter-spacing: 0.12em; cursor: pointer;
-  font-family: inherit; transition: transform 0.15s ease, opacity 0.15s ease; }
-.lg-fans button:hover { transform: translateY(-1px); }
-.lg-fans button:disabled { opacity: 0.6; transform: none; cursor: default; }
-.lg-fans-msg { min-height: 1.1em; margin: 0.5rem 0 0; font-size: 0.72rem; color: rgba(255,255,255,0.75); text-align: center; }
-.lg-fans-msg.lg-fans-ok { color: var(--gold, #e5c31a); font-weight: 600; }
-@media (max-width: 480px) { .lg-fans { padding: 0.7rem 0.8rem 0.85rem; } .lg-fans input { font-size: 0.85rem; } }
