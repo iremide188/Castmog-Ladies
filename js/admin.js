@@ -1588,6 +1588,18 @@
     } catch (e) { return String(d || ""); }
   }
 
+  /* FAN SIGNUPS from the launch page GET LAUNCH UPDATES box */
+  function fansPanel(fans) {
+    var list = fans || [];
+    var rows = list.map(function (f) {
+      return '<tr><td><b>' + esc(f.contact) + '</b> <span class="chip">' + esc(f.channel || "") + "</span></td><td class='muted'>" + esc(timeAgoLabel(f.date)) + "</td></tr>";
+    }).join("");
+    return '<h3 style="margin:1.2rem 0 0.6rem;">Fan signups \u2014 launch page contacts (' + list.length + ')</h3>' +
+      '<p class="muted" style="margin:0 0 0.6rem;">People who dropped their phone number or gmail in the GET LAUNCH UPDATES box on the countdown page.</p>' +
+      '<table class="table" style="width:100%;"><tr><th>Contact</th><th>When</th></tr>' +
+      (rows || '<tr><td colspan="2" class="muted">No signups yet.</td></tr>') + "</table>";
+  }
+
   function renderTraffic() {
     var main = document.getElementById("admin-main");
     main.innerHTML = head("Traffic") +
@@ -1628,6 +1640,7 @@
         stat(home ? home.count : 0, "Homepage opens") +
         stat(res.soundTaps, "Sound taps") +
         "</div>" +
+        fansPanel(res.fans) +
         '<h3 style="margin:1.2rem 0 0.6rem;">By page</h3>' +
         '<table class="table" style="width:100%;"><tr><th>Page</th><th>Opens</th></tr>' + (rows || '<tr><td colspan="2" class="muted">No traffic yet.</td></tr>') + "</table>" +
         '<h3 style="margin:1.4rem 0 0.6rem;">Recent activity</h3>' +

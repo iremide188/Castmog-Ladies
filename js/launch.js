@@ -79,10 +79,17 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
         '<p class="lg-sub">' + C.esc(L.sub || "OFFICIAL WEBSITE LAUNCH") + '</p>' +
         '<div class="lg-count" role="timer" aria-live="off">' + countUnits() + '</div>' +
         '<p class="lg-btn" aria-hidden="true">' + C.esc(L.btnComing || "COMING SOON") + '</p>' +
+        '<div class="lg-fans" id="lg-fans">' +
+          '<p class="lg-fans-t">GET LAUNCH UPDATES \u2014 DROP YOUR PHONE OR GMAIL</p>' +
+          '<input id="lg-fans-in" type="text" inputmode="email" autocomplete="off" placeholder="e.g. 0803 123 4567 or you@gmail.com" aria-label="Your phone number or gmail">' +
+          '<button id="lg-fans-btn" type="button">NOTIFY ME</button>' +
+          '<p class="lg-fans-msg" id="lg-fans-msg" aria-live="polite"></p>' +
+        '</div>' +
         bline +
         '<p class="lg-welcome" aria-hidden="true">' + C.esc(L.welcome || "WELCOME TO CASTMOG") + '</p>' +
       '</div>';
 
+    wireFans(gate);
     if (bline) gate.classList.add("lg-bday-on"); /* sound button clears the birthday bar */
     bgMount = gate.querySelector(".lg-bg");
     startBackground();
@@ -93,6 +100,39 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
   /* --- SOUND: the launch song (YouTube) starts automatically, muted —
          browsers block unmuted autoplay, so one tap on the SOUND button
          unmutes it; tap again to mute. --- */
+  /* --- GET LAUNCH UPDATES: fans drop a phone number or gmail so the club
+         can see exactly who is interested (listed in the dashboard TRAFFIC tab) --- */
+  function wireFans(gate) {
+    var box = gate.querySelector("#lg-fans");
+    if (!box) return;
+    var input = gate.querySelector("#lg-fans-in");
+    var btn = gate.querySelector("#lg-fans-btn");
+    var msg = gate.querySelector("#lg-fans-msg");
+    function done(text, ok) {
+      msg.textContent = text;
+      msg.className = "lg-fans-msg" + (ok ? " lg-fans-ok" : "");
+      input.value = "";
+    }
+    btn.addEventListener("click", function () {
+      var contact = (input.value || "").trim();
+      if (contact.length < 5) { done("Please enter a valid phone number or gmail.", false); return; }
+      btn.disabled = true; btn.textContent = "SENDING\u2026";
+      fetch("https://superagent-e3f5b6f2.base44.app/functions/castmogFanSignup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contact: contact, source: "launch-gate" })
+      }).then(function (r) { return r.json(); }).then(function (res) {
+        btn.disabled = false; btn.textContent = "NOTIFY ME";
+        if (res && res.ok) done(res.already ? "You are already on the list \u2713" : "You are on the list \u2713 we will reach you at launch.", true);
+        else done("Could not save \u2014 please try again.", false);
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = "NOTIFY ME";
+        done("Could not save \u2014 please try again.", false);
+      });
+    });
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") btn.click(); });
+  }
+
   function track(kind, page) {
     try {
       fetch("https://superagent-e3f5b6f2.base44.app/functions/castmogTrack", {
