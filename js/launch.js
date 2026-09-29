@@ -81,8 +81,10 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
         '<p class="lg-btn" aria-hidden="true">' + C.esc(L.btnComing || "COMING SOON") + '</p>' +
         '<div class="lg-fans" id="lg-fans">' +
           '<p class="lg-fans-t">GET LAUNCH UPDATES \u2014 DROP YOUR PHONE OR GMAIL</p>' +
-          '<input id="lg-fans-in" type="text" inputmode="email" autocomplete="off" placeholder="e.g. 0803 123 4567 or you@gmail.com" aria-label="Your phone number or gmail">' +
-          '<button id="lg-fans-btn" type="button">NOTIFY ME</button>' +
+          '<form id="lg-fans-form" autocomplete="on" novalidate>' +
+            '<input id="lg-fans-in" type="email" name="email" autocomplete="email" placeholder="e.g. you@gmail.com or 0803 123 4567" aria-label="Your gmail or phone number">' +
+            '<button id="lg-fans-btn" type="submit">NOTIFY ME</button>' +
+          '</form>' +
           '<p class="lg-fans-msg" id="lg-fans-msg" aria-live="polite"></p>' +
         '</div>' +
         bline +
@@ -113,7 +115,9 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
       msg.className = "lg-fans-msg" + (ok ? " lg-fans-ok" : "");
       input.value = "";
     }
-    btn.addEventListener("click", function () {
+    var form = gate.querySelector("#lg-fans-form");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
       var contact = (input.value || "").trim();
       if (contact.length < 5) { done("Please enter a valid phone number or gmail.", false); return; }
       btn.disabled = true; btn.textContent = "SENDING\u2026";
@@ -130,7 +134,6 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
         done("Could not save \u2014 please try again.", false);
       });
     });
-    input.addEventListener("keydown", function (e) { if (e.key === "Enter") btn.click(); });
   }
 
   function track(kind, page) {
