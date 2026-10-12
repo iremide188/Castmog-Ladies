@@ -20,7 +20,7 @@
   },
   "colours": "GREEN + YELLOW",
   "bannerImage": "",
-  "alertText": "Happy Birthday to our esteemed Chairman! Wishing you joy, good health, and continued success.",
+  "alertText": "",
   "launch": {
     "enabled": "true",
     "date": "2026-10-16T22:32:00.000Z",
