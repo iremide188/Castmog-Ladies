@@ -2133,7 +2133,7 @@ html.launch-on body > *:not(#launch-gate):not(.preloader) { visibility: hidden; 
 #launch-gate.lg-zero .lg-tvwrap { opacity: 0; transition: opacity 0.6s ease; pointer-events: none; }
 /* keep the whole column — countdown + TV — inside the viewport */
 @media (min-width: 900px) and (min-height: 800px) { .lg-tv { width: min(88vw, 500px); } }
-@media (max-width: 420px) { .lg-mnav { gap: 6px; font-size: 6.5px; } .lg-tv { width: min(92vw, 340px); } }
+@media (max-width: 420px) { .lg-mnav { gap: 6px; font-size: 6.5px; } }
 @media (max-height: 720px) {
   .lg-logo { width: clamp(64px, 12vh, 100px); margin-bottom: 0.8rem; }
   .lg-count .lg-num { font-size: clamp(1.5rem, 4.6vh, 2.6rem); }
@@ -2143,3 +2143,19 @@ html.launch-on body > *:not(#launch-gate):not(.preloader) { visibility: hidden; 
 }
 @media (max-height: 620px) { .lg-tv { width: min(80vw, 300px); } }
 @media (prefers-reduced-motion: reduce) { .lg-tvwrap { animation: none; opacity: 1; } .lg-scene, .lg-cursor { transition: none; } }
+
+/* phones: airy premium column — countdown centered, TV docked under it */
+@media (max-width: 769px) {
+  .lg-tag { display: none; } /* the TV caption carries the look-inside message */
+  .lg-logo { width: clamp(58px, 14vw, 78px); margin-bottom: 0.55rem; }
+  .lg-title { font-size: clamp(1.25rem, 5.6vw, 1.6rem); margin: 0 0 0.35rem; }
+  .lg-sub { font-size: clamp(0.72rem, 2.6vw, 0.95rem); margin: 0.25rem 0 clamp(1rem, 2.6vh, 1.6rem); }
+  .lg-sub::before, .lg-sub::after { width: clamp(1.2rem, 4vw, 2rem); height: 1.5px; }
+  .lg-count .lg-num { font-size: clamp(1.55rem, 7.4vw, 2.3rem); }
+  .lg-count { gap: clamp(0.4rem, 1.6vw, 0.8rem); }
+  .lg-btn { margin: 0; padding: 0.5rem 1.35rem; font-size: 0.62rem; letter-spacing: 0.16em; }
+  .lg-tvwrap { margin: clamp(1.3rem, 3.6vh, 2.2rem) 0 0; }
+  .lg-tv { width: min(92vw, 330px); }
+  .lg-tv-cap { font-size: 0.5rem; letter-spacing: 0.22em; margin: 0 0 0.5rem; }
+  .lg-tv-url { height: 17px; }
+}
