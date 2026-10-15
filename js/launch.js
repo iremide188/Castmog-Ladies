@@ -319,6 +319,10 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
       els.h.textContent = pad(Math.floor((sec % 86400) / 3600));
       els.m.textContent = pad(Math.floor((sec % 3600) / 60));
       els.s.textContent = pad(sec % 60);
+      /* RED ALERT — launch is close: final 24h the countdown burns red,
+         final hour it pulses like an alarm about to blow */
+      gate.classList.toggle("lg-red", sec <= 86400);
+      gate.classList.toggle("lg-final", sec <= 3600);
     }
     tick();
     iv = setInterval(tick, 1000);

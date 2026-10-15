@@ -2068,3 +2068,17 @@ html.launch-on body > *:not(#launch-gate):not(.preloader) { visibility: hidden; 
   .lg-slide { transition: opacity 0.25s ease; }
   #launch-gate.lg-out, .lg-welcome { transition: opacity 0.25s ease; }
 }
+
+/* --- countdown RED ALERT — final 24h before launch --- */
+.lg-red .lg-num { color: #ff2f2f; text-shadow: 0 0 14px rgba(255,47,47,.6), 0 0 42px rgba(255,0,0,.35); animation: lg-red-heart 1s ease-in-out infinite; }
+.lg-red .lg-sep { color: #ff2f2f; text-shadow: 0 0 14px rgba(255,47,47,.6); }
+.lg-red .lg-lab { color: rgba(255,102,102,.92); }
+@keyframes lg-red-heart {
+  0%, 100% { transform: scale(1); text-shadow: 0 0 12px rgba(255,47,47,.5), 0 0 36px rgba(255,0,0,.28); }
+  50% { transform: scale(1.035); text-shadow: 0 0 24px rgba(255,47,47,.95), 0 0 64px rgba(255,0,0,.55); }
+}
+/* final hour: alarm mode — faster heartbeat pulse */
+.lg-final .lg-num, .lg-final .lg-sep { animation: lg-red-heart .55s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .lg-red .lg-num, .lg-final .lg-num, .lg-red .lg-sep, .lg-final .lg-sep { animation: none !important; }
+}
