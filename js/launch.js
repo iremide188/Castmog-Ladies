@@ -81,9 +81,14 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
         '<p class="lg-btn" aria-hidden="true">' + C.esc(L.btnComing || "COMING SOON") + '</p>' +
         bline +
         '<p class="lg-welcome" aria-hidden="true">' + C.esc(L.welcome || "WELCOME TO CASTMOG") + '</p>' +
+      '</div>' +
+      '<div class="lg-reel" aria-hidden="true">' +
+        '<p class="lg-reel-cap">A LOOK INSIDE THE NEW DIGITAL HOME</p>' +
+        '<div class="lg-reel-band"><div class="lg-reel-track">' + reelSet() + reelSet() + '</div></div>' +
       '</div>';
 
     if (bline) gate.classList.add("lg-bday-on"); /* sound button clears the birthday bar */
+    gate.classList.add("lg-reel-on"); /* content clears the bottom reel strip */
     bgMount = gate.querySelector(".lg-bg");
     startBackground();
     wireMusic(gate, L);
@@ -287,6 +292,27 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
       paint();
     });
     paint();
+  }
+
+  /* A LOOK INSIDE — scrolling reel at the bottom of the gate summarizing
+         every part of the new website (duplicated for a seamless loop) */
+  function reelSet() {
+    var defs = [
+      ["01", "THE CLUB", "about Castmog Ladies FA"],
+      ["02", "SQUAD", "player profiles & stats"],
+      ["03", "COACHES", "meet the coaching team"],
+      ["04", "TRAINING", "Mon\u2013Fri from 7AM"],
+      ["05", "MATCH CENTRE", "fixtures \u00b7 results \u00b7 live scores"],
+      ["06", "GALLERY", "training photos & videos"],
+      ["07", "NEWS", "club stories & updates"],
+      ["08", "YOUTUBE", "@castmogfa"],
+      ["09", "APPLY", "join the academy"],
+      ["10", "CONTACT", "WhatsApp & email"]
+    ];
+    return '<div class="lg-reel-set">' + defs.map(function (d) {
+      return '<span class="lg-reel-item"><b>' + d[0] + '</b>' +
+        '<span class="lg-reel-t">' + d[1] + '</span><i>' + d[2] + '</i></span>';
+    }).join("") + '</div>';
   }
 
   function countUnits() {

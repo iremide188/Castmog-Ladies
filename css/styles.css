@@ -2082,3 +2082,37 @@ html.launch-on body > *:not(#launch-gate):not(.preloader) { visibility: hidden; 
 @media (prefers-reduced-motion: reduce) {
   .lg-red .lg-num, .lg-final .lg-num, .lg-red .lg-sep, .lg-final .lg-sep { animation: none !important; }
 }
+
+/* --- A LOOK INSIDE: scrolling reel at the bottom of the gate --- */
+.lg-reel {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 5;
+  padding: 0.75rem 0 0.85rem; border-top: 1px solid rgba(229, 195, 26, 0.25);
+  background: rgba(8, 11, 8, 0.62);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  transition: opacity 0.6s ease;
+}
+.lg-reel-cap {
+  margin: 0 0 0.55rem; font-size: 0.58rem; font-weight: 700;
+  letter-spacing: 0.32em; color: rgba(245, 197, 24, 0.9);
+}
+.lg-reel-band { overflow: hidden; }
+.lg-reel-track {
+  display: flex; gap: 2.4rem; width: max-content;
+  animation: lg-reel-move 48s linear infinite;
+}
+.lg-reel:hover .lg-reel-track { animation-play-state: paused; }
+.lg-reel-set { display: flex; gap: 2.4rem; }
+.lg-reel-item { display: inline-flex; align-items: baseline; gap: 0.5rem; white-space: nowrap; }
+.lg-reel-item b { color: rgba(245, 197, 24, 0.5); font-size: 0.6rem; letter-spacing: 0.12em; }
+.lg-reel-t { color: #fff; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.14em; }
+.lg-reel-item i { font-style: normal; color: rgba(255, 255, 255, 0.55); font-size: 0.68rem; letter-spacing: 0.05em; }
+@keyframes lg-reel-move { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+/* gate content lifts so the COMING SOON button clears the strip */
+#launch-gate.lg-reel-on { padding-bottom: clamp(6.2rem, 13vh, 8rem); }
+/* fade out with the rest at the zero-crossing */
+#launch-gate.lg-zero .lg-reel { opacity: 0; pointer-events: none; }
+@media (max-width: 520px) { .lg-reel-item i { display: none; } .lg-reel-cap { letter-spacing: 0.22em; } }
+@media (prefers-reduced-motion: reduce) {
+  .lg-reel-track { animation: none; }
+  .lg-reel-band { overflow-x: auto; }
+}
