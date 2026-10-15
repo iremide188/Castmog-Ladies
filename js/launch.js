@@ -81,7 +81,6 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
         '<p class="lg-btn" aria-hidden="true">' + C.esc(L.btnComing || "COMING SOON") + '</p>' +
         bline +
         '<p class="lg-welcome" aria-hidden="true">' + C.esc(L.welcome || "WELCOME TO CASTMOG") + '</p>' +
-        tvMarkup() +
       '</div>';
 
     if (bline) gate.classList.add("lg-bday-on"); /* sound button clears the birthday bar */
@@ -90,7 +89,6 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
     startBackground();
     wireMusic(gate, L);
     runCountdown(gate, target);
-    runTV(gate);
   }
 
   /* --- SOUND: the launch song (YouTube) starts automatically, muted —
@@ -290,109 +288,6 @@ var PRELOADER_MAX_WAIT_SECONDS = 7;
       paint();
     });
     paint();
-  }
-
-  /* A LOOK INSIDE \u2014 a TV screen under the countdown where an AI hand
-         walks through the new website: home \u2192 match centre \u2192 squad \u2192 gallery */
-  function tvMarkup() {
-    var nav = function (on) {
-      return '<div class="lg-mnav"><span>CLUB</span><span>SQUAD</span><span class="lg-mc' + (on ? " on" : "") + '">MATCH CENTRE</span><span>GALLERY</span><span>APPLY</span></div>';
-    };
-    var home =
-      '<div class="lg-scene lg-sc-home">' + nav(false) +
-        '<div class="lg-mhero"><span class="lg-mcrest"></span>' +
-        '<p class="lg-mtitle">CASTMOG LADIES FA</p>' +
-        '<p class="lg-mtag">WOMEN\u2019S FOOTBALL \u00b7 NIGERIA</p>' +
-        '<span class="lg-mbtn">ENTER THE CLUB</span></div>' +
-      '</div>';
-    var match =
-      '<div class="lg-scene lg-sc-match">' + nav(true) +
-        '<div class="lg-mbody"><div class="lg-mcard">' +
-          '<p class="lg-live"><i></i>LIVE <b class="lg-tv-min">63\u2032</b></p>' +
-          '<p class="lg-mscore">CASTMOG <span>1 \u2013 0</span> OPPONENT</p>' +
-          '<p class="lg-goal">34\u2032 GOAL \u2014 CASTMOG</p>' +
-        '</div>' +
-        '<p class="lg-mfoot">FIXTURES \u00b7 RESULTS \u00b7 LIVE SCORES</p></div>' +
-      '</div>';
-    var squad =
-      '<div class="lg-scene lg-sc-squad">' + nav(false) +
-        '<div class="lg-mbody"><div class="lg-mcards">' +
-          '<div class="lg-pcard"><span></span><p>PLAYER</p><i>PROFILE \u2192</i></div>' +
-          '<div class="lg-pcard"><span></span><p>PLAYER</p><i>PROFILE \u2192</i></div>' +
-          '<div class="lg-pcard"><span></span><p>PLAYER</p><i>PROFILE \u2192</i></div>' +
-        '</div>' +
-        '<p class="lg-mfoot">PLAYER PROFILES \u00b7 STATS</p></div>' +
-      '</div>';
-    var gallery =
-      '<div class="lg-scene lg-sc-gallery">' + nav(false) +
-        '<div class="lg-mbody"><div class="lg-mtiles"><i></i><i></i><i></i><i></i></div>' +
-        '<p class="lg-mfoot">TRAINING PHOTOS \u00b7 VIDEOS</p></div>' +
-      '</div>';
-    return '<div class="lg-tvwrap" aria-hidden="true">' +
-      '<p class="lg-tv-cap"><i class="lg-tv-dot"></i>A LOOK INSIDE \u2014 THE NEW DIGITAL HOME</p>' +
-      '<div class="lg-tv"><div class="lg-tv-screen">' +
-        '<div class="lg-tv-url"><span class="lg-tv-dots"><i></i><i></i><i></i></span><b>castmog-ladies</b></div>' +
-        home + match + squad + gallery +
-        '<div class="lg-cursor"></div>' +
-      '</div></div></div>';
-  }
-
-  /* the AI hand: scripted cursor waypoints + taps, scene after scene */
-  function runTV(gate) {
-    var rm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var cursor = gate.querySelector(".lg-cursor");
-    var url = gate.querySelector(".lg-tv-url b");
-    var scenes = gate.querySelectorAll(".lg-scene");
-    if (!cursor || !scenes.length) return;
-    var seq = [
-      { cls: "lg-sc-home",    url: "castmog-ladies / home",           wp: [[78, 74], [50, 17], [50, 64]] },
-      { cls: "lg-sc-match",   url: "castmog-ladies / match-centre",   wp: [[22, 32], [50, 46], [50, 80]] },
-      { cls: "lg-sc-squad",   url: "castmog-ladies / squad",          wp: [[76, 64], [29, 58], [71, 58]] },
-      { cls: "lg-sc-gallery", url: "castmog-ladies / gallery",        wp: [[20, 30], [52, 55], [84, 78]] }
-    ];
-    if (rm) { /* still tour, but no cursor choreography */
-      var k = 0;
-      setInterval(function () {
-        if (!gate.isConnected) return;
-        scenes.forEach(function (el) { el.classList.remove("on"); });
-        scenes[k % scenes.length].classList.add("on");
-        if (url) url.textContent = seq[k % seq.length].url;
-        k++;
-      }, 5000);
-      cursor.style.display = "none";
-      return;
-    }
-    var timers = [];
-    function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
-    function place(x, y, instant) {
-      if (instant) cursor.style.transition = "none";
-      cursor.style.left = x + "%"; cursor.style.top = y + "%";
-      if (instant) { void cursor.offsetWidth; cursor.style.transition = ""; }
-    }
-    function tap() { cursor.classList.remove("tap"); void cursor.offsetWidth; cursor.classList.add("tap"); }
-    function phase(sc, p) {
-      sc.classList.remove("ph-a", "ph-b");
-      if (p) sc.classList.add(p);
-    }
-    function play(idx) {
-      var s = seq[idx], sc = gate.querySelector("." + s.cls);
-      scenes.forEach(function (el) { el.classList.remove("on"); phase(el, null); });
-      sc.classList.add("on");
-      if (url) url.textContent = s.url;
-      place(s.wp[0][0], s.wp[0][1], true);
-      at(400,  function () { place(s.wp[1][0], s.wp[1][1]); });
-      at(1900, function () { tap(); phase(sc, "ph-a"); });
-      at(2600, function () { place(s.wp[2][0], s.wp[2][1]); });
-      at(4200, function () { tap(); phase(sc, "ph-b"); });
-      at(6700, function () { phase(sc, null); });
-      at(7000, function () { play((idx + 1) % seq.length); });
-    }
-    play(0);
-    var min = 63, live = gate.querySelector(".lg-tv-min");
-    setInterval(function () {
-      if (!gate.isConnected) return;
-      if (live) live.textContent = (++min) + "\u2032";
-    }, 2400);
   }
 
   function countUnits() {
