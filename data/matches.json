@@ -23,5 +23,30 @@
     "photos": [],
     "videos": [],
     "notes": "Competition Note – Baba Ijebu Competition\n\nAll available match details for the Baba Ijebu Competition in Lagos Island have been updated on the website. Any additional information or changes will be updated accordingly."
+  },
+  {
+    "id": "samba-queens-nk7m",
+    "published": true,
+    "opponent": "SAMBA QUEENS",
+    "opponentLogo": "assets/uploads/opponents/1792176634332-1000562669.png",
+    "date": "",
+    "time": "4:00pm",
+    "competition": "FRIENDLY MATCH",
+    "venue": "",
+    "homeAway": "Away",
+    "status": "scheduled",
+    "liveScoreCastmog": null,
+    "liveScoreOpponent": null,
+    "scorers": [],
+    "scoreCastmog": null,
+    "scoreOpponent": null,
+    "highlight": "",
+    "report": "",
+    "lineup": [],
+    "subs": [],
+    "events": [],
+    "photos": [],
+    "videos": [],
+    "notes": ""
   }
 ]
