@@ -2082,3 +2082,7 @@ html.launch-on body > *:not(#launch-gate):not(.preloader) { visibility: hidden; 
 @media (prefers-reduced-motion: reduce) {
   .lg-red .lg-num, .lg-final .lg-num, .lg-red .lg-sep, .lg-final .lg-sep { animation: none !important; }
 }
+
+/* lineup chips that open a player profile */
+a.lineup-chip, a.lineup-chip:visited { text-decoration: none; color: inherit; cursor: pointer; transition: border-color 0.2s ease, transform 0.2s ease; }
+a.lineup-chip:hover { border-color: var(--yellow); transform: translateY(-2px); }

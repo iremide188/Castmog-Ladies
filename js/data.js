@@ -223,6 +223,47 @@ var MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OC
     return log;
   }
 
+  /* lineup name matching \u2014 "Josephine", "Oladele Josephine", "AKINDELE" all resolve */
+  function normName(n) {
+    return String(n == null ? "" : n).toLowerCase().trim().replace(/[.,]/g, "").replace(/\s+/g, " ");
+  }
+  function playerByName(name) {
+    var nn = normName(name);
+    if (!nn) return null;
+    var ps = (db.players || []).filter(function (p) { return p.published !== false; });
+    var exact = ps.filter(function (p) {
+      return normName(p.name) === nn || (p.nickname && normName(p.nickname) === nn);
+    });
+    if (exact.length === 1) return exact[0];
+    var words = nn.split(" "), last = words[words.length - 1], first = words[0];
+    var byLast = ps.filter(function (p) { return normName(p.name).split(" ").pop() === last; });
+    if (byLast.length === 1) return byLast[0];
+    var byFirst = ps.filter(function (p) { return normName(p.name).split(" ")[0] === first; });
+    if (byFirst.length === 1) return byFirst[0];
+    return null;
+  }
+
+  /* auto appearances \u2014 every Starting XI / Substitutes entry builds the player profile */
+  function appearanceLog() {
+    var log = {};
+    function ap(m, score, started) {
+      return { started: started, opponent: m.opponent || "", competition: m.competition || "", date: m.date || "", score: score };
+    }
+    (db.matches || []).forEach(function (m) {
+      if (!m || m.published === false || m.status !== "finished") return;
+      var score = (m.scoreCastmog != null && m.scoreOpponent != null) ? (m.scoreCastmog + "\u2013" + m.scoreOpponent) : "";
+      (m.lineup || []).forEach(function (n) {
+        var pl = playerByName(n);
+        if (pl) (log[pl.id] = log[pl.id] || []).push(ap(m, score, true));
+      });
+      (m.subs || []).forEach(function (n) {
+        var pl = playerByName(n);
+        if (pl) (log[pl.id] = log[pl.id] || []).push(ap(m, score, false));
+      });
+    });
+    return log;
+  }
+
   function playerById(id) {
     return (db.players || []).filter(function (p) { return p.id === id; })[0] || null;
   }
@@ -457,7 +498,7 @@ var MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OC
     get: get, ready: ready, pub: pub, esc: esc,
     socialIconRow: socialIconRow,
     fmtDate: fmtDate, shortDate: shortDate, weekdayDate: weekdayDate,
-    squad: squad, squadByPosition: squadByPosition, playerById: playerById, goalLog: goalLog,
+    squad: squad, squadByPosition: squadByPosition, playerById: playerById, goalLog: goalLog, playerByName: playerByName, appearanceLog: appearanceLog,
     POS_LABEL: POS_LABEL, POS_ORDER: POS_ORDER,
     upcoming: upcoming, nextMatch: nextMatch, finished: finished, latestResult: latestResult,
     headToHead: headToHead, initials: initials,

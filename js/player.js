@@ -44,11 +44,28 @@
 
     var autoGoals = (C.goalLog()[p.id] || []);
     var totalGoals = (p.goals || 0) + autoGoals.length;
+    var apps = (C.appearanceLog ? C.appearanceLog()[p.id] : null) || [];
+    var starts = apps.filter(function (a) { return a.started; }).length;
+    var subApps = apps.length - starts;
+    var totalApps = (p.appearances || 0) + apps.length;
     html += '<section class="section" style="padding:2rem 0 0;"><div class="stat-strip">' +
-      '<div class="stat-tile"><b>' + C.esc(p.appearances || 0) + '</b><span>Appearances</span></div>' +
+      '<div class="stat-tile"><b>' + C.esc(totalApps) + '</b><span>Appearances</span></div>' +
+      '<div class="stat-tile"><b>' + C.esc(starts) + '</b><span>Started XI</span></div>' +
+      '<div class="stat-tile"><b>' + C.esc(subApps) + '</b><span>As Substitute</span></div>' +
       '<div class="stat-tile"><b>' + C.esc(totalGoals) + '</b><span>Goals</span></div>' +
       '<div class="stat-tile"><b>' + C.esc(p.assists || 0) + '</b><span>Assists</span></div>' +
       "</div>";
+
+    if (apps.length) {
+      html += '<div class="panel" style="margin-top:1.2rem;"><span class="motto" style="color:var(--green);">MATCH LOG &mdash; FROM LINEUPS</span>' +
+        apps.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).map(function (a) {
+          return '<div class="goal-row"><b class="gr-min">' + (a.started ? "XI" : "SUB") + "</b>" +
+            '<span class="gr-main">vs ' + C.esc(a.opponent) +
+            (a.competition ? " &middot; " + C.esc(a.competition) : "") +
+            (a.score ? " &middot; " + C.esc(a.score) : "") + "</span>" +
+            '<span class="gr-date">' + C.fmtDate(a.date) + "</span></div>";
+        }).join("") + "</div>";
+    }
 
     if (autoGoals.length) {
       html += '<div class="panel" style="margin-top:1.2rem;"><span class="motto" style="color:var(--green);">GOAL LOG &mdash; FROM MATCHES</span>' +

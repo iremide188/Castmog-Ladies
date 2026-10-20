@@ -82,18 +82,30 @@
         m.scorers.map(function (s) {
           var nm = typeof s === "string" ? s : (s.name || "");
           var min = (s && s.minute) || "";
-          return '<div class="lineup-chip"><span class="lc-num">' + (min ? C.esc(min) + "&prime;" : "G") + '</span><span class="lc-name">' + C.esc(nm) + "</span></div>";
+          var pl = C.playerByName ? C.playerByName(nm) : null;
+          var inner = '<span class="lc-num">' + (min ? C.esc(min) + "&prime;" : "G") + '</span><span class="lc-name">' + C.esc(nm) + "</span>";
+          return pl
+            ? '<a class="lineup-chip lc-link" href="player.html?id=' + C.esc(pl.id) + '">' + inner + "</a>"
+            : '<div class="lineup-chip">' + inner + "</div>";
         }).join("") + "</div></div>";
     }
 
     if (m.report) html += '<div style="margin-top:1.4rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.5rem;">MATCH REPORT</h3><p style="color:rgba(244,247,241,0.88);">' + C.esc(m.report).replace(/\n/g, "<br>") + "</p></div>";
     if (m.lineup && m.lineup.length) html += '<div style="margin-top:1.2rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.7rem;">STARTING XI</h3><div class="lineup-grid">' +
       m.lineup.map(function (n, i) {
-        return '<div class="lineup-chip"><span class="lc-num">' + (i + 1) + '</span><span class="lc-name">' + C.esc(n) + "</span></div>";
+        var pl = C.playerByName ? C.playerByName(n) : null;
+        var inner = '<span class="lc-num">' + (i + 1) + '</span><span class="lc-name">' + C.esc(n) + "</span>";
+        return pl
+          ? '<a class="lineup-chip lc-link" href="player.html?id=' + C.esc(pl.id) + '">' + inner + "</a>"
+          : '<div class="lineup-chip">' + inner + "</div>";
       }).join("") + "</div></div>";
     if (m.subs && m.subs.length) html += '<div style="margin-top:1rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.7rem;">SUBSTITUTES</h3><div class="lineup-grid">' +
       m.subs.map(function (n) {
-        return '<div class="lineup-chip"><span class="lc-num lc-bench">B</span><span class="lc-name">' + C.esc(n) + "</span></div>";
+        var pl = C.playerByName ? C.playerByName(n) : null;
+        var inner = '<span class="lc-num lc-bench">B</span><span class="lc-name">' + C.esc(n) + "</span>";
+        return pl
+          ? '<a class="lineup-chip lc-link" href="player.html?id=' + C.esc(pl.id) + '">' + inner + "</a>"
+          : '<div class="lineup-chip">' + inner + "</div>";
       }).join("") + "</div></div>";
     if (m.events && m.events.length) html += '<div style="margin-top:0.9rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.4rem;">MATCH EVENTS</h3><ul style="color:var(--muted);font-size:0.92rem;padding-left:1.2rem;">' + m.events.map(function (e) { return "<li>" + C.esc(e) + "</li>"; }).join("") + "</ul></div>";
     if (m.photos && m.photos.length) html += '<div style="margin-top:0.9rem;"><div class="media-grid" style="margin-top:0.8rem;">' + m.photos.map(function (u) {
