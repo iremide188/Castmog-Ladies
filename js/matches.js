@@ -94,14 +94,17 @@
     var seenSheet = {};
     function sheetOnce(list, bench) {
       return list.filter(function (n) {
-        var pl = C.playerByName ? C.playerByName(n) : null;
-        var key = pl ? "p:" + pl.id : "n:" + String(n).trim().toLowerCase();
+        var nm = typeof n === "string" ? n : (n && n.name) || "";
+        var pl = C.playerByName ? (C.playerById && n && n.id ? C.playerById(n.id) : null) || C.playerByName(nm) : null;
+        var key = pl ? "p:" + pl.id : "n:" + String(nm).trim().toLowerCase();
         if (seenSheet[key]) return false;
         seenSheet[key] = 1;
         return true;
       }).map(function (n, i) {
-        var pl = C.playerByName ? C.playerByName(n) : null;
-        var inner = '<span class="lc-num' + (bench ? " lc-bench" : "") + '">' + (bench ? "B" : (i + 1)) + '</span><span class="lc-name">' + C.esc(n) + "</span>";
+        var nm = typeof n === "string" ? n : (n && n.name) || "";
+        var pos = (n && n.position) || "";
+        var pl = C.playerByName ? (C.playerById && n && n.id ? C.playerById(n.id) : null) || C.playerByName(nm) : null;
+        var inner = '<span class="lc-num' + (bench ? " lc-bench" : "") + '">' + (bench ? "B" : (i + 1)) + '</span><span class="lc-name">' + C.esc(nm) + (pos ? '<em class="lc-pos">' + C.esc(pos) + "</em>" : "") + "</span>";
         return pl
           ? '<a class="lineup-chip lc-link" href="player.html?id=' + C.esc(pl.id) + '">' + inner + "</a>"
           : '<div class="lineup-chip">' + inner + "</div>";

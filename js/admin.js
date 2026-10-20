@@ -248,7 +248,7 @@
         F("scoreCastmog", "Final score — Castmog (after the match)", "number"),
         F("scoreOpponent", "Final score — Opponent (after the match)", "number"),
         F("highlight", "MATCH HIGHLIGHT \u2014 upload the video from your device, or paste a YouTube link", "media", ["matches"]),
-        F("report", "Match report", "textarea"), F("lineup", "Starting lineup", "list"),
+        F("report", "Match report", "textarea"), F("lineup", "Starting XI (player + position played)", "lineup"),
         F("subs", "Substitutes", "list"), F("events", "Match events", "list"),
         F("photos", "Match photo URLs", "list"), F("videos", "Match video IDs/URLs", "list"),
         F("notes", "Notes", "textarea")
@@ -480,6 +480,45 @@
 
   /* ---------- goalscorer rows (select from the squad) ---------- */
 
+  /* squad name matching for legacy lineup strings */
+  function adminFindPlayer(name) {
+    function norm(x) { return String(x || "").toLowerCase().trim().replace(/[.,]/g, "").replace(/\s+/g, " "); }
+    var nn = norm(name);
+    if (!nn) return null;
+    var ps = ((files.players && files.players.data) || []).filter(function (p) { return p.published !== false; });
+    var exact = ps.filter(function (p) { return norm(p.name) === nn || (p.nickname && norm(p.nickname) === nn); });
+    if (exact.length === 1) return exact[0];
+    var byLast = ps.filter(function (p) { return norm(p.name).split(" ").pop() === nn.split(" ").pop(); });
+    if (byLast.length === 1) return byLast[0];
+    var byFirst = ps.filter(function (p) { return norm(p.name).split(" ")[0] === nn.split(" ")[0]; });
+    if (byFirst.length === 1) return byFirst[0];
+    return null;
+  }
+
+  var LINEUP_POS = ["GK", "RB", "CB", "LB", "DM", "CM", "AM", "RW", "LW", "ST"];
+
+  function lineupRowHtml(entry) {
+    entry = entry || {};
+    var pid = entry.id || "";
+    var players = (files.players && files.players.data) || [];
+    var opts = '<option value="">\u2014 select player \u2014</option>';
+    players.forEach(function (p) {
+      var v = p.id || "";
+      opts += '<option value="' + esc(v) + '"' + (v && v === pid ? " selected" : "") + ">#" + esc(p.number || "-") + " \u2014 " + esc(p.name || "(unnamed)") + "</option>";
+    });
+    if (!pid && entry.name) {
+      opts += '<option value="' + esc("__keep:" + entry.name) + '" selected>' + esc(entry.name) + " \u2014 not matched, re-pick if she is in the squad</option>";
+    }
+    var posOpts = '<option value="">\u2014 position \u2014</option>' + LINEUP_POS.map(function (x) {
+      return '<option value="' + x + '"' + (entry.position === x ? " selected" : "") + ">" + x + "</option>";
+    }).join("");
+    return '<div class="scorer-row lineup-row">' +
+      '<select class="sr-player">' + opts + "</select>" +
+      '<select class="sr-pos">' + posOpts + "</select>" +
+      '<button type="button" class="btn btn-red btn-sm sr-del">REMOVE</button>' +
+      "</div>";
+  }
+
   function scorerRowHtml(entry, oldMap) {
     entry = entry || {};
     var pid = entry.id || "";
@@ -516,6 +555,12 @@
           inner = '<div class="scorer-box" id="mf-' + f.key + '"></div>' +
             '<button type="button" class="btn btn-outline btn-sm" id="mf-' + f.key + '-add">+ ADD GOALSCORER</button>' +
             '<div class="iu-status">Pick players from your squad and add the goal minute if you know it.</div>';
+          return divider + '<div class="field field-wide"><label>' + esc(f.label) + "</label>" + inner + "</div>";
+        }
+        if (f.type === "lineup") {
+          inner = '<div class="scorer-box" id="mf-' + f.key + '"></div>' +
+            '<button type="button" class="btn btn-outline btn-sm" id="mf-' + f.key + '-add">+ ADD PLAYER</button>' +
+            '<div class="iu-status">Pick each starter from your squad, then set the position she played. Positions show automatically on her player profile.</div>';
           return divider + '<div class="field field-wide"><label>' + esc(f.label) + "</label>" + inner + "</div>";
         }
         if (f.type === "image") {
@@ -643,6 +688,30 @@
       addGoalBtn.addEventListener("click", function () { addScorerRow(null); });
     }
 
+    /* starting XI rows */
+    var lineupBox = modal.querySelector("#mf-lineup");
+    if (lineupBox) {
+      var addLnBtn = document.getElementById("mf-lineup-add");
+      var addLnRow = function (entry) {
+        var w = document.createElement("div");
+        w.innerHTML = lineupRowHtml(entry);
+        var row = w.firstChild;
+        row.querySelector(".sr-del").addEventListener("click", function () { row.remove(); });
+        lineupBox.appendChild(row);
+      };
+      var lnEntries = Array.isArray(getVal(record, "lineup")) ? getVal(record, "lineup") : [];
+      lnEntries.forEach(function (e) {
+        var entry = typeof e === "string" ? { name: e } : (e || {});
+        if (!entry.id && entry.name) {
+          var pl = adminFindPlayer(entry.name);
+          if (pl) { entry.id = pl.id; entry.name = pl.name; }
+        }
+        addLnRow(entry);
+      });
+      if (lnEntries.length < 11) for (var li = lnEntries.length; li < 11; li++) addLnRow(null);
+      if (addLnBtn) addLnBtn.addEventListener("click", function () { addLnRow(null); });
+    }
+
     /* live mode: jump straight to the LIVE score fields */
     if (modalOpts.liveMode) {
       ["mf-liveScoreCastmog", "mf-liveScoreOpponent"].forEach(function (id) {
@@ -671,6 +740,21 @@
 
     document.getElementById("modal-save").addEventListener("click", function () {
       cfg.fields.forEach(function (f) {
+        if (f.type === "lineup") {
+          var pByIdLn = {};
+          ((files.players && files.players.data) || []).forEach(function (p) { if (p.id) pByIdLn[p.id] = p; });
+          var lnRows = Array.prototype.slice.call(modal.querySelectorAll("#mf-" + f.key + " .lineup-row"));
+          setVal(record, f.key, lnRows.map(function (row) {
+            var sel = row.querySelector(".sr-player");
+            var posEl = row.querySelector(".sr-pos");
+            var pid = sel ? sel.value : "";
+            if (!pid) return null;
+            if (pid.indexOf("__keep:") === 0) return { name: pid.slice(7), position: posEl ? posEl.value : "" };
+            var p = pByIdLn[pid];
+            return { id: pid, name: p ? p.name : pid, position: posEl ? posEl.value : "" };
+          }).filter(Boolean));
+          return;
+        }
         if (f.type === "scorers") {
           var oldSc = {};
           (Array.isArray(getVal(record, f.key)) ? getVal(record, f.key) : []).forEach(function (s) { if (s && s.id) oldSc[s.id] = s; });

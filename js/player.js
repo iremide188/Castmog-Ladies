@@ -61,6 +61,7 @@
         apps.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).map(function (a) {
           return '<div class="goal-row"><b class="gr-min">' + (a.started ? "XI" : "SUB") + "</b>" +
             '<span class="gr-main">vs ' + C.esc(a.opponent) +
+            (a.position ? " &middot; " + C.esc(a.position) : "") +
             (a.competition ? " &middot; " + C.esc(a.competition) : "") +
             (a.score ? " &middot; " + C.esc(a.score) : "") + "</span>" +
             '<span class="gr-date">' + C.fmtDate(a.date) + "</span></div>";

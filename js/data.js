@@ -246,8 +246,8 @@ var MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OC
   /* auto appearances \u2014 every Starting XI / Substitutes entry builds the player profile */
   function appearanceLog() {
     var log = {};
-    function ap(m, score, started) {
-      return { started: started, opponent: m.opponent || "", competition: m.competition || "", date: m.date || "", score: score };
+    function ap(m, score, started, position) {
+      return { started: started, position: position || "", opponent: m.opponent || "", competition: m.competition || "", date: m.date || "", score: score };
     }
     (db.matches || []).forEach(function (m) {
       if (!m || m.published === false || m.status !== "finished") return;
@@ -255,11 +255,13 @@ var MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OC
       /* each player counts ONCE per match — an XI entry always wins over a sub entry */
       var seen = {};
       function once(n, started) {
-        var pl = playerByName(n);
-        var key = pl ? "p:" + pl.id : "n:" + normName(n);
+        var name = typeof n === "string" ? n : (n && n.name) || "";
+        var pos = (n && n.position) || "";
+        var pl = (n && n.id && playerById(n.id)) || playerByName(name);
+        var key = pl ? "p:" + pl.id : "n:" + normName(name);
         if (seen[key]) return;
         seen[key] = 1;
-        if (pl) (log[pl.id] = log[pl.id] || []).push(ap(m, score, started));
+        if (pl) (log[pl.id] = log[pl.id] || []).push(ap(m, score, started, pos));
       }
       (m.lineup || []).forEach(function (n) { once(n, true); });
       (m.subs || []).forEach(function (n) { once(n, false); });

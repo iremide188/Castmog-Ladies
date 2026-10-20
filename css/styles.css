@@ -2086,3 +2086,7 @@ html.launch-on body > *:not(#launch-gate):not(.preloader) { visibility: hidden; 
 /* lineup chips that open a player profile */
 a.lineup-chip, a.lineup-chip:visited { text-decoration: none; color: inherit; cursor: pointer; transition: border-color 0.2s ease, transform 0.2s ease; }
 a.lineup-chip:hover { border-color: var(--yellow); transform: translateY(-2px); }
+
+/* position played, shown inside lineup chips and profile match log */
+.lineup-row { grid-template-columns: 1fr 120px auto; }
+.lc-pos { font-style: normal; color: var(--muted); font-size: 0.64em; letter-spacing: 0.1em; margin-left: 0.4em; text-transform: uppercase; }
