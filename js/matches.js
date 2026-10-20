@@ -91,22 +91,26 @@
     }
 
     if (m.report) html += '<div style="margin-top:1.4rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.5rem;">MATCH REPORT</h3><p style="color:rgba(244,247,241,0.88);">' + C.esc(m.report).replace(/\n/g, "<br>") + "</p></div>";
-    if (m.lineup && m.lineup.length) html += '<div style="margin-top:1.2rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.7rem;">STARTING XI</h3><div class="lineup-grid">' +
-      m.lineup.map(function (n, i) {
+    var seenSheet = {};
+    function sheetOnce(list, bench) {
+      return list.filter(function (n) {
         var pl = C.playerByName ? C.playerByName(n) : null;
-        var inner = '<span class="lc-num">' + (i + 1) + '</span><span class="lc-name">' + C.esc(n) + "</span>";
+        var key = pl ? "p:" + pl.id : "n:" + String(n).trim().toLowerCase();
+        if (seenSheet[key]) return false;
+        seenSheet[key] = 1;
+        return true;
+      }).map(function (n, i) {
+        var pl = C.playerByName ? C.playerByName(n) : null;
+        var inner = '<span class="lc-num' + (bench ? " lc-bench" : "") + '">' + (bench ? "B" : (i + 1)) + '</span><span class="lc-name">' + C.esc(n) + "</span>";
         return pl
           ? '<a class="lineup-chip lc-link" href="player.html?id=' + C.esc(pl.id) + '">' + inner + "</a>"
           : '<div class="lineup-chip">' + inner + "</div>";
-      }).join("") + "</div></div>";
-    if (m.subs && m.subs.length) html += '<div style="margin-top:1rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.7rem;">SUBSTITUTES</h3><div class="lineup-grid">' +
-      m.subs.map(function (n) {
-        var pl = C.playerByName ? C.playerByName(n) : null;
-        var inner = '<span class="lc-num lc-bench">B</span><span class="lc-name">' + C.esc(n) + "</span>";
-        return pl
-          ? '<a class="lineup-chip lc-link" href="player.html?id=' + C.esc(pl.id) + '">' + inner + "</a>"
-          : '<div class="lineup-chip">' + inner + "</div>";
-      }).join("") + "</div></div>";
+      });
+    }
+    var xiChips = m.lineup && m.lineup.length ? sheetOnce(m.lineup, false) : [];
+    var subChips = m.subs && m.subs.length ? sheetOnce(m.subs, true) : [];
+    if (xiChips.length) html += '<div style="margin-top:1.2rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.7rem;">STARTING XI</h3><div class="lineup-grid">' + xiChips.join("") + "</div></div>";
+    if (subChips.length) html += '<div style="margin-top:1rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.7rem;">SUBSTITUTES</h3><div class="lineup-grid">' + subChips.join("") + "</div></div>";
     if (m.events && m.events.length) html += '<div style="margin-top:0.9rem;"><h3 style="font-family:var(--font-head);text-transform:uppercase;margin-bottom:0.4rem;">MATCH EVENTS</h3><ul style="color:var(--muted);font-size:0.92rem;padding-left:1.2rem;">' + m.events.map(function (e) { return "<li>" + C.esc(e) + "</li>"; }).join("") + "</ul></div>";
     if (m.photos && m.photos.length) html += '<div style="margin-top:0.9rem;"><div class="media-grid" style="margin-top:0.8rem;">' + m.photos.map(function (u) {
       return '<div class="media-item"><img src="' + C.esc(u) + '" alt="Match photo" loading="lazy"></div>';

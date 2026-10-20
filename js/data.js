@@ -252,14 +252,17 @@ var MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OC
     (db.matches || []).forEach(function (m) {
       if (!m || m.published === false || m.status !== "finished") return;
       var score = (m.scoreCastmog != null && m.scoreOpponent != null) ? (m.scoreCastmog + "\u2013" + m.scoreOpponent) : "";
-      (m.lineup || []).forEach(function (n) {
+      /* each player counts ONCE per match — an XI entry always wins over a sub entry */
+      var seen = {};
+      function once(n, started) {
         var pl = playerByName(n);
-        if (pl) (log[pl.id] = log[pl.id] || []).push(ap(m, score, true));
-      });
-      (m.subs || []).forEach(function (n) {
-        var pl = playerByName(n);
-        if (pl) (log[pl.id] = log[pl.id] || []).push(ap(m, score, false));
-      });
+        var key = pl ? "p:" + pl.id : "n:" + normName(n);
+        if (seen[key]) return;
+        seen[key] = 1;
+        if (pl) (log[pl.id] = log[pl.id] || []).push(ap(m, score, started));
+      }
+      (m.lineup || []).forEach(function (n) { once(n, true); });
+      (m.subs || []).forEach(function (n) { once(n, false); });
     });
     return log;
   }
