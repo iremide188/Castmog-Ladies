@@ -96,26 +96,66 @@
     "competition": "FRIENDLY MATCH",
     "venue": "Olomore, ita oshin",
     "homeAway": "Away",
-    "status": "scheduled",
+    "status": "finished",
     "liveScoreCastmog": null,
     "liveScoreOpponent": null,
     "scorers": [],
-    "scoreCastmog": null,
-    "scoreOpponent": null,
+    "scoreCastmog": 0,
+    "scoreOpponent": 0,
     "highlight": "",
     "report": "",
     "lineup": [
-      "AKINDELE TAIBAT",
-      "ODEYIOLA ITUNUOLUWA",
-      "ONI BOLUWATIFE",
-      "AKANNI MORUFA",
-      "OLALEKAN BUNMI",
-      "EGBERONGBE MONSURAT",
-      "AYODELE AYOMIDE",
-      "OTUADINMA CHIAMAKA",
-      "SOLOMON PRECIOUS",
-      "EGBONWON BOLUWATIFE",
-      "OGUWBONA MISTURA"
+      {
+        "id": "akindele-taibat-abiodun",
+        "name": "Akindele Taibat Abiodun",
+        "position": ""
+      },
+      {
+        "id": "odeyiola-itunuoluwa",
+        "name": "Odeyiola Itunuoluwa",
+        "position": ""
+      },
+      {
+        "id": "oni-boluwatife",
+        "name": "Oni Boluwatife",
+        "position": ""
+      },
+      {
+        "name": "AKANNI MORUFA",
+        "position": ""
+      },
+      {
+        "id": "olalekan-bunmi",
+        "name": "Olalekan Bunmi",
+        "position": ""
+      },
+      {
+        "id": "egberongbe-monsurat-95qe",
+        "name": "Egberongbe Monsurat",
+        "position": ""
+      },
+      {
+        "id": "ayodele-ayomide",
+        "name": "Ayodele Ayomide",
+        "position": ""
+      },
+      {
+        "name": "OTUADINMA CHIAMAKA",
+        "position": ""
+      },
+      {
+        "name": "SOLOMON PRECIOUS",
+        "position": ""
+      },
+      {
+        "id": "oni-boluwatife",
+        "name": "Oni Boluwatife",
+        "position": ""
+      },
+      {
+        "name": "OGUWBONA MISTURA",
+        "position": ""
+      }
     ],
     "subs": [
       "FAKEYE OLUWANIFEMI",
