@@ -5,19 +5,81 @@
     "opponent": "SAMBA QUEENS",
     "opponentLogo": "assets/uploads/opponents/1792138869471-1000562669.png",
     "date": "2026-10-26",
-    "time": "2:00 PM",
+    "time": "12:00 PM",
     "competition": "BABA IJEBU",
     "venue": "Mobolaji Johnson Arena, Onikan Stadium Lagos Island, Lagos.",
     "homeAway": "Home",
-    "status": "scheduled",
-    "liveScoreCastmog": null,
-    "liveScoreOpponent": null,
-    "scorers": [],
-    "scoreCastmog": null,
-    "scoreOpponent": null,
+    "status": "finished",
+    "liveScoreCastmog": 1,
+    "liveScoreOpponent": 0,
+    "scorers": [
+      {
+        "id": "ayodele-ayomide",
+        "name": "Ayodele Ayomide",
+        "minute": "28"
+      }
+    ],
+    "scoreCastmog": 1,
+    "scoreOpponent": 0,
     "highlight": "",
     "report": "",
-    "lineup": [],
+    "lineup": [
+      {
+        "id": "akindele-taibat-abiodun",
+        "name": "Akindele Taibat Abiodun",
+        "position": "GK"
+      },
+      {
+        "id": "odeyiola-itunuoluwa",
+        "name": "Odeyiola Itunuoluwa",
+        "position": "CB"
+      },
+      {
+        "id": "edeh-linda",
+        "name": "Edeh Linda",
+        "position": "CB"
+      },
+      {
+        "id": "olalekan-bunmi",
+        "name": "Olalekan Bunmi",
+        "position": "CB"
+      },
+      {
+        "id": "oni-boluwatife",
+        "name": "Oni Boluwatife",
+        "position": ""
+      },
+      {
+        "id": "ayodele-ayomide",
+        "name": "Ayodele Ayomide",
+        "position": ""
+      },
+      {
+        "id": "fakeye-oluwanifemi",
+        "name": "Fakeye Oluwanifemi",
+        "position": ""
+      },
+      {
+        "id": "dosunmu-temitope",
+        "name": "Dosunmu Temitope",
+        "position": ""
+      },
+      {
+        "id": "egberongbe-monsurat-95qe",
+        "name": "Egberongbe Monsurat",
+        "position": ""
+      },
+      {
+        "id": "chiamaka-otunadinma-yw6x",
+        "name": "Chiamaka Otunadinma",
+        "position": ""
+      },
+      {
+        "id": "goodluck-diamond-tk1o",
+        "name": "Goodluck Diamond",
+        "position": ""
+      }
+    ],
     "subs": [],
     "events": [],
     "photos": [],
